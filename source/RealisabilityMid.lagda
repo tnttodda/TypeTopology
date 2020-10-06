@@ -346,36 +346,11 @@ M-seq-inf a b a≤b α = cs , ds , cs≤cs , ds≤ds , γ -- cs , ds , {!!} , {!
   cs≤cs n = {!!}
   ds≤ds : decreasing ds
   ds≤ds = {!!}
-  IH₂ : (h : 𝕀) (n : ℕ) → affine (cs n) (ds n) (M ({!!} ∶∶ (tail- n) α))
+  IH₂ : (h : 𝕀) (n : ℕ) → affine (cs n) (ds n) (M (h ∶∶ (tail- n) α))
                 ≡ affine (cs (succ n)) (ds (succ n)) (M ((tail- n) α))
   IH₂ n = {!!}
    
 𝕀-induction = {!!}
-
-{-
-is-interval-object : (𝓘 : Convex-body 𝓤) (𝓥 : Universe) → ⟨ 𝓘 ⟩ → ⟨ 𝓘 ⟩ → 𝓤 ⊔ 𝓥 ⁺ ̇
-is-interval-object 𝓘 𝓥 u v =
-    (𝓐 : Convex-body 𝓥) (a b : ⟨ 𝓐 ⟩) -- h = affine a b
-   → ∃! h ꞉ (⟨ 𝓘 ⟩ → ⟨ 𝓐 ⟩) , (h u ≡ a)
-                            × (h v ≡ b)
-                            × ((x y : ⟨ 𝓘 ⟩) → h (x ⊕⟨ 𝓘 ⟩ y) ≡ h x ⊕⟨ 𝓐 ⟩ h y)
--}
-
-affine-cancellation : (x y b c : 𝕀)
-                    → affine x y b ≡ affine x y c
-                    → b ≡ c
-affine-cancellation x y b c = {!!}
-
-u-cancellation : (a b c : 𝕀) → u ⊕ b ≡ u ⊕ c → b ≡ c
-u-cancellation a b c u⊕b≡u⊕c = {!!}
- -- affine u (u ⊕ v) b ≡ affine u (u ⊕ v) c
- -- affine u v b ≡ affine u v c
-
-v-cancellation : (a b c : 𝕀) → v ⊕ b ≡ v ⊕ c → b ≡ c
-v-cancellation = {!!}
-
-M-cancellation : {!!}
-M-cancellation = {!!}
 
 cancellation : (a b c : 𝕀) → a ⊕ b ≡ a ⊕ c → b ≡ c
 cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
@@ -390,8 +365,7 @@ m zero (x ∷ []) = x
 m (succ n) (x ∷ xs) = x ⊕ m n xs
 
 constant-vec : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n
-constant-vec x zero = []
-constant-vec x (succ n) = x ∷ constant-vec x n
+constant-vec x n = (first- n) (λ _ → x)
 
 append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
 append-one y zero [] = y ∷ []
@@ -404,17 +378,43 @@ approximation = (x y : ℕ → 𝕀)
                  ≡ m n (append-one w n ((first- n) y)))
               → M x ≡ M y
 
-first-constant-≡ : (x : 𝕀) (n : ℕ) → (first- n) (λ _ → x) ≡ constant-vec x n
-first-constant-≡ x zero = refl
-first-constant-≡ x (succ n) = ap (x ∷_) (first-constant-≡ x n)
+unfold : (y : ℕ → 𝕀) (n : ℕ) (x : 𝕀)
+       → (m n ((first- succ n) y)) ⊕ x
+       ≡ (m (succ n) (append-one x (succ n) ((first- succ n) y)))
+unfold y zero x = refl
+unfold y (succ zero) x = {!!}
+unfold y (succ (succ n)) x = {!!}
+
+cancellation-implies-approximation : cancellative fe _⊕_ → approximation
+cancellation-implies-approximation c x y f
+ = {!!}
+ where
+  onesided : (x : 𝕀)
+           → (Π n ꞉ ℕ , Σ w ꞉ 𝕀 , x ≡ m n (append-one w n ((first- n) y)))
+           → x ≡ M y
+  onesided x g = {!!} where
+    w : ℕ → 𝕀
+    w n = pr₁ (g n)
+    w-eq : (n : ℕ) → w n ≡ y n ⊕ w (succ n)
+    w-eq 0 = pr₂ (g 0) ⁻¹ ∙ pr₂ (g 1) 
+    w-eq (succ n)
+     = c (w (succ n)) (y (succ n) ⊕ w (succ (succ n))) (y n)
+          {!!}
+  next : (x y : ℕ → 𝕀) (n : ℕ)
+       → M (λ i → x i ⊕ y i)
+       ≡ (m (succ n) (append-one (y n) (succ n) ((first- succ n) x)))
+       ⊕ (M ((first- n) y ++ λ i → x (succ (n +ℕ i)) ⊕ y (succ (n +ℕ i))))
+  next x y zero = M-prop₁ (λ i → x i ⊕ y i)
+                ∙ ap (λ - → (x 0 ⊕ y 0) ⊕ M -)
+                  (dfunext (fe 𝓤₀ 𝓤) 
+                  (λ i → ap (λ - → x (succ -) ⊕ y (succ -))
+                         (zero-left-neutral i ⁻¹)))
+  next x y (succ n) = {!!}
 
 approximation-implies-cancellation : approximation → cancellative fe _⊕_
 approximation-implies-cancellation f x y z x⊕z≡y⊕z
  = transport (_≡ y) (M-idem x) (transport (M (λ _ → x) ≡_) (M-idem y)
-   (f (λ _ → x) (λ _ → y) (λ n → z , z ,
-      (ap (λ - → m n (append-one z n -)) (first-constant-≡ x n)
-     ∙ m-idem n
-     ∙ ap (λ - → m n (append-one z n -)) (first-constant-≡ y n ⁻¹)))))
+   (f (λ _ → x) (λ _ → y) (λ n → z , z , m-idem n)))
  where
    m-idem : (n : ℕ)
           → m n (append-one z n (constant-vec x n))
@@ -422,25 +422,19 @@ approximation-implies-cancellation f x y z x⊕z≡y⊕z
    m-idem zero = refl
    m-idem (succ zero) = x⊕z≡y⊕z
    m-idem (succ (succ n))
-    = x ⊕ (x ⊕ w)
-    ≡⟨ ap (_⊕ (x ⊕ w)) (⊕-idem ⁻¹) ⟩
-      (x ⊕ x) ⊕ (x ⊕ w)
-    ≡⟨ ap ((x ⊕ x) ⊕_) (m-idem (succ n) ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
-      (x ⊕ x) ⊕ (y ⊕ w)
-    ≡⟨ ⊕-tran ⟩
-      (x ⊕ y) ⊕ (x ⊕ w)
-    ≡⟨ ap ((x ⊕ y) ⊕_) (m-idem (succ n) ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
-      (x ⊕ y) ⊕ (y ⊕ w)
-    ≡⟨ ap (_⊕ (y ⊕ w)) ⊕-comm ⟩
-      (y ⊕ x) ⊕ (y ⊕ w)
-    ≡⟨ ⊕-tran ⟩
-      (y ⊕ y) ⊕ (x ⊕ w)
-    ≡⟨ ap ((y ⊕ y) ⊕_) (m-idem (succ n) ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
-      (y ⊕ y) ⊕ (y ⊕ w)
-    ≡⟨ ap (_⊕ (y ⊕ w)) ⊕-idem ⟩
-      y ⊕ (y ⊕ w)
-    ≡⟨ ap (λ - → y ⊕ (y ⊕ -)) (m-idem n) ⟩
-      (y ⊕ (y ⊕ w')) ∎
+    =    x    ⊕ (x ⊕ w)  ≡⟨ ap (_⊕ (x ⊕ w)) (⊕-idem ⁻¹) ⟩
+      (x ⊕ x) ⊕ (x ⊕ w)  ≡⟨ ap ((x ⊕ x) ⊕_) (m-idem (succ n)
+                          ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
+      (x ⊕ x) ⊕ (y ⊕ w)  ≡⟨ ⊕-tran ⟩
+      (x ⊕ y) ⊕ (x ⊕ w)  ≡⟨ ap ((x ⊕ y) ⊕_) (m-idem (succ n)
+                          ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
+      (x ⊕ y) ⊕ (y ⊕ w)  ≡⟨ ap (_⊕ (y ⊕ w)) ⊕-comm ⟩
+      (y ⊕ x) ⊕ (y ⊕ w)  ≡⟨ ⊕-tran ⟩
+      (y ⊕ y) ⊕ (x ⊕ w)  ≡⟨ ap ((y ⊕ y) ⊕_) (m-idem (succ n)
+                          ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
+      (y ⊕ y) ⊕ (y ⊕ w)  ≡⟨ ap (_⊕ (y ⊕ w)) ⊕-idem ⟩
+         y    ⊕ (y ⊕ w)  ≡⟨ ap (λ - → y ⊕ (y ⊕ -)) (m-idem n) ⟩
+         y    ⊕ (y ⊕ w') ∎
     where
       w  = m n (append-one z n (constant-vec x n))
       w' = m n (append-one z n (constant-vec y n))      
