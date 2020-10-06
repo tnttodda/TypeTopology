@@ -389,12 +389,6 @@ m : (n : ℕ) → Vec 𝕀 (succ n) → 𝕀
 m zero (x ∷ []) = x
 m (succ n) (x ∷ xs) = x ⊕ m n xs
 
-approximation : 𝓤 ̇
-approximation = (x y : ℕ → 𝕀)
-              → (Π n ꞉ ℕ , Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
-                 , m n ((first- (succ n)) x) ≡ m n ((first- succ n) y))
-              → M x ≡ M y
-
 constant-vec : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n
 constant-vec x zero = []
 constant-vec x (succ n) = x ∷ constant-vec x n
@@ -403,10 +397,24 @@ append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
 append-one y zero [] = y ∷ []
 append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
 
+approximation : 𝓤 ̇
+approximation = (x y : ℕ → 𝕀)
+              → (Π n ꞉ ℕ , Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+                 , m n (append-one z n ((first- n) x))
+                 ≡ m n (append-one w n ((first- n) y)))
+              → M x ≡ M y
+
+first-constant-≡ : (x : 𝕀) (n : ℕ) → (first- n) (λ _ → x) ≡ constant-vec x n
+first-constant-≡ x zero = refl
+first-constant-≡ x (succ n) = ap (x ∷_) (first-constant-≡ x n)
+
 approximation-implies-cancellation : approximation → cancellative fe _⊕_
 approximation-implies-cancellation f x y z x⊕z≡y⊕z
  = transport (_≡ y) (M-idem x) (transport (M (λ _ → x) ≡_) (M-idem y)
-   {!!})
+   (f (λ _ → x) (λ _ → y) (λ n → z , z ,
+      (ap (λ - → m n (append-one z n -)) (first-constant-≡ x n)
+     ∙ m-idem n
+     ∙ ap (λ - → m n (append-one z n -)) (first-constant-≡ y n ⁻¹)))))
  where
    m-idem : (n : ℕ)
           → m n (append-one z n (constant-vec x n))
