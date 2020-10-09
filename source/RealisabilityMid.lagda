@@ -244,22 +244,23 @@ open is-ordered or hiding (M)
             → (x : 𝕀) → P x
              
 ≤-affine : (a b i : 𝕀) → a ≤ b → a ≤ affine a b i × affine a b i ≤ b
-≤-affine a b i a≤b = 𝕀-induction (λ i → a ≤ affine a b i) (λ _ → ≤-prop-valued)
-                       (transport (a ≤_) (affine-equation-l a b ⁻¹) <-irreflexive)
-                       (λ α f → transport (a ≤_)
-                                  (⊕-homs-are-M-homs
-                                    (affine a b) (affine-is-⊕-homomorphism a b) α ⁻¹)
-                                (≤-⊕ₘ f))
-                       (transport (a ≤_) (affine-equation-r a b ⁻¹) a≤b)
-                       i
-                   , 𝕀-induction (λ i → affine a b i ≤ b) (λ _ → ≤-prop-valued)
-                       (transport (_≤ b) (affine-equation-l a b ⁻¹) a≤b)
-                       (λ α f → transport (_≤ b)
-                                  (⊕-homs-are-M-homs
-                                    (affine a b) (affine-is-⊕-homomorphism a b) α ⁻¹)
-                                (≤-⊕ₘ' f))
-                       (transport (_≤ b) (affine-equation-r a b ⁻¹) <-irreflexive)
-                       i
+≤-affine a b i a≤b
+ = 𝕀-induction (λ i → a ≤ affine a b i) (λ _ → ≤-prop-valued)
+     (transport (a ≤_) (affine-equation-l a b ⁻¹) <-irreflexive)
+     (λ α f → transport (a ≤_)
+             (⊕-homs-are-M-homs
+             (affine a b) (affine-is-⊕-homomorphism a b) α ⁻¹)
+             (≤-⊕ₘ f))
+     (transport (a ≤_) (affine-equation-r a b ⁻¹) a≤b)
+     i
+ , 𝕀-induction (λ i → affine a b i ≤ b) (λ _ → ≤-prop-valued)
+     (transport (_≤ b) (affine-equation-l a b ⁻¹) a≤b)
+     (λ α f → transport (_≤ b)
+              (⊕-homs-are-M-homs
+              (affine a b) (affine-is-⊕-homomorphism a b) α ⁻¹)
+              (≤-⊕ₘ' f))
+     (transport (_≤ b) (affine-equation-r a b ⁻¹) <-irreflexive)
+     i
                        
 M-seq-eq : (a b : 𝕀) → a ≤ b
          → (i : 𝕀) (α : ℕ → 𝕀)
@@ -387,19 +388,23 @@ unfold y (succ (succ n)) x = {!!}
 
 cancellation-implies-approximation : cancellative fe _⊕_ → approximation
 cancellation-implies-approximation c x y f
- = {!!}
+ = M x ≡⟨ c (M x) (M y) (M z) {!!} ⟩
+   M y ∎ 
  where
+  z w : ℕ → 𝕀
+  z n = {!!}
+  w n = {!!}
   onesided : (x : 𝕀)
            → (Π n ꞉ ℕ , Σ w ꞉ 𝕀 , x ≡ m n (append-one w n ((first- n) y)))
            → x ≡ M y
   onesided x g = {!!} where
-    w : ℕ → 𝕀
+    {- w : ℕ → 𝕀
     w n = pr₁ (g n)
     w-eq : (n : ℕ) → w n ≡ y n ⊕ w (succ n)
     w-eq 0 = pr₂ (g 0) ⁻¹ ∙ pr₂ (g 1) 
     w-eq (succ n)
      = c (w (succ n)) (y (succ n) ⊕ w (succ (succ n))) (y n)
-          {!!}
+          {!!} -}
   next : (x y : ℕ → 𝕀) (n : ℕ)
        → M (λ i → x i ⊕ y i)
        ≡ (m (succ n) (append-one (y n) (succ n) ((first- succ n) x)))
@@ -409,8 +414,36 @@ cancellation-implies-approximation c x y f
                   (dfunext (fe 𝓤₀ 𝓤) 
                   (λ i → ap (λ - → x (succ -) ⊕ y (succ -))
                          (zero-left-neutral i ⁻¹)))
-  next x y (succ n) = {!!}
-
+  next x y (succ n)
+   = M-prop₁ (λ i → x i ⊕ y i)
+   ∙ ap ((x 0 ⊕ y 0) ⊕_) (next (x ∘ succ) (y ∘ succ) n)
+   ∙ ⊕-tran
+   ∙ ap ((x 0 ⊕ m (succ n)
+         (append-one (y (succ n)) (succ n) ((first- (succ n)) (x ∘ succ))))
+         ⊕_)
+        (ap (λ - → y 0 ⊕ M (((first- n) (y ∘ succ)) ++ -))
+          (dfunext (fe 𝓤₀ 𝓤)
+          (λ i → ap (λ - → x (succ -) ⊕ y (succ -))
+                 (δ n i)))
+        ∙ M-prop₁ ((first- succ n) y ++ (λ i → x (succ (succ n +ℕ i))
+                  ⊕ y (succ (succ n +ℕ i)))) ⁻¹)
+    where
+      δ : (n i : ℕ) → succ (n +ℕ i) ≡ succ n +ℕ i
+      δ n zero = refl
+      δ n (succ i) = ap succ (δ n i)
+  seven : (n : ℕ) → M x ⊕ M z ≡ {!!}
+  seven n = M x ⊕ M z             ≡⟨ M-hom x z ⟩
+            M (λ i → x i ⊕ z i)   ≡⟨ next x z n ⟩
+            (m (succ n) (append-one (z n) (succ n) ((first- succ n) x)) ⊕
+               M ((first- n) z ++ (λ i → x (succ (n +ℕ i))
+                 ⊕ z (succ (n +ℕ i)))))
+                                  ≡⟨ ? ⟩
+            (m (succ n) (append-one (w n) (succ n) ((first- succ n) y)) ⊕
+              M ((first- n) z ++ (λ i → y (succ (n +ℕ i))
+                 ⊕ z (succ (n +ℕ i)))))
+                                  ≡⟨ next y z n ⁻¹ ⟩
+            {!!}                  ∎
+  
 approximation-implies-cancellation : approximation → cancellative fe _⊕_
 approximation-implies-cancellation f x y z x⊕z≡y⊕z
  = transport (_≡ y) (M-idem x) (transport (M (λ _ → x) ≡_) (M-idem y)
