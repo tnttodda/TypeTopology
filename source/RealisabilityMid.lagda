@@ -12,7 +12,7 @@ module RealisabilityMid
  (𝓤 : Universe)
  (fe : FunExt)
  (io : Interval-object fe 𝓤)
- (hd : has-double fe 𝓤 io)
+ (db : has-double fe 𝓤 io)
  (pt : propositional-truncations-exist)
  (or : is-ordered fe pt io)
  where
@@ -24,7 +24,7 @@ open import NaturalsAddition renaming (_+_ to _+ℕ_)
 open import UF-Subsingletons
 open import UF-Subsingletons-FunExt
 
-open basic-interval-object-development fe io hd
+open basic-interval-object-development fe io db
 
 -- Define the code types
 
@@ -220,6 +220,9 @@ _++_ : {A : 𝓥 ̇} {n : ℕ} → Vec A n → (ℕ → A) → ℕ → A
 [] ++ s = s
 (x ∷ v) ++ s = x ∶∶ (v ++ s)
 
+hd : {A : 𝓥 ̇ } {n : ℕ} → Vec A (succ n) → A
+hd (x ∷ _) = x
+
 first-_ : {A : 𝓥 ̇ } (n : ℕ) → (ℕ → A) → Vec A n
 (first- 0) a = []
 (first- succ n) a = head a ∷ (first- n) (tail a)
@@ -281,50 +284,61 @@ M-seq-eq a b a≤b i α = c , d , a≤c , c≤d , d≤b , γ
     ∙ affine-is-⊕-homomorphism a b i (M α)
     ∙ affine-⊕-l (affine a b i) a b (M α)
 
-tail-_ : {A : 𝓥 ̇ } (n : ℕ) → (ℕ → A) → (ℕ → A)
-(tail- 0) α = α
-(tail- succ n) α = (tail- n) (tail α)
-
 increasing decreasing : (ℕ → 𝕀) → 𝓤₀ ̇
 increasing α = (n : ℕ) → α n        ≤ α (succ n)
 decreasing α = (n : ℕ) → α (succ n) ≤ α n
 
-
-M-thing : (a b : 𝕀) → a ≤ b → {n : ℕ}
-          → (v : Vec 𝕀 n) (α : ℕ → 𝕀)
-          → Σ c ꞉ 𝕀 , Σ d ꞉ 𝕀 ,
-            (a ≤ c)
-          × (c ≤ d)
-          × (d ≤ b)
-          × (affine a b (M (v ++ α)) ≡ affine c d (M α))
-M-thing a b a≤b [] α = a , b , ≤-reflexive , a≤b , ≤-reflexive , refl
-M-thing a b a≤b (x ∷ v) α = IHc , IHd , ≤-trans Ha≤c IHa≤c , IHc≤d , ≤-trans IHd≤b Hd≤b
-                            , (Hγ ∙ IHγ)
- where
-  H = M-seq-eq a b a≤b x (v ++ α)
-  Hc   = pr₁ H
-  Hd   = pr₁ (pr₂ H)
-  Ha≤c = pr₁ (pr₂ (pr₂ H))
-  Hc≤d = pr₁ (pr₂ (pr₂ (pr₂ H)))
-  Hd≤b = pr₁ (pr₂ (pr₂ (pr₂ (pr₂ H))))
-  Hγ : affine a b (M (x ∶∶ (v ++ α))) ≡
-         affine (pr₁ H) (pr₁ (pr₂ H)) (M (v ++ α))
-  Hγ   = pr₂ (pr₂ (pr₂ (pr₂ (pr₂ H))))
-  IH = M-thing Hc Hd Hc≤d v α
-  IHc   = pr₁ IH
-  IHd   = pr₁ (pr₂ IH)
-  IHa≤c = pr₁ (pr₂ (pr₂ IH))
-  IHc≤d = pr₁ (pr₂ (pr₂ (pr₂ IH)))
-  IHd≤b = pr₁ (pr₂ (pr₂ (pr₂ (pr₂ IH))))
-  IHγ : affine Hc Hd (M (v ++ α)) ≡ affine (pr₁ IH) (pr₁ (pr₂ IH)) (M α)
-  IHγ   = pr₂ (pr₂ (pr₂ (pr₂ (pr₂ IH))))
+tail-_ : {A : 𝓥 ̇ } (n : ℕ) → (ℕ → A) → (ℕ → A)
+(tail- 0) α = α
+(tail- succ n) α = (tail- n) (tail α)
 
 first-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A) → ((first- n) α ++ (tail- n) α) ≡ α
 first-tail-eq 0 α = refl
 first-tail-eq {𝓥} (succ n) α = dfunext (fe 𝓤₀ 𝓥) γ where
   γ : ((first- succ n) α ++ (tail- succ n) α) ∼ α
   γ 0 = refl
-  γ (succ i) = happly (first-tail-eq n (tail α)) i 
+  γ (succ i) = happly (first-tail-eq n (tail α)) i
+
+n-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A) → (tail- n) α ≡ (α n ∶∶ (tail- n) (α ∘ succ))
+n-tail-eq 0 α = first-tail-eq 1 α ⁻¹
+n-tail-eq {𝓥} (succ n) α = n-tail-eq n (α ∘ succ)
+
+M-thing : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
+        → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
+        , (increasing cs)
+        × ((n : ℕ) → cs n ≤ ds n)
+        × (decreasing ds)
+        × ((n : ℕ) → affine a b (M ((first- n) α ++ (tail- n) α)) ≡ affine (cs n) (ds n) (M ((tail- n) α)))
+M-thing a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ 
+ where
+  cs ds : ℕ → 𝕀
+  cs≤ds : (n : ℕ) → cs n ≤ ds n
+  IH : (n : ℕ) → Σ c ꞉ 𝕀 , Σ d ꞉ 𝕀 
+                 , (cs n ≤ c)
+                 × (c ≤ d)
+                 × (d ≤ ds n)
+                 × (affine (cs n) (ds n) (M (α n ∶∶ (tail- succ n) α)) ≡ affine c d (M ((tail- succ n) α)))
+  IH n = M-seq-eq (cs n) (ds n) (cs≤ds n) (α n) ((tail- succ n) α)
+  cs 0 = a
+  cs (succ n) = pr₁ (IH n)
+  ds 0 = b
+  ds (succ n) = pr₁ (pr₂ (IH n))
+  cs≤ds 0 = a≤b
+  cs≤ds (succ n) = pr₁ (pr₂ (pr₂ (pr₂ (IH n))))
+  cs→ : increasing cs
+  cs→ n = pr₁ (pr₂ (pr₂ (IH n)))
+  ←ds : decreasing ds
+  ←ds n = pr₁ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
+  γ : (n : ℕ) → affine a b (M ((first- n) α ++ (tail- n) α)) ≡ affine (cs n) (ds n) (M ((tail- n) α))
+  γ 0 = refl
+  γ (succ n) = ap (affine a b) (ap M (first-tail-eq (succ n) α ∙ first-tail-eq n α ⁻¹))
+             ∙ γ n
+             ∙ ap (affine (cs n) (ds n)) (ap M (n-tail-eq n α))
+             ∙ pr₂ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
+
+append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
+append-one y zero [] = y ∷ []
+append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
 
 M-seq-inf : (a b : 𝕀) → a ≤ b
           → (α : ℕ → 𝕀)
@@ -333,23 +347,7 @@ M-seq-inf : (a b : 𝕀) → a ≤ b
           × ((n : ℕ)
           → affine a      b      (M α)
           ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-M-seq-inf a b a≤b α = cs , ds , cs≤cs , ds≤ds , γ -- cs , ds , {!!} , {!!} , γ
- where
-  IH = λ n → M-thing a b a≤b ((first- n) α) ((tail- n) α) 
-  cs = λ n → pr₁ (IH n)
-  ds = λ n → pr₁ (pr₂ (IH n))
-  γ : (n : ℕ) → affine a b (M α) ≡ affine (cs n) (ds n) (M ((tail- n) α))
-  γ n = transport
-          (λ - → affine a b (M -) ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-          (first-tail-eq n α)
-          (pr₂ (pr₂ (pr₂ (pr₂ (pr₂ (IH n))))))
-  cs≤cs : increasing cs
-  cs≤cs n = {!!}
-  ds≤ds : decreasing ds
-  ds≤ds = {!!}
-  IH₂ : (h : 𝕀) (n : ℕ) → affine (cs n) (ds n) (M (h ∶∶ (tail- n) α))
-                ≡ affine (cs (succ n)) (ds (succ n)) (M ((tail- n) α))
-  IH₂ n = {!!}
+M-seq-inf a b a≤b α = {!!}
    
 𝕀-induction = {!!}
 
@@ -394,10 +392,6 @@ m (succ n) (x ∷ xs) = x ⊕ m n xs
 
 constant-vec : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n
 constant-vec x n = (first- n) (λ _ → x)
-
-append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
-append-one y zero [] = y ∷ []
-append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
 
 approximation : 𝓤 ̇
 approximation = (x y : ℕ → 𝕀)
