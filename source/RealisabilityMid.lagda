@@ -303,13 +303,13 @@ n-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A) → (tail- n) α ≡ (α n
 n-tail-eq 0 α = first-tail-eq 1 α ⁻¹
 n-tail-eq {𝓥} (succ n) α = n-tail-eq n (α ∘ succ)
 
-M-thing : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
-        → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
-        , (increasing cs)
-        × ((n : ℕ) → cs n ≤ ds n)
-        × (decreasing ds)
-        × ((n : ℕ) → affine a b (M ((first- n) α ++ (tail- n) α)) ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-M-thing a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ 
+M-seq-inf : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
+          → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
+          , (increasing cs)
+          × ((n : ℕ) → cs n ≤ ds n)
+          × (decreasing ds)
+          × ((n : ℕ) → affine a b (M α) ≡ affine (cs n) (ds n) (M ((tail- n) α)))
+M-seq-inf a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ 
  where
   cs ds : ℕ → 𝕀
   cs≤ds : (n : ℕ) → cs n ≤ ds n
@@ -329,10 +329,9 @@ M-thing a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ
   cs→ n = pr₁ (pr₂ (pr₂ (IH n)))
   ←ds : decreasing ds
   ←ds n = pr₁ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
-  γ : (n : ℕ) → affine a b (M ((first- n) α ++ (tail- n) α)) ≡ affine (cs n) (ds n) (M ((tail- n) α))
+  γ : (n : ℕ) → affine a b (M α) ≡ affine (cs n) (ds n) (M ((tail- n) α))
   γ 0 = refl
-  γ (succ n) = ap (affine a b) (ap M (first-tail-eq (succ n) α ∙ first-tail-eq n α ⁻¹))
-             ∙ γ n
+  γ (succ n) = γ n
              ∙ ap (affine (cs n) (ds n)) (ap M (n-tail-eq n α))
              ∙ pr₂ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
 
@@ -340,15 +339,6 @@ append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
 append-one y zero [] = y ∷ []
 append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
 
-M-seq-inf : (a b : 𝕀) → a ≤ b
-          → (α : ℕ → 𝕀)
-          → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀) ,
-            increasing cs × decreasing ds
-          × ((n : ℕ)
-          → affine a      b      (M α)
-          ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-M-seq-inf a b a≤b α = {!!}
-   
 𝕀-induction = {!!}
 
 u-sequence : (a : ℕ → 𝕀) → u ≡ M a → (n : ℕ) → u ≡ a n
