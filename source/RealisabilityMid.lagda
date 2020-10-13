@@ -353,13 +353,40 @@ M-seq-inf a b a≤b α = cs , ds , cs≤cs , ds≤ds , γ -- cs , ds , {!!} , {!
    
 𝕀-induction = {!!}
 
+u-sequence : (a : ℕ → 𝕀) → u ≡ M a → (n : ℕ) → u ≡ a n
+u-sequence a u≡Ma n = {!!}
+
 cancellation : (a b c : 𝕀) → a ⊕ b ≡ a ⊕ c → b ≡ c
 cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
                        (λ _ → Π-is-prop (fe 𝓤 𝓤) (λ _ → 𝕀-set))
-                       {!!}
+                       u-cancellation
                        {!!}
                        {!!}
                        a
+ where
+   uv-cancellation' : u ≡ (u ⊕ v) → v ≡ (v ⊕ u)
+   uv-cancellation' p = {!!}
+   uv-cancellation : (u ⊕ u) ≡ (u ⊕ v) → u ≡ v
+   uv-cancellation p = {!-- provable from the above!}
+   uM-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ u) ≡ (u ⊕ a n) → u ≡ a n)
+                                 → (u ⊕ u) ≡ (u ⊕ M a) → u ≡ M a
+   uM-cancellation a f p = {!-- if we have u-sequence, provable!}
+    where
+      g : u ≡ M (λ n → u ⊕ a n)
+      g = {!!}
+   u-cancellation : (u ⊕ b) ≡ (u ⊕ c) → b ≡ c
+   u-cancellation = 𝕀-induction (λ b → (u ⊕ b) ≡ (u ⊕ c) → b ≡ c) (λ _ → Π-is-prop (fe 𝓤 𝓤) (λ _ → 𝕀-set))
+                     (𝕀-induction (λ c → (u ⊕ u) ≡ (u ⊕ c) → u ≡ c) {!!} (λ _ → refl) {!!} {!uv-cancellation!} c)
+                     (𝕀-induction
+                        (λ c →
+                           (a : ℕ → 𝕀) →
+                           ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ c) → a n ≡ c) →
+                           (u ⊕ M a) ≡ (u ⊕ c) → M a ≡ c)
+                        {!!} {!!} {!!} {!!} c)
+                     {!!}
+                     b
+
+-- affine x y b ≡ affine x y c → x ≢ y → b ≡ c
 
 m : (n : ℕ) → Vec 𝕀 (succ n) → 𝕀
 m zero (x ∷ []) = x
@@ -379,32 +406,49 @@ approximation = (x y : ℕ → 𝕀)
                  ≡ m n (append-one w n ((first- n) y)))
               → M x ≡ M y
 
-unfold : (y : ℕ → 𝕀) (n : ℕ) (x : 𝕀)
-       → (m n ((first- succ n) y)) ⊕ x
-       ≡ (m (succ n) (append-one x (succ n) ((first- succ n) y)))
-unfold y zero x = refl
-unfold y (succ zero) x = {!!}
-unfold y (succ (succ n)) x = {!!}
+approximation' : 𝓤 ̇
+approximation' = (x y : ℕ → 𝕀)
+               → (Σ z ꞉ (ℕ → 𝕀) , Σ w ꞉ (ℕ → 𝕀) , Π n ꞉ ℕ
+                  , m n (append-one (z n) n ((first- n) x))
+                  ≡ m n (append-one (w n) n ((first- n) y)))
+               → M x ≡ M y
+
+unfold : cancellative fe _⊕_
+       → (x : 𝕀) (y : ℕ → 𝕀) (w : ℕ → 𝕀)
+       → ((n : ℕ) → x ≡ m n (append-one (w n) n ((first- n) y)))
+       → (i : ℕ) → Σ z ꞉ 𝕀
+       , (((z ⊕ w i) ≡ m i (append-one (w i) i ((first- i) y)))
+       × (m (succ i) (append-one (w (succ i)) (succ i) ((first- succ i) y))
+          ≡ (z ⊕ (y i ⊕ w (succ i)))))
+unfold c x y w f zero = w 0 , ⊕-idem , {!!}
+unfold c x y w f (succ i) = {!!}
+
+one-sided-approximation : cancellative fe _⊕_
+                      → (x : 𝕀) (y : ℕ → 𝕀)
+                      → (Σ w ꞉ (ℕ → 𝕀) , Π n ꞉ ℕ
+                      , x ≡ m n (append-one (w n) n ((first- n) y)))
+                      → x ≡ M y
+one-sided-approximation c x y (w , f) = {!!} -- M-prop₂ w' y (induction (f 0 ∙ γ 0) (λ k _ → γ (succ k)))
+ where
+   w' : ℕ → 𝕀
+   w' 0 = x
+   w' (succ n) = w (succ n)
+   p : x ≡ w 0
+   p = f 0
+   γ : (i : ℕ) → w i ≡ (y i ⊕ w (succ i))
+   γ i = c (w i) (y i ⊕ w (succ i)) {!pr₁ !}
+         (⊕-comm ∙ pr₁ (pr₂ (unfold c x y w f i))
+          ∙ f i ⁻¹ ∙ f (succ i)
+          ∙ {!!} ∙ ⊕-comm)
 
 cancellation-implies-approximation : cancellative fe _⊕_ → approximation
 cancellation-implies-approximation c x y f
- = M x ≡⟨ c (M x) (M y) (M z) {!!} ⟩
+ = M x ≡⟨ c (M x) (M y) (M z) (seven 0) ⟩
    M y ∎ 
  where
   z w : ℕ → 𝕀
-  z n = {!!}
-  w n = {!!}
-  onesided : (x : 𝕀)
-           → (Π n ꞉ ℕ , Σ w ꞉ 𝕀 , x ≡ m n (append-one w n ((first- n) y)))
-           → x ≡ M y
-  onesided x g = {!!} where
-    {- w : ℕ → 𝕀
-    w n = pr₁ (g n)
-    w-eq : (n : ℕ) → w n ≡ y n ⊕ w (succ n)
-    w-eq 0 = pr₂ (g 0) ⁻¹ ∙ pr₂ (g 1) 
-    w-eq (succ n)
-     = c (w (succ n)) (y (succ n) ⊕ w (succ (succ n))) (y n)
-          {!!} -}
+  z n = pr₁ (f (succ n))
+  w n = pr₁ (pr₂ (f (succ n)))
   next : (x y : ℕ → 𝕀) (n : ℕ)
        → M (λ i → x i ⊕ y i)
        ≡ (m (succ n) (append-one (y n) (succ n) ((first- succ n) x)))
@@ -431,27 +475,33 @@ cancellation-implies-approximation c x y f
       δ : (n i : ℕ) → succ (n +ℕ i) ≡ succ n +ℕ i
       δ n zero = refl
       δ n (succ i) = ap succ (δ n i)
-  seven : (n : ℕ) → M x ⊕ M z ≡ {!!}
+  seven : (n : ℕ) → M x ⊕ M z ≡ M y ⊕ M z
   seven n = M x ⊕ M z             ≡⟨ M-hom x z ⟩
             M (λ i → x i ⊕ z i)   ≡⟨ next x z n ⟩
-            (m (succ n) (append-one (z n) (succ n) ((first- succ n) x)) ⊕
-               M ((first- n) z ++ (λ i → x (succ (n +ℕ i))
-                 ⊕ z (succ (n +ℕ i)))))
-                                  ≡⟨ ? ⟩
-            (m (succ n) (append-one (w n) (succ n) ((first- succ n) y)) ⊕
-              M ((first- n) z ++ (λ i → y (succ (n +ℕ i))
-                 ⊕ z (succ (n +ℕ i)))))
-                                  ≡⟨ next y z n ⁻¹ ⟩
-            {!!}                  ∎
+            {!!}                 ≡⟨ one-sided-approximation c _ (λ i → y i ⊕ z i) {!!} ⟩
+            M (λ i → y i ⊕ z i) ≡⟨ M-hom y z ⁻¹ ⟩
+            M y ⊕ M z  ∎
+   where
+     γ : (j : ℕ) → M (λ i → x i ⊕ z i) ≡ m j (append-one (w j) j ((first- j) (λ i → y i ⊕ z i)))
+     γ j = M (λ i → x i ⊕ z i)
+                               ≡⟨ next x z j ⟩
+           (m (succ j) (append-one (z j) (succ j) ((first- succ j) x))
+             ⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
+                               ≡⟨ ap (_⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
+                                     (pr₂ (pr₂ (f (succ j)))) ⟩
+           (m (succ j) (append-one (w j) (succ j) ((first- succ j) y))
+             ⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
+                               ≡⟨ {!next y z j ⁻¹!} ⟩
+           {!!} ≡⟨ {!!} ⟩
+           m j (append-one (w j) j ((first- j) (λ i → y i ⊕ z i))) ∎
   
 approximation-implies-cancellation : approximation → cancellative fe _⊕_
 approximation-implies-cancellation f x y z x⊕z≡y⊕z
  = transport (_≡ y) (M-idem x) (transport (M (λ _ → x) ≡_) (M-idem y)
    (f (λ _ → x) (λ _ → y) (λ n → z , z , m-idem n)))
  where
-   m-idem : (n : ℕ)
-          → m n (append-one z n (constant-vec x n))
-          ≡ m n (append-one z n (constant-vec y n))
+   m-idem : (n : ℕ) → m n (append-one z n (constant-vec x n))
+                    ≡ m n (append-one z n (constant-vec y n))
    m-idem zero = refl
    m-idem (succ zero) = x⊕z≡y⊕z
    m-idem (succ (succ n))
