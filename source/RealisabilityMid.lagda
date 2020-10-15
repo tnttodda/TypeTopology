@@ -299,7 +299,8 @@ first-tail-eq {𝓥} (succ n) α = dfunext (fe 𝓤₀ 𝓥) γ where
   γ 0 = refl
   γ (succ i) = happly (first-tail-eq n (tail α)) i
 
-n-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A) → (tail- n) α ≡ (α n ∶∶ (tail- n) (α ∘ succ))
+n-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A)
+          → (tail- n) α ≡ (α n ∶∶ (tail- n) (α ∘ succ))
 n-tail-eq 0 α = first-tail-eq 1 α ⁻¹
 n-tail-eq {𝓥} (succ n) α = n-tail-eq n (α ∘ succ)
 
@@ -308,7 +309,9 @@ M-seq-inf : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
           , (increasing cs)
           × ((n : ℕ) → cs n ≤ ds n)
           × (decreasing ds)
-          × ((n : ℕ) → affine a b (M α) ≡ affine (cs n) (ds n) (M ((tail- n) α)))
+          × ((n : ℕ)
+            → affine a b (M α)
+            ≡ affine (cs n) (ds n) (M ((tail- n) α)))
 M-seq-inf a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ 
  where
   cs ds : ℕ → 𝕀
@@ -317,7 +320,8 @@ M-seq-inf a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ
                  , (cs n ≤ c)
                  × (c ≤ d)
                  × (d ≤ ds n)
-                 × (affine (cs n) (ds n) (M (α n ∶∶ (tail- succ n) α)) ≡ affine c d (M ((tail- succ n) α)))
+                 × (affine (cs n) (ds n) (M (α n ∶∶ (tail- succ n) α))
+                  ≡ affine c d (M ((tail- succ n) α)))
   IH n = M-seq-eq (cs n) (ds n) (cs≤ds n) (α n) ((tail- succ n) α)
   cs 0 = a
   cs (succ n) = pr₁ (IH n)
@@ -334,6 +338,26 @@ M-seq-inf a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ
   γ (succ n) = γ n
              ∙ ap (affine (cs n) (ds n)) (ap M (n-tail-eq n α))
              ∙ pr₂ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
+
+M-seq-inf-uv : (α : ℕ → 𝕀)
+             → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
+             , (increasing cs)
+             × ((n : ℕ) → cs n ≤ ds n)
+             × (decreasing ds)
+             × ((n : ℕ)
+               → M α
+               ≡ affine (cs n) (ds n) (M ((tail- n) α)))
+M-seq-inf-uv α = transport
+                   (λ - → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
+                        , (increasing cs)
+                        × ((n : ℕ) → cs n ≤ ds n)
+                        × (decreasing ds)
+                        × ((n : ℕ)
+                          → -
+                          ≡ affine (cs n) (ds n) (M ((tail- n) α))))
+                 (happly affine-uv-identity (M α))
+                 (M-seq-inf u v u≤v α)
+
 
 append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
 append-one y zero [] = y ∷ []
@@ -396,6 +420,15 @@ approximation' = (x y : ℕ → 𝕀)
                   , m n (append-one (z n) n ((first- n) x))
                   ≡ m n (append-one (w n) n ((first- n) y)))
                → M x ≡ M y
+
+approx→approx' : approximation → approximation'
+approx→approx' f x y (zs , ws , γ) = f x y (λ n → zs n , ws n , γ n)
+
+approx'→approx : approximation' → approximation
+approx'→approx f x y g = f x y
+                           ((λ n → pr₁ (g n))
+                         , ((λ n → pr₁ (pr₂ (g n)))
+                         , (λ n → pr₂ (pr₂ (g n)))))
 
 unfold : cancellative fe _⊕_
        → (x : 𝕀) (y : ℕ → 𝕀) (w : ℕ → 𝕀)

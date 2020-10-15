@@ -81,6 +81,9 @@ record is-ordered (io : Interval-object 𝓤) : 𝓤₁ ⊔ 𝓤 ̇ where
   _≤_  : 𝕀 → 𝕀 → 𝓤₀ ̇  
   x ≤  y = y ≮ x
 
+  u≤v : u ≤ v
+  u≤v v<u = <-asymmetric v<u u<v
+
   ≤-trichotomous : {x y : 𝕀} → x < y + y ≤ x
   ≤-trichotomous = <-decidable
 
