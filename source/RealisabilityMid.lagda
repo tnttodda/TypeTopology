@@ -17,10 +17,13 @@ module RealisabilityMid
  (or : is-ordered fe pt io)
  where
 
-open import UF-Base
+open import UF-Base hiding (_≈_)
 open import DiscreteAndSeparated
 open import Sequence fe
 open import NaturalsAddition renaming (_+_ to _+ℕ_)
+open import NaturalsOrder renaming (_≤_ to _≤ℕ_
+                                  ; _<_ to _<ℕ_
+                                  ; ≤-trans to ≤ℕ-trans)
 open import UF-Subsingletons
 open import UF-Subsingletons-FunExt
 
@@ -228,14 +231,15 @@ first-_ : {A : 𝓥 ̇ } (n : ℕ) → (ℕ → A) → Vec A n
 (first- succ n) a = head a ∷ (first- n) (tail a)
 
 affine-⊕-l : (x a b y : 𝕀) → x ⊕ affine a b y ≡ affine (x ⊕ a) (x ⊕ b) y
-affine-⊕-l x a b y = affine-uniqueness· (λ y → x ⊕ affine a b y) (x ⊕ a) (x ⊕ b)
-                         (ap (x ⊕_) (affine-equation-l a b))
-                         (ap (x ⊕_) (affine-equation-r a b))
-                         (λ z y →
-                           (ap (x ⊕_) (affine-is-⊕-homomorphism a b z y))
-                           ∙ ap (_⊕ (affine a b z ⊕ affine a b y)) (⊕-idem ⁻¹)
-                           ∙ ⊕-tran)
-                         y ⁻¹
+affine-⊕-l x a b y = affine-uniqueness·
+                       (λ y → x ⊕ affine a b y) (x ⊕ a) (x ⊕ b)
+                       (ap (x ⊕_) (affine-equation-l a b))
+                       (ap (x ⊕_) (affine-equation-r a b))
+                       (λ z y →
+                         (ap (x ⊕_) (affine-is-⊕-homomorphism a b z y))
+                        ∙ ap (_⊕ (affine a b z ⊕ affine a b y)) (⊕-idem ⁻¹)
+                        ∙ ⊕-tran)
+                       y ⁻¹
 
 open is-ordered or hiding (M)
 
@@ -267,12 +271,13 @@ open is-ordered or hiding (M)
                        
 M-seq-eq : (a b : 𝕀) → a ≤ b
          → (i : 𝕀) (α : ℕ → 𝕀)
-         → Σ c ꞉ 𝕀 , Σ d ꞉ 𝕀 ,
+         → let c = affine a b i ⊕ a in
+           let d = affine a b i ⊕ b in
            (a ≤ c)
          × (c ≤ d)
          × (d ≤ b)
          × (affine a b (M (i ∶∶ α)) ≡ affine c d (M α))
-M-seq-eq a b a≤b i α = c , d , a≤c , c≤d , d≤b , γ
+M-seq-eq a b a≤b i α = a≤c , c≤d , d≤b , γ
  where
   c = affine a b i ⊕ a
   d = affine a b i ⊕ b
@@ -304,52 +309,63 @@ n-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A)
 n-tail-eq 0 α = first-tail-eq 1 α ⁻¹
 n-tail-eq {𝓥} (succ n) α = n-tail-eq n (α ∘ succ)
 
+cs⟨_⟩' ds⟨_⟩' : (ℕ → 𝕀) → 𝕀 → 𝕀 → (ℕ → 𝕀)
+cs⟨ α ⟩' a b 0 = a
+cs⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n) (α n)
+                      ⊕ (cs⟨ α ⟩' a b n)
+ds⟨ α ⟩' a b 0 = b
+ds⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n) (α n)
+                      ⊕ (ds⟨ α ⟩' a b n)
+
 M-seq-inf : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
-          → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
-          , (increasing cs)
+          → let cs = cs⟨ α ⟩' a b in
+            let ds = ds⟨ α ⟩' a b in
+            (increasing cs) -- (n : ℕ) → cs n ≤ cs (succ n)
           × ((n : ℕ) → cs n ≤ ds n)
           × (decreasing ds)
           × ((n : ℕ)
             → affine a b (M α)
             ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-M-seq-inf a b a≤b α = cs , ds , cs→ , cs≤ds , ←ds , γ 
+M-seq-inf a b a≤b α = cs→ , cs≤ds , ←ds , γ 
  where
-  cs ds : ℕ → 𝕀
+  cs = cs⟨ α ⟩' a b
+  ds = ds⟨ α ⟩' a b
   cs≤ds : (n : ℕ) → cs n ≤ ds n
-  IH : (n : ℕ) → Σ c ꞉ 𝕀 , Σ d ꞉ 𝕀 
-                 , (cs n ≤ c)
+  IH : (n : ℕ) → let c = affine (cs n) (ds n) (α n) ⊕ (cs n) in
+                 let d = affine (cs n) (ds n) (α n) ⊕ (ds n) in
+                   (cs n ≤ c)
                  × (c ≤ d)
                  × (d ≤ ds n)
                  × (affine (cs n) (ds n) (M (α n ∶∶ (tail- succ n) α))
                   ≡ affine c d (M ((tail- succ n) α)))
   IH n = M-seq-eq (cs n) (ds n) (cs≤ds n) (α n) ((tail- succ n) α)
-  cs 0 = a
-  cs (succ n) = pr₁ (IH n)
-  ds 0 = b
-  ds (succ n) = pr₁ (pr₂ (IH n))
   cs≤ds 0 = a≤b
-  cs≤ds (succ n) = pr₁ (pr₂ (pr₂ (pr₂ (IH n))))
+  cs≤ds (succ n) = pr₁ (pr₂ (IH n))
   cs→ : increasing cs
-  cs→ n = pr₁ (pr₂ (pr₂ (IH n)))
+  cs→ n = pr₁ (IH n)
   ←ds : decreasing ds
-  ←ds n = pr₁ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
+  ←ds n = pr₁ (pr₂ (pr₂ (IH n)))
   γ : (n : ℕ) → affine a b (M α) ≡ affine (cs n) (ds n) (M ((tail- n) α))
   γ 0 = refl
   γ (succ n) = γ n
              ∙ ap (affine (cs n) (ds n)) (ap M (n-tail-eq n α))
-             ∙ pr₂ (pr₂ (pr₂ (pr₂ (pr₂ (IH n)))))
+             ∙ pr₂ (pr₂ (pr₂ (IH n)))
+
+cs⟨_⟩ ds⟨_⟩ : (ℕ → 𝕀) → (ℕ → 𝕀)
+cs⟨ α ⟩ = cs⟨ α ⟩' u v
+ds⟨ α ⟩ = ds⟨ α ⟩' u v
 
 M-seq-inf-uv : (α : ℕ → 𝕀)
-             → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
-             , (increasing cs)
+             → let cs = cs⟨ α ⟩ in
+               let ds = ds⟨ α ⟩ in
+               (increasing cs)
              × ((n : ℕ) → cs n ≤ ds n)
              × (decreasing ds)
-             × ((n : ℕ)
-               → M α
-               ≡ affine (cs n) (ds n) (M ((tail- n) α)))
+             × ((n : ℕ) → M α ≡ affine (cs n) (ds n) (M ((tail- n) α)))
 M-seq-inf-uv α = transport
-                   (λ - → Σ cs ꞉ (ℕ → 𝕀) , Σ ds ꞉ (ℕ → 𝕀)
-                        , (increasing cs)
+                   (λ - → let cs = cs⟨ α ⟩ in
+                          let ds = ds⟨ α ⟩ in
+                          (increasing cs)
                         × ((n : ℕ) → cs n ≤ ds n)
                         × (decreasing ds)
                         × ((n : ℕ)
@@ -358,7 +374,48 @@ M-seq-inf-uv α = transport
                  (happly affine-uv-identity (M α))
                  (M-seq-inf u v u≤v α)
 
+cs≤ds : (α : ℕ → 𝕀) (n : ℕ) → cs⟨ α ⟩ n ≤ ds⟨ α ⟩ n
+cs≤ds α = pr₁ (pr₂ (M-seq-inf-uv α))
+cs-increasing : (α : ℕ → 𝕀) → increasing (cs⟨ α ⟩)
+cs-increasing α = pr₁ (M-seq-inf-uv α)
+ds-decreasing : (α : ℕ → 𝕀) → decreasing (ds⟨ α ⟩)
+ds-decreasing α = pr₁ (pr₂ (pr₂ (M-seq-inf-uv α)))
+M-cs-ds : (α : ℕ → 𝕀) (n : ℕ)
+        → M α ≡ affine (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) (M ((tail- n) α))
+M-cs-ds α = pr₂ (pr₂ (pr₂ (M-seq-inf-uv α)))
 
+_≈_ : (ℕ → 𝕀) → (ℕ → 𝕀) → ℕ → 𝓤 ̇
+(α ≈ β) n = (i : ℕ) → i <ℕ n → α i ≡ β i
+
+affine-transport : {a b c d e f : 𝕀}
+                 → a ≡ d → b ≡ e → c ≡ f
+                 → affine a b c ≡ affine d e f
+affine-transport refl refl refl = refl
+
+<ℕ-left-down : (i n : ℕ) → succ i <ℕ n → i <ℕ n
+<ℕ-left-down i n si≤n = <-trans i (succ i) n (<-succ i) si≤n
+
+cs-≡ : (α β : ℕ → 𝕀) (n : ℕ) → (α ≈ β) n → (cs⟨ α ⟩ ≈ cs⟨ β ⟩) (succ n)
+ds-≡ : (α β : ℕ → 𝕀) (n : ℕ) → (α ≈ β) n → (ds⟨ α ⟩ ≈ ds⟨ β ⟩) (succ n)
+cs-≡ α β n α≈β zero i<n = refl
+cs-≡ α β n α≈β (succ i) i<n
+  = ap (_⊕ cs⟨ α ⟩ i)
+      (affine-transport
+        (cs-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
+        (ds-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
+        (α≈β i i<n))
+    ∙ ap (affine (cs⟨ β ⟩ i) (ds⟨ β ⟩ i) (β i) ⊕_)
+        (cs-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
+ds-≡ α β n α≈β zero i<n = refl
+ds-≡ α β n α≈β (succ i) i<n
+  = ap (_⊕ ds⟨ α ⟩ i)
+      (affine-transport
+        (cs-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
+        (ds-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
+        (α≈β i i<n))
+    ∙ ap (affine (cs⟨ β ⟩ i) (ds⟨ β ⟩ i) (β i) ⊕_)
+        (ds-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
+     
 append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
 append-one y zero [] = y ∷ []
 append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
@@ -431,8 +488,8 @@ constant-vec x n = (first- n) (λ _ → x)
 approximation : 𝓤 ̇
 approximation = (x y : ℕ → 𝕀)
               → (Π n ꞉ ℕ , Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
-                 , m n (append-one z n ((first- n) x))
-                 ≡ m n (append-one w n ((first- n) y)))
+                 , m n (append-one z n ((first- n) x)) -- x ++ [z]
+                 ≡ m n (append-one w n ((first- n) y))) -- y ++ [w]
               → M x ≡ M y
 
 approximation' : 𝓤 ̇
@@ -441,6 +498,85 @@ approximation' = (x y : ℕ → 𝕀)
                   , m n (append-one (z n) n ((first- n) x))
                   ≡ m n (append-one (w n) n ((first- n) y)))
                → M x ≡ M y
+   
+M-prop₁-n : (α : ℕ → 𝕀) (n : ℕ)
+          → M α ≡ m n (append-one (M ((tail- n) α)) n ((first- n) α))
+M-prop₁-n α zero = refl
+M-prop₁-n α (succ n) = M-prop₁ α ∙ ap (α 0 ⊕_) (M-prop₁-n (α ∘ succ) n)
+
+m-seq-fin' : (α : ℕ → 𝕀) (n : ℕ)
+           → m n (append-one (M ((tail- n) α)) n ((first- n) α))
+           ≡ affine (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) (M ((tail- n) α))
+m-seq-fin' α n = M-prop₁-n α n ⁻¹ ∙ M-cs-ds α n
+
+tail-++ : (α β : ℕ → 𝕀) (n : ℕ) → (tail- n) (((first- n) α) ++ β) ≡ β
+tail-++ α β zero = refl
+tail-++ α β (succ n) = tail-++ (α ∘ succ) β n
+
+first-++ : (α β : ℕ → 𝕀) (n : ℕ)
+         → (first- n) ((first- n) α ++ β) ≡ (first- n) α
+first-++ α β zero = refl
+first-++ α β (succ n) = ap (α 0 ∷_) (first-++ (α ∘ succ) β n)
+
+first-≈ : (α β : ℕ → 𝕀) (n : ℕ) → (((first- n) α ++ β) ≈ α) n
+first-≈ α β (succ n) zero i<n = refl
+first-≈ α β (succ n) (succ i) i<n = first-≈ (α ∘ succ) β n i i<n
+
+m-seq-fin : (α : ℕ → 𝕀) (z : 𝕀) (n : ℕ)
+          → m n (append-one z n ((first- n) α))
+          ≡ affine (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) z
+m-seq-fin α z n = ap (λ - → m n (append-one z n -)) first-≡
+                ∙ ap (λ - → m n (append-one - n ((first- n) β))) tail-≡
+                ∙ m-seq-fin' β n
+                ∙ affine-transport
+                    (cs-≡ β α n (first-≈ α (λ _ → z) n) n (<-succ n))
+                    (ds-≡ β α n (first-≈ α (λ _ → z) n) n (<-succ n))
+                    (tail-≡ ⁻¹)
+ where
+  β : ℕ → 𝕀
+  β = ((first- n) α) ++ (λ _ → z)
+  first-≡ : ((first- n) α) ≡ ((first- n) β)
+  first-≡ = first-++ α (λ _ → z) n ⁻¹
+  tail-≡  : z ≡ (M ((tail- n) β))
+  tail-≡  = (M-idem z ⁻¹) ∙ (ap M (tail-++ α (λ _ → z) n ⁻¹))
+
+approximation'' : 𝓤 ̇
+approximation'' = (x y : ℕ → 𝕀)
+                → ((n : ℕ) → Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+                   , affine (cs⟨ x ⟩ n) (ds⟨ x ⟩ n) z
+                   ≡ affine (cs⟨ y ⟩ n) (ds⟨ y ⟩ n) w)
+                → M x ≡ M y
+
+approx''→approx : approximation'' → approximation
+approx''→approx a x y f = a x y γ
+ where
+   γ : {!!}
+   γ n = z , w
+       , ({!m-seq-fin x z n ⁻¹!}
+        ∙ δ
+        ∙ m-seq-fin y w n)
+    where
+      z = pr₁ (f n)
+      w = pr₁ (pr₂ (f n))
+      δ = pr₂ (pr₂ (f n))
+
+
+within : (a b c d : 𝕀) → a ≤ b → c ≤ d → 𝓤₀ ̇
+within a b c d a≤b c≤d = (a ≤ d) × (c ≤ b)
+
+within-inf : (α β : ℕ → 𝕀)
+           → ((n : ℕ)
+             → within (cs⟨ α ⟩ n) (ds⟨ α ⟩ n)
+                      (cs⟨ β ⟩ n) (ds⟨ β ⟩ n)
+                      (cs≤ds α n) (cs≤ds β n))
+           → M α ≡ M β
+within-inf α β f = {!!}
+
+within-approx : (a b c d : 𝕀)
+              → within a b c d {!!} {!!}
+              → Σ (z , w) ꞉ (𝕀 × 𝕀) , (affine a b z ≡ affine c d w)
+within-approx a b c d = {!!}
+           
 
 approx→approx' : approximation → approximation'
 approx→approx' f x y (zs , ws , γ) = f x y (λ n → zs n , ws n , γ n)
@@ -474,7 +610,7 @@ one-sided-approximation c x y (w , f) = {!!} -- M-prop₂ w' y (induction (f 0 �
    p : x ≡ w 0
    p = f 0
    γ : (i : ℕ) → w i ≡ (y i ⊕ w (succ i))
-   γ i = c (w i) (y i ⊕ w (succ i)) {!pr₁ !}
+   γ i = c (w i) (y i ⊕ w (succ i)) (pr₁ (unfold c x y w f i))
          (⊕-comm ∙ pr₁ (pr₂ (unfold c x y w f i))
           ∙ f i ⁻¹ ∙ f (succ i)
           ∙ {!!} ∙ ⊕-comm)
@@ -516,7 +652,12 @@ cancellation-implies-approximation c x y f
   seven : (n : ℕ) → M x ⊕ M z ≡ M y ⊕ M z
   seven n = M x ⊕ M z             ≡⟨ M-hom x z ⟩
             M (λ i → x i ⊕ z i)   ≡⟨ next x z n ⟩
-            {!!}                 ≡⟨ one-sided-approximation c _ (λ i → y i ⊕ z i) {!!} ⟩
+            (m (succ n)
+              (append-one (pr₁ (f (succ n))) (succ n) ((first- succ n) x))
+              ⊕
+              M
+              ((first- n) (λ n₁ → pr₁ (f (succ n₁))) ++
+               (λ i → x (succ (n +ℕ i)) ⊕ pr₁ (f (succ (succ (n +ℕ i)))))))                 ≡⟨ one-sided-approximation c _ (λ i → y i ⊕ z i) {!!} ⟩
             M (λ i → y i ⊕ z i) ≡⟨ M-hom y z ⁻¹ ⟩
             M y ⊕ M z  ∎
    where
@@ -530,7 +671,7 @@ cancellation-implies-approximation c x y f
            (m (succ j) (append-one (w j) (succ j) ((first- succ j) y))
              ⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
                                ≡⟨ {!next y z j ⁻¹!} ⟩
-           {!!} ≡⟨ {!!} ⟩
+           y j ≡⟨ {!!} ⟩
            m j (append-one (w j) j ((first- j) (λ i → y i ⊕ z i))) ∎
   
 approximation-implies-cancellation : approximation → cancellative fe _⊕_
