@@ -371,7 +371,7 @@ u-sequence a u≡Ma n = {!!}
 cancellation : (a b c : 𝕀) → a ⊕ b ≡ a ⊕ c → b ≡ c
 cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
                        (λ _ → Π-is-prop (fe 𝓤 𝓤) (λ _ → 𝕀-set))
-                       u-cancellation
+                       {!!}
                        {!!}
                        {!!}
                        a
@@ -407,7 +407,7 @@ cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
    uMv-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ v) → a n ≡ v)
                                     → (u ⊕ M a) ≡ (u ⊕ v) → M a ≡ v
    uMv-cancellation a f p = M a         ≡⟨ ap M (dfunext (fe 𝓤₀ 𝓤)
-                                           (λ i → f i (ap (u ⊕_) (s i)))) ⟩
+                                           (λ i → f i (s i))) ⟩
                             M (λ _ → v) ≡⟨ M-idem v ⟩
                             v           ∎
      where
@@ -416,8 +416,8 @@ cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
                        (M-hom (λ _ → u) a)
                        (p ⁻¹ ∙ ap (_⊕ M a) (M-idem u ⁻¹)) ⟩
            M (λ n → u ⊕ a n) ∎
-       s : a ∼ (λ _ → v)
-       s i = v-sequence {!!} {!r!} i ⁻¹
+       s : (i : ℕ) → (u ⊕ a i) ≡ (u ⊕ v)
+       s i = {!!}
 
 -- affine x y b ≡ affine x y c → x ≢ y → b ≡ c
 
