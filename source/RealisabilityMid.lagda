@@ -376,27 +376,48 @@ cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
                        {!!}
                        a
  where
-   uv-cancellation' : u ≡ (u ⊕ v) → v ≡ (v ⊕ u)
-   uv-cancellation' p = {!!}
-   uv-cancellation : (u ⊕ u) ≡ (u ⊕ v) → u ≡ v
-   uv-cancellation p = {!-- provable from the above!}
-   uM-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ u) ≡ (u ⊕ a n) → u ≡ a n)
-                                 → (u ⊕ u) ≡ (u ⊕ M a) → u ≡ M a
-   uM-cancellation a f p = {!-- if we have u-sequence, provable!}
-    where
-      g : u ≡ M (λ n → u ⊕ a n)
-      g = {!!}
-   u-cancellation : (u ⊕ b) ≡ (u ⊕ c) → b ≡ c
-   u-cancellation = 𝕀-induction (λ b → (u ⊕ b) ≡ (u ⊕ c) → b ≡ c) (λ _ → Π-is-prop (fe 𝓤 𝓤) (λ _ → 𝕀-set))
-                     (𝕀-induction (λ c → (u ⊕ u) ≡ (u ⊕ c) → u ≡ c) {!!} (λ _ → refl) {!!} {!uv-cancellation!} c)
-                     (𝕀-induction
-                        (λ c →
-                           (a : ℕ → 𝕀) →
-                           ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ c) → a n ≡ c) →
-                           (u ⊕ M a) ≡ (u ⊕ c) → M a ≡ c)
-                        {!!} {!!} {!!} {!!} c)
-                     {!!}
-                     b
+   xx-cancellation : {i x : 𝕀} → i ⊕ x ≡ i ⊕ x → x ≡ x
+   xx-cancellation _ = refl
+   uuv-cancellation : u ⊕ u ≡ u ⊕ v → u ≡ v
+   uuv-cancellation p =     u       ≡⟨ ⊕-idem ⁻¹ ⟩
+                          u ⊕ u     ≡⟨ p ⟩ 
+                          u ⊕ v     ≡⟨ ⊕-comm ⟩
+                          v ⊕ u     ≡⟨ ap (_⊕ u) (−1-inverse ⁻¹) ⟩
+                        − u ⊕ u     ≡⟨ ap (− u ⊕_) (+1-inverse ⁻¹) ⟩
+                        − u ⊕ − v   ≡⟨ −-is-⊕-homomorphism u v ⁻¹ ⟩
+                       − (u ⊕ v)    ≡⟨ ap −_ (p ⁻¹) ⟩
+                       − (u ⊕ u)    ≡⟨ ap −_ ⊕-idem ⟩
+                           − u      ≡⟨ −1-inverse ⟩
+                            v       ∎
+   uMu-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ u) → a n ≡ u)
+                                    → (u ⊕ M a) ≡ (u ⊕ u) → M a ≡ u
+   uMu-cancellation a f p = M a         ≡⟨ ap M (dfunext (fe 𝓤₀ 𝓤)
+                                           (λ i → f i (s i ∙ ⊕-idem ⁻¹))) ⟩
+                            M (λ _ → u) ≡⟨ M-idem u ⟩
+                            u           ∎
+     where
+       r : u ≡ M (λ n → u ⊕ a n)
+       r =   u    ≡⟨ ⊕-idem ⁻¹ ⟩
+           u ⊕ u  ≡⟨ transport ((u ⊕ u) ≡_)
+                       (M-hom (λ _ → u) a)
+                       (p ⁻¹ ∙ ap (_⊕ M a) (M-idem u ⁻¹)) ⟩
+           M (λ n → u ⊕ a n) ∎
+       s : (i : ℕ) → (u ⊕ a i) ≡ u 
+       s i = u-sequence (λ n → u ⊕ a n) r i ⁻¹
+   uMv-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ v) → a n ≡ v)
+                                    → (u ⊕ M a) ≡ (u ⊕ v) → M a ≡ v
+   uMv-cancellation a f p = M a         ≡⟨ ap M (dfunext (fe 𝓤₀ 𝓤)
+                                           (λ i → f i (ap (u ⊕_) (s i)))) ⟩
+                            M (λ _ → v) ≡⟨ M-idem v ⟩
+                            v           ∎
+     where
+       r : u ⊕ v ≡ M (λ n → u ⊕ a n)
+       r = u ⊕ v  ≡⟨ transport ((u ⊕ v) ≡_)
+                       (M-hom (λ _ → u) a)
+                       (p ⁻¹ ∙ ap (_⊕ M a) (M-idem u ⁻¹)) ⟩
+           M (λ n → u ⊕ a n) ∎
+       s : a ∼ (λ _ → v)
+       s i = v-sequence {!!} {!r!} i ⁻¹
 
 -- affine x y b ≡ affine x y c → x ≢ y → b ≡ c
 
