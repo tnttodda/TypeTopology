@@ -152,9 +152,9 @@ div2 : 𝟝ᴺ → 𝟛ᴺ
 δc +2' α 1 = ₃⁰
 δc +2' α (succ (succ n)) = div2 (tail (tail α)) n
 δc −1' α 0 = ₃⁰
-δc −1' α (succ n) = div2 (+1' ∶∶ tail α) n
+δc −1' α (succ n) = div2 (+1' ∶∶ tail (tail α)) n
 δc +1' α 0 = ₃⁺¹
-δc +1' α (succ n) = div2 (−1' ∶∶ tail α) n    
+δc +1' α (succ n) = div2 (−1' ∶∶ tail (tail α)) n    
 
 δb : 𝟝 → 𝟝ᴺ → 𝟛ᴺ
 δb −2' _ 0 = ₃⁻¹
@@ -167,9 +167,9 @@ div2 : 𝟝ᴺ → 𝟛ᴺ
 δb +2' _ 1 = ₃⁰
 δb +2' α (succ (succ n)) = div2 (tail (tail α)) n
 δb −1' _ 0 = ₃⁻¹
-δb −1' α (succ n) = div2 (+1' ∶∶ tail α) n
+δb −1' α (succ n) = div2 (+1' ∶∶ tail (tail α)) n
 δb +1' _ 0 = ₃⁰
-δb +1' α (succ n) = div2 (−1' ∶∶ tail α) n
+δb +1' α (succ n) = div2 (−1' ∶∶ tail (tail α)) n
 
 γa : 𝟝 → 𝟝ᴺ → 𝟛ᴺ
 γa −2' _ 0 = ₃⁻¹
@@ -628,6 +628,15 @@ approx''→approx a x y f = a x y γ
 within : (a b c d : 𝕀) → a ≤ b → c ≤ d → 𝓤₀ ̇
 within a b c d a≤b c≤d = (a ≤ d) × (c ≤ b)
 
+within-cs-ds : (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤₀ ̇
+within-cs-ds α β = (n : ℕ)
+                 → within (cs⟨ α ⟩ (succ n)) (ds⟨ α ⟩ (succ n))
+                          (cs⟨ β ⟩ (succ n)) (ds⟨ β ⟩ (succ n))
+                          (cs≤ds α (succ n)) (cs≤ds β (succ n))
+
+half-div2-within : (α : 𝟝ᴺ) → within-cs-ds (λ n → q (div2 (−2' ∶∶ α) n))
+                                            (map half (−2' ∶∶ α))
+half-div2-within α n = ?
 within-inf : (α β : ℕ → 𝕀)
            → ((n : ℕ)
              → within (cs⟨ α ⟩ n) (ds⟨ α ⟩ n)
