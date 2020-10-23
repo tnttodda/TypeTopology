@@ -186,6 +186,70 @@ div2 α = γa (α 0) α
 mid : 𝟛ᴺ → 𝟛ᴺ → 𝟛ᴺ
 mid α β = div2 (add2 α β)
 
+div2⟨−2:x⟩ : (α : 𝟝ᴺ) → div2 (−2' ∶∶ α) ≡ ₃⁻¹ ∶∶ div2 α
+div2⟨O:x⟩  : (α : 𝟝ᴺ) → div2 ( O' ∶∶ α) ≡ ₃⁰  ∶∶ div2 α  
+div2⟨+2:x⟩ : (α : 𝟝ᴺ) → div2 (+2' ∶∶ α) ≡ ₃⁺¹ ∶∶ div2 α
+div2⟨−1:−2:x⟩ : (α : 𝟝ᴺ) → div2 (−1' ∶∶ (−2' ∶∶ α)) ≡ ₃⁻¹ ∶∶ (₃⁰ ∶∶ div2 α)
+div2⟨−1:−1:x⟩ : (α : 𝟝ᴺ) → div2 (−1' ∶∶ (−1' ∶∶ α)) ≡ ₃⁻¹ ∶∶ div2 (+1' ∶∶ α)
+div2⟨−1:O:x⟩  : (α : 𝟝ᴺ) → div2 (−1' ∶∶ ( O' ∶∶ α)) ≡ ₃⁰  ∶∶ (₃⁻¹ ∶∶ div2 α)
+div2⟨−1:+1:x⟩ : (α : 𝟝ᴺ) → div2 (−1' ∶∶ (+1' ∶∶ α)) ≡ ₃⁰  ∶∶ div2 (−1' ∶∶ α)
+div2⟨−1:+2:x⟩ : (α : 𝟝ᴺ) → div2 (−1' ∶∶ (+2' ∶∶ α)) ≡ ₃⁰  ∶∶ (₃⁰ ∶∶ div2 α)
+div2⟨+1:−2:x⟩ : (α : 𝟝ᴺ) → div2 (+1' ∶∶ (−2' ∶∶ α)) ≡ ₃⁰  ∶∶ (₃⁰ ∶∶ div2 α)
+div2⟨+1:−1:x⟩ : (α : 𝟝ᴺ) → div2 (+1' ∶∶ (−1' ∶∶ α)) ≡ ₃⁰  ∶∶ div2 (+1' ∶∶ α)
+div2⟨+1:O:x⟩  : (α : 𝟝ᴺ) → div2 (+1' ∶∶ ( O' ∶∶ α)) ≡ ₃⁰  ∶∶ (₃⁺¹ ∶∶ div2 α)
+div2⟨+1:+1:x⟩ : (α : 𝟝ᴺ) → div2 (+1' ∶∶ (+1' ∶∶ α)) ≡ ₃⁺¹ ∶∶ div2 (−1' ∶∶ α)
+div2⟨+1:+2:x⟩ : (α : 𝟝ᴺ) → div2 (+1' ∶∶ (+2' ∶∶ α)) ≡ ₃⁺¹ ∶∶ (₃⁰ ∶∶ div2 α)
+
+div2⟨−2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) (induction refl λ _ _ → refl)
+div2⟨O:x⟩  α = dfunext (fe 𝓤₀ 𝓤₀) (induction refl λ _ _ → refl)
+div2⟨+2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) (induction refl λ _ _ → refl)
+div2⟨−1:−2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (−1' ∶∶ (−2' ∶∶ α)) ∼ (₃⁻¹ ∶∶ (₃⁰ ∶∶ div2 α))
+  γ 0 = refl
+  γ 1 = refl
+  γ (succ (succ i)) = refl
+div2⟨−1:−1:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (−1' ∶∶ (−1' ∶∶ α)) ∼ ₃⁻¹ ∶∶ (div2 (+1' ∶∶ α))
+  γ 0 = refl
+  γ (succ i) = refl
+div2⟨−1:O:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (−1' ∶∶ (O' ∶∶ α)) ∼ (₃⁰ ∶∶ (₃⁻¹ ∶∶ div2 α))
+  γ 0 = refl
+  γ 1 = refl
+  γ (succ (succ i)) = refl
+div2⟨−1:+1:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (−1' ∶∶ (+1' ∶∶ α)) ∼ ₃⁰ ∶∶ (div2 (−1' ∶∶ α))
+  γ 0 = refl
+  γ (succ i) = refl
+div2⟨−1:+2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (−1' ∶∶ (+2' ∶∶ α)) ∼ (₃⁰ ∶∶ (₃⁰ ∶∶ div2 α))
+  γ 0 = refl
+  γ 1 = refl
+  γ (succ (succ i)) = refl
+div2⟨+1:−2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (+1' ∶∶ (−2' ∶∶ α)) ∼ (₃⁰ ∶∶ (₃⁰ ∶∶ div2 α))
+  γ 0 = refl
+  γ 1 = refl
+  γ (succ (succ i)) = refl
+div2⟨+1:−1:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (+1' ∶∶ (−1' ∶∶ α)) ∼ (₃⁰ ∶∶ div2 (+1' ∶∶ α))
+  γ 0 = refl
+  γ (succ i) = refl
+div2⟨+1:O:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (+1' ∶∶ (O' ∶∶ α)) ∼ (₃⁰ ∶∶ (₃⁺¹ ∶∶ div2 α))
+  γ 0 = refl
+  γ 1 = refl
+  γ (succ (succ i)) = refl
+div2⟨+1:+1:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (+1' ∶∶ (+1' ∶∶ α)) ∼ (₃⁺¹ ∶∶ div2 (−1' ∶∶ α))
+  γ 0 = refl
+  γ (succ i) = refl
+div2⟨+1:+2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
+  γ : div2 (+1' ∶∶ (+2' ∶∶ α)) ∼ (₃⁺¹ ∶∶ (₃⁰ ∶∶ div2 α))
+  γ 0 = refl
+  γ 1 = refl
+  γ (succ (succ i)) = refl
+
 {-
 transport₁ : (h : 𝟝) (α : 𝟝ᴺ) → M (λ n → q (γa h α n)) ≡ M (λ n → q (γa h (α 0 ∶∶ tail α) n))
 transport₁ h α = ap (λ - → M (λ n → q (γa h - n))) (dfunext (fe 𝓤₀ 𝓤₀) γ) where
