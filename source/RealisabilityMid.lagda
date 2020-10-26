@@ -634,6 +634,64 @@ approx''→approx a x y f = a x y γ
 within : (a b c d : 𝕀) → a ≤ b → c ≤ d → 𝓤₀ ̇
 within a b c d a≤b c≤d = (a ≤ d) × (c ≤ b)
 
+open PropositionalTruncation pt
+within-approx : (a b c d : 𝕀) (a≤b : a ≤ b) (c≤d : c ≤ d) 
+              → within a b c d a≤b c≤d
+              → ∃ (z , w) ꞉ (𝕀 × 𝕀) , (affine a b z ≡ affine c d w)
+within-approx a b c d
+ = 𝕀-induction (λ a → P a b c d) (λ a → P-is-prop a b c d)
+     (𝕀-induction (λ b → P u b c d) (λ b → P-is-prop u b c d)
+       (Puuxy c d)
+       (𝕀-induction (λ c → (α : ℕ → 𝕀) → ((n : ℕ) → P u (α n) c d) → P u (M α) c d)
+                     {!!}
+          (λ α _ → Puxuy (M α) d)
+          (𝕀-induction (λ d → (β : ℕ → 𝕀)
+                              → ((n : ℕ) (α : ℕ → 𝕀) → ((i : ℕ) → P u (α i) (β n) d) → P u (M α) (β n) d)
+                              → (α : ℕ → 𝕀) → ((n : ℕ) → P u (α n) (M β) d) → P u (M α) (M β) d)
+                        {!!}
+            (λ _ _ _ _ → {!!})
+            {!!}
+            {!!}
+            d)
+          {!!}
+          c)
+       (Puvxy c d)
+       b)
+     {!!}
+     (𝕀-induction (λ b → P v b c d) (λ b → P-is-prop v b c d)
+       (Pvuxy c d)
+       {!!}
+       (Pvvxy c d)
+       b)
+     a
+ where
+   P : (a b c d : 𝕀) → 𝓤 ̇
+   P a b c d = a ≤ b → c ≤ d → (a ≤ d) × (c ≤ b)
+             → ∃ (z , w) ꞉ (𝕀 × 𝕀) , (affine a b z ≡ affine c d w)
+   P-is-prop = λ a b c d → Π-is-prop (fe 𝓤₀ 𝓤)
+                    (λ _ → Π-is-prop (fe 𝓤₀ 𝓤)
+                    (λ _ → Π-is-prop (fe 𝓤₀ 𝓤)
+                    (λ _ → ∥∥-is-prop)))
+   P-sym : (x y s t : 𝕀) → P x y s t → P s t x y
+   P-sym x y s t = {!!}
+   Pxyxy : (x y : 𝕀) → P x y x y
+   Pxyxy x y _ _ _ = ∣ (x , x) , refl ∣
+   Puvxy : (x y : 𝕀) → P u v x y
+   Puvxy x y _ _ _ = ∣ (affine x y x , x) , (happly affine-uv-identity (affine x y x)) ∣
+   Pvuxy : (x y : 𝕀) → P v u x y
+   Pvuxy x y v≤u _ _ = 𝟘-elim (v≤u u<v)
+   Puuxy : (x y : 𝕀) → P u u x y
+   Puuxy x y _ _ (_ , x≤u) = ∣ (u , u) , (affine-constant u u ∙ <-connected x≤u (u≤ x) ∙ affine-equation-l x y ⁻¹) ∣
+     where u≤ : (i : 𝕀) → u ≤ i
+           u≤ = {!!}
+   Pvvxy : (x y : 𝕀) → P v v x y
+   Pvvxy x y _ _ (v≤y , _) = ∣ (v , v) , (affine-constant v v ∙ <-connected (≤v y) v≤y ∙ affine-equation-r x y ⁻¹) ∣
+     where ≤v : (i : 𝕀) → i ≤ v
+           ≤v = {!!}
+   Puxuy : (x y : 𝕀) → P u x u y
+   Puxuy x y _ _ _ = ∣ (u , u) , (affine-equation-l u x ∙ affine-equation-l u y ⁻¹) ∣
+
+
 within-cs-ds : (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤₀ ̇
 within-cs-ds α β = (n : ℕ)
                  → within (cs⟨ α ⟩ (succ n)) (ds⟨ α ⟩ (succ n))
