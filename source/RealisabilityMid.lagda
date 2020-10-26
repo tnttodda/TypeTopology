@@ -698,9 +698,17 @@ within-cs-ds α β = (n : ℕ)
                           (cs⟨ β ⟩ (succ n)) (ds⟨ β ⟩ (succ n))
                           (cs≤ds α (succ n)) (cs≤ds β (succ n))
 
-half-div2-within : (α : 𝟝ᴺ) → within-cs-ds (λ n → q (div2 (−2' ∶∶ α) n))
+𝕢' : 𝟛ᴺ → (ℕ → 𝕀)
+𝕢' α n = q (α n)
+
+half-div2-within : (α : 𝟝ᴺ) → within-cs-ds (𝕢' (div2 (−2' ∶∶ α)))
                                             (map half (−2' ∶∶ α))
-half-div2-within α n = ?
+half-div2-within α = transport (λ - → within-cs-ds (𝕢' -) (map half (−2' ∶∶ α)))
+                       (div2⟨−2:x⟩ α ⁻¹)
+                       {!γ!} where
+  γ : {!!}
+  γ = {!!}
+
 within-inf : (α β : ℕ → 𝕀)
            → ((n : ℕ)
              → within (cs⟨ α ⟩ n) (ds⟨ α ⟩ n)
