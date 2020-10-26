@@ -550,9 +550,15 @@ approximation'' = (x y : ℕ → 𝕀)
 approx''→approx : approximation'' → approximation
 approx''→approx a x y f = a x y γ
  where
-   γ : {!!}
+   γ : (n : ℕ) →
+         Sigma 𝕀
+         (λ z →
+            Sigma 𝕀
+            (λ w →
+               affine (cs⟨ x ⟩ n) (ds⟨ x ⟩ n) z ≡
+               affine (cs⟨ y ⟩ n) (ds⟨ y ⟩ n) w))
    γ n = z , w
-       , ({!m-seq-fin x z n ⁻¹!}
+       , (m-seq-fin x z n ⁻¹
         ∙ δ
         ∙ m-seq-fin y w n)
     where
@@ -560,23 +566,22 @@ approx''→approx a x y f = a x y γ
       w = pr₁ (pr₂ (f n))
       δ = pr₂ (pr₂ (f n))
 
-
 within : (a b c d : 𝕀) → a ≤ b → c ≤ d → 𝓤₀ ̇
 within a b c d a≤b c≤d = (a ≤ d) × (c ≤ b)
+
+within-approx : (a b c d : 𝕀)
+              → within a b c d {!!} {!!}
+              → Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀 , (affine a b z ≡ affine c d w)
+within-approx a b c d = {!!}
 
 within-inf : (α β : ℕ → 𝕀)
            → ((n : ℕ)
              → within (cs⟨ α ⟩ n) (ds⟨ α ⟩ n)
                       (cs⟨ β ⟩ n) (ds⟨ β ⟩ n)
                       (cs≤ds α n) (cs≤ds β n))
+           → approximation''
            → M α ≡ M β
-within-inf α β f = {!!}
-
-within-approx : (a b c d : 𝕀)
-              → within a b c d {!!} {!!}
-              → Σ (z , w) ꞉ (𝕀 × 𝕀) , (affine a b z ≡ affine c d w)
-within-approx a b c d = {!!}
-           
+within-inf α β f a = a α β (λ n → within-approx (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) (cs⟨ β ⟩ n) (ds⟨ β ⟩ n) (f n))           
 
 approx→approx' : approximation → approximation'
 approx→approx' f x y (zs , ws , γ) = f x y (λ n → zs n , ws n , γ n)
