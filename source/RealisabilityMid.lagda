@@ -614,9 +614,15 @@ approximation'' = (x y : ℕ → 𝕀)
 approx''→approx : approximation'' → approximation
 approx''→approx a x y f = a x y γ
  where
-   γ : {!!}
+   γ : (n : ℕ) →
+         Sigma 𝕀
+         (λ z →
+            Sigma 𝕀
+            (λ w →
+               affine (cs⟨ x ⟩ n) (ds⟨ x ⟩ n) z ≡
+               affine (cs⟨ y ⟩ n) (ds⟨ y ⟩ n) w))
    γ n = z , w
-       , ({!m-seq-fin x z n ⁻¹!}
+       , (m-seq-fin x z n ⁻¹
         ∙ δ
         ∙ m-seq-fin y w n)
     where
