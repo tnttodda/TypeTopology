@@ -335,7 +335,7 @@ half-div2-approx −1'  O' α (succ (succ n))
   IH = transport (λ - → n-approx' n (map q (div2 -))
                                     (map half -))
          (ap (head α ∶∶_) (head-tail-eta {_} {_} {tail α})
-                        ∙ head-tail-eta {_} {_} {α}) 
+                        ∙ head-tail-eta {_} {_} {α})
          (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
   γ : {x : 𝕀} → (u ⊕ v) ⊕ (u ⊕ x) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ v) ⊕ x))
   γ {x} = ⊕-hom-l ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm
@@ -392,7 +392,7 @@ half-div2-approx +1' −2' α (succ (succ n))
           (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
    γ : {x : 𝕀} → (u ⊕ v) ⊕ ((u ⊕ v) ⊕ x) ≡ (v ⊕ (u ⊕ v)) ⊕ (u ⊕ x)
    γ {x} = ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm ∙ ⊕-tran
-   
+
 half-div2-approx +1' −1' α 0 = (((u ⊕ v) ⊕ u) , (u ⊕ u))
                              , (ap (_⊕ ((u ⊕ v) ⊕ u)) ⊕-comm
                              ∙ ⊕-tran)
@@ -408,7 +408,7 @@ half-div2-approx +1' −1' α (succ n)
   γ {x} = ⊕-hom-l
         ∙ ap (λ - → ((- ⊕ (v ⊕ (u ⊕ v))) ⊕ ((u ⊕ v) ⊕ x))) ⊕-comm
         ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-tran
-        ∙ ap (λ - → ((- ⊕ (u ⊕ (u ⊕ v))) ⊕ ((u ⊕ v) ⊕ x))) ⊕-idem 
+        ∙ ap (λ - → ((- ⊕ (u ⊕ (u ⊕ v))) ⊕ ((u ⊕ v) ⊕ x))) ⊕-idem
         ∙ ⊕-tran
 
 half-div2-approx +1' O' α 0 = (v , (v ⊕ (u ⊕ v)))
@@ -464,7 +464,7 @@ half-div2-approx +1' +2' α (succ (succ n))
          (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
   γ : {x : 𝕀} → v ⊕ ((u ⊕ v) ⊕ x) ≡ ((v ⊕ (u ⊕ v)) ⊕ (v ⊕ x))
   γ {x} = ⊕-hom-l
-  
+
 mid-realisability' : approximation → mid realises² _⊕_
 mid-realisability' a α β = γ (add2 α β) ∙ half-real α β
  where
