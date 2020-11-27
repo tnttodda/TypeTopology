@@ -9,12 +9,10 @@ open import UF-PropTrunc
 open import OrderedIntervalObject
 
 module RealisabilityMid
- -- (𝓤 : Universe)
  (fe : FunExt)
  (io : Interval-object fe 𝓤)
  (db : has-double fe 𝓤 io)
  (pt : propositional-truncations-exist)
- (or : is-ordered fe pt io)
  where
 
 open import UF-Base hiding (_≈_)
@@ -29,50 +27,33 @@ open import UF-Subsingletons-FunExt
 
 open basic-interval-object-development fe io db
 
--- Define the code types
-
 data 𝟛 : 𝓤₀ ̇ where
   ₃⁰ ₃⁺¹ ₃⁻¹ : 𝟛
 
 𝟛ᴺ : 𝓤₀ ̇
 𝟛ᴺ = ℕ → 𝟛
 
-𝟛-is-discrete : is-discrete 𝟛
-𝟛-is-discrete ₃⁰  ₃⁰  = inl refl
-𝟛-is-discrete ₃⁰  ₃⁺¹ = inr (λ ())
-𝟛-is-discrete ₃⁰  ₃⁻¹ = inr (λ ())
-𝟛-is-discrete ₃⁺¹ ₃⁰  = inr (λ ())
-𝟛-is-discrete ₃⁺¹ ₃⁺¹ = inl refl
-𝟛-is-discrete ₃⁺¹ ₃⁻¹ = inr (λ ())
-𝟛-is-discrete ₃⁻¹ ₃⁰  = inr (λ ())
-𝟛-is-discrete ₃⁻¹ ₃⁺¹ = inr (λ ())
-𝟛-is-discrete ₃⁻¹ ₃⁻¹ = inl refl
-
--- Define the realisability map
-
 q : 𝟛 → 𝕀
 q ₃⁻¹ = −1
 q ₃⁰  =  O
 q ₃⁺¹ = +1
 
+map : {X : 𝓥 ̇ } {Y : 𝓦 ̇ } → (X → Y) → (ℕ → X) → (ℕ → Y)
+map f α n = f (α n)
+
 𝕢 : 𝟛ᴺ → 𝕀
-𝕢 α = M (λ n → q (α n))
+𝕢 α = M (map q α)
 
 neg : 𝟛 → 𝟛
 neg ₃⁻¹ = ₃⁺¹
 neg  ₃⁰ = ₃⁰
 neg ₃⁺¹ = ₃⁻¹
 
-map : {X : 𝓥 ̇ } {Y : 𝓦 ̇ } → (X → Y) → (ℕ → X) → (ℕ → Y)
-map f α n = f (α n)
-
-_realises²_ : (𝟛ᴺ → 𝟛ᴺ → 𝟛ᴺ) → (𝕀 → 𝕀 → 𝕀) → 𝓤 ̇
-_*³_ realises² _*ᴵ_ = Π α ꞉ 𝟛ᴺ , Π β ꞉ 𝟛ᴺ , (𝕢 (α *³ β) ≡ 𝕢 α *ᴵ 𝕢 β)
-
 _realises¹_ : (𝟛ᴺ → 𝟛ᴺ) → (𝕀 → 𝕀) → 𝓤 ̇
 ϕ realises¹ f = Π α ꞉ 𝟛ᴺ , (𝕢 (ϕ α) ≡ f (𝕢 α))
 
--- q → 𝕢
+_realises²_ : (𝟛ᴺ → 𝟛ᴺ → 𝟛ᴺ) → (𝕀 → 𝕀 → 𝕀) → 𝓤 ̇
+_*³_ realises² _*ᴵ_ = Π α ꞉ 𝟛ᴺ , Π β ꞉ 𝟛ᴺ , (𝕢 (α *³ β) ≡ 𝕢 α *ᴵ 𝕢 β)
 
 −-real' : (h : 𝟛) → q (neg h) ≡ − q h
 −-real' ₃⁻¹ = −1-inverse ⁻¹
@@ -91,11 +72,6 @@ _realises¹_ : (𝟛ᴺ → 𝟛ᴺ) → (𝕀 → 𝕀) → 𝓤 ̇
 
 id-realises-id : id realises¹ id
 id-realises-id α = refl
-
--- Show that midpoint and multiplication have realisers
-
--- mid-realisability : mid realises² _⊕_
--- mid-realisability α β = {!!}
 
 data 𝟝 : 𝓤₀ ̇ where
  −2' −1' O' +1' +2' : 𝟝
@@ -250,600 +226,406 @@ div2⟨+1:+2:x⟩ α = dfunext (fe 𝓤₀ 𝓤₀) γ where
   γ 1 = refl
   γ (succ (succ i)) = refl
 
-{-
-transport₁ : (h : 𝟝) (α : 𝟝ᴺ) → M (λ n → q (γa h α n)) ≡ M (λ n → q (γa h (α 0 ∶∶ tail α) n))
-transport₁ h α = ap (λ - → M (λ n → q (γa h - n))) (dfunext (fe 𝓤₀ 𝓤₀) γ) where
-  γ : α ∼ (α 0 ∶∶ tail α)
-  γ 0 = refl
-  γ (succ i) = refl
-
-mid-div' : (h : 𝟝) (α : 𝟝ᴺ) (i : ℕ) → M (λ n → q (γa h (h ∶∶ α) (n +ℕ i))) ≡ M (λ n → map half (h ∶∶ α) (n +ℕ i))
-mid-div' −2' α zero = M-prop₁ (λ n → q (γa −2' (−2' ∶∶ α) (n +ℕ zero))) ∙ {!!} ∙ M-prop₁ (λ n → map half (−2' ∶∶ α) (n +ℕ zero)) ⁻¹
-mid-div' −2' α (succ i) = {!!}
-mid-div' −1' α i = {!!}
-mid-div' O' α i = {!!}
-mid-div' +1' α i = {!!}
-mid-div' +2' α i = {!!}
-
-mid-div : (h : 𝟝) (α : 𝟝ᴺ) → 𝕢 (div2 α) ≡ M (map half α) → 𝕢 (div2 (h ∶∶ α)) ≡ M (map half (h ∶∶ α))
-mid-div −2' α e = M-prop₁ (λ n → q (div2 (−2' ∶∶ α) n)) ∙ ap (u ⊕_) e ∙ M-prop₁ (map half (−2' ∶∶ α)) ⁻¹
-mid-div −1' α e = {!!}
-mid-div  O' α e = M-prop₁ (λ n → q (div2 (O' ∶∶ α) n)) ∙ ap (O ⊕_) e ∙ M-prop₁ (map half (O' ∶∶ α)) ⁻¹
-mid-div +1' α e = {!!}
-mid-div +2' α e = M-prop₁ (λ n → q (div2 (+2' ∶∶ α) n)) ∙ ap (v ⊕_) e ∙ M-prop₁ (map half (+2' ∶∶ α)) ⁻¹
--}
-
-
 data Vec (A : 𝓥 ̇) : ℕ → 𝓥 ̇ where
   [] : Vec A 0
   _∷_ : ∀ {n} → A → Vec A n → Vec A (succ n)
-
-_++_ : {A : 𝓥 ̇} {n : ℕ} → Vec A n → (ℕ → A) → ℕ → A
-[] ++ s = s
-(x ∷ v) ++ s = x ∶∶ (v ++ s)
-
-hd : {A : 𝓥 ̇ } {n : ℕ} → Vec A (succ n) → A
-hd (x ∷ _) = x
 
 first-_ : {A : 𝓥 ̇ } (n : ℕ) → (ℕ → A) → Vec A n
 (first- 0) a = []
 (first- succ n) a = head a ∷ (first- n) (tail a)
 
-affine-⊕-l : (x a b y : 𝕀) → x ⊕ affine a b y ≡ affine (x ⊕ a) (x ⊕ b) y
-affine-⊕-l x a b y = affine-uniqueness·
-                       (λ y → x ⊕ affine a b y) (x ⊕ a) (x ⊕ b)
-                       (ap (x ⊕_) (affine-equation-l a b))
-                       (ap (x ⊕_) (affine-equation-r a b))
-                       (λ z y →
-                         (ap (x ⊕_) (affine-is-⊕-homomorphism a b z y))
-                        ∙ ap (_⊕ (affine a b z ⊕ affine a b y)) (⊕-idem ⁻¹)
-                        ∙ ⊕-tran)
-                       y ⁻¹
-
-open is-ordered or hiding (M)
-
-𝕀-induction : (P : 𝕀 → 𝓥 ̇ )
-            → ((x : 𝕀) → is-prop (P x))
-            → P u
-            → ((a : ℕ → 𝕀) → ((n : ℕ) → P (a n)) → P (M a))
-            → P v
-            → (x : 𝕀) → P x
-
-≤-affine : (a b i : 𝕀) → a ≤ b → a ≤ affine a b i × affine a b i ≤ b
-≤-affine a b i a≤b
- = 𝕀-induction (λ i → a ≤ affine a b i) (λ _ → ≤-prop-valued)
-     (transport (a ≤_) (affine-equation-l a b ⁻¹) <-irreflexive)
-     (λ α f → transport (a ≤_)
-             (⊕-homs-are-M-homs
-             (affine a b) (affine-is-⊕-homomorphism a b) α ⁻¹)
-             (≤-⊕ₘ f))
-     (transport (a ≤_) (affine-equation-r a b ⁻¹) a≤b)
-     i
- , 𝕀-induction (λ i → affine a b i ≤ b) (λ _ → ≤-prop-valued)
-     (transport (_≤ b) (affine-equation-l a b ⁻¹) a≤b)
-     (λ α f → transport (_≤ b)
-              (⊕-homs-are-M-homs
-              (affine a b) (affine-is-⊕-homomorphism a b) α ⁻¹)
-              (≤-⊕ₘ' f))
-     (transport (_≤ b) (affine-equation-r a b ⁻¹) <-irreflexive)
-     i
-
-M-seq-eq : (a b : 𝕀) → a ≤ b
-         → (i : 𝕀) (α : ℕ → 𝕀)
-         → let c = affine a b i ⊕ a in
-           let d = affine a b i ⊕ b in
-           (a ≤ c)
-         × (c ≤ d)
-         × (d ≤ b)
-         × (affine a b (M (i ∶∶ α)) ≡ affine c d (M α))
-M-seq-eq a b a≤b i α = a≤c , c≤d , d≤b , γ
- where
-  c = affine a b i ⊕ a
-  d = affine a b i ⊕ b
-  a≤c : a ≤ c
-  a≤c = transport (_≤ c) ⊕-idem (≤-⊕₂ (pr₁ (≤-affine a b i a≤b)) <-irreflexive)
-  c≤d = ≤-⊕₂ <-irreflexive a≤b
-  d≤b = transport (d ≤_) ⊕-idem (≤-⊕₂ (pr₂ (≤-affine a b i a≤b)) <-irreflexive)
-  γ = ap (affine a b) (M-prop₁ (i ∶∶ α))
-    ∙ affine-is-⊕-homomorphism a b i (M α)
-    ∙ affine-⊕-l (affine a b i) a b (M α)
-
-increasing decreasing : (ℕ → 𝕀) → 𝓤₀ ̇
-increasing α = (n : ℕ) → α n        ≤ α (succ n)
-decreasing α = (n : ℕ) → α (succ n) ≤ α n
-
-tail-_ : {A : 𝓥 ̇ } (n : ℕ) → (ℕ → A) → (ℕ → A)
-(tail- 0) α = α
-(tail- succ n) α = (tail- n) (tail α)
-
-first-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A) → ((first- n) α ++ (tail- n) α) ≡ α
-first-tail-eq 0 α = refl
-first-tail-eq {𝓥} (succ n) α = dfunext (fe 𝓤₀ 𝓥) γ where
-  γ : ((first- succ n) α ++ (tail- succ n) α) ∼ α
-  γ 0 = refl
-  γ (succ i) = happly (first-tail-eq n (tail α)) i
-
-n-tail-eq : {A : 𝓥 ̇ } (n : ℕ) (α : ℕ → A)
-          → (tail- n) α ≡ (α n ∶∶ (tail- n) (α ∘ succ))
-n-tail-eq 0 α = first-tail-eq 1 α ⁻¹
-n-tail-eq {𝓥} (succ n) α = n-tail-eq n (α ∘ succ)
-
-cs⟨_⟩' ds⟨_⟩' : (ℕ → 𝕀) → 𝕀 → 𝕀 → (ℕ → 𝕀)
-cs⟨ α ⟩' a b 0 = a
-cs⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n ) (α n)
-                      ⊕ (cs⟨ α ⟩' a b n)
-ds⟨ α ⟩' a b 0 = b
-ds⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n) (α n)
-                      ⊕ (ds⟨ α ⟩' a b n)
-
-M-seq-inf : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
-          → let cs = cs⟨ α ⟩' a b in
-            let ds = ds⟨ α ⟩' a b in
-            (increasing cs)
-          × ((n : ℕ) → cs n ≤ ds n)
-          × (decreasing ds)
-          × ((n : ℕ)
-            → affine a b (M α)
-            ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-M-seq-inf a b a≤b α = cs→ , cs≤ds , ←ds , γ
- where
-  cs = cs⟨ α ⟩' a b
-  ds = ds⟨ α ⟩' a b
-  cs≤ds : (n : ℕ) → cs n ≤ ds n
-  IH : (n : ℕ) → let c = affine (cs n) (ds n) (α n) ⊕ (cs n) in
-                 let d = affine (cs n) (ds n) (α n) ⊕ (ds n) in
-                   (cs n ≤ c)
-                 × (c ≤ d)
-                 × (d ≤ ds n)
-                 × (affine (cs n) (ds n) (M (α n ∶∶ (tail- succ n) α))
-                  ≡ affine c d (M ((tail- succ n) α)))
-  IH n = M-seq-eq (cs n) (ds n) (cs≤ds n) (α n) ((tail- succ n) α)
-  cs≤ds 0 = a≤b
-  cs≤ds (succ n) = pr₁ (pr₂ (IH n))
-  cs→ : increasing cs
-  cs→ n = pr₁ (IH n)
-  ←ds : decreasing ds
-  ←ds n = pr₁ (pr₂ (pr₂ (IH n)))
-  γ : (n : ℕ) → affine a b (M α) ≡ affine (cs n) (ds n) (M ((tail- n) α))
-  γ 0 = refl
-  γ (succ n) = γ n
-             ∙ ap (affine (cs n) (ds n)) (ap M (n-tail-eq n α))
-             ∙ pr₂ (pr₂ (pr₂ (IH n)))
-
-cs⟨_⟩ ds⟨_⟩ : (ℕ → 𝕀) → (ℕ → 𝕀)
-cs⟨ α ⟩ = cs⟨ α ⟩' u v
-ds⟨ α ⟩ = ds⟨ α ⟩' u v
-
-M-seq-inf-uv : (α : ℕ → 𝕀)
-             → let cs = cs⟨ α ⟩ in
-               let ds = ds⟨ α ⟩ in
-               (increasing cs)
-             × ((n : ℕ) → cs n ≤ ds n)
-             × (decreasing ds)
-             × ((n : ℕ) → M α ≡ affine (cs n) (ds n) (M ((tail- n) α)))
-M-seq-inf-uv α = transport
-                   (λ - → let cs = cs⟨ α ⟩ in
-                          let ds = ds⟨ α ⟩ in
-                          (increasing cs)
-                        × ((n : ℕ) → cs n ≤ ds n)
-                        × (decreasing ds)
-                        × ((n : ℕ)
-                          → -
-                          ≡ affine (cs n) (ds n) (M ((tail- n) α))))
-                 (happly affine-uv-identity (M α))
-                 (M-seq-inf u v u≤v α)
-
-cs≤ds : (α : ℕ → 𝕀) (n : ℕ) → cs⟨ α ⟩ n ≤ ds⟨ α ⟩ n
-cs≤ds α = pr₁ (pr₂ (M-seq-inf-uv α))
-cs-increasing : (α : ℕ → 𝕀) → increasing (cs⟨ α ⟩)
-cs-increasing α = pr₁ (M-seq-inf-uv α)
-ds-decreasing : (α : ℕ → 𝕀) → decreasing (ds⟨ α ⟩)
-ds-decreasing α = pr₁ (pr₂ (pr₂ (M-seq-inf-uv α)))
-M-cs-ds : (α : ℕ → 𝕀) (n : ℕ)
-        → M α ≡ affine (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) (M ((tail- n) α))
-M-cs-ds α = pr₂ (pr₂ (pr₂ (M-seq-inf-uv α)))
-
-_≈_ : (ℕ → 𝕀) → (ℕ → 𝕀) → ℕ → 𝓤 ̇
-(α ≈ β) n = (i : ℕ) → i <ℕ n → α i ≡ β i
-
-affine-transport : {a b c d e f : 𝕀}
-                 → a ≡ d → b ≡ e → c ≡ f
-                 → affine a b c ≡ affine d e f
-affine-transport refl refl refl = refl
-
-<ℕ-left-down : (i n : ℕ) → succ i <ℕ n → i <ℕ n
-<ℕ-left-down i n si≤n = <-trans i (succ i) n (<-succ i) si≤n
-
-cs-≡ : (α β : ℕ → 𝕀) (n : ℕ) → (α ≈ β) n → (cs⟨ α ⟩ ≈ cs⟨ β ⟩) (succ n)
-ds-≡ : (α β : ℕ → 𝕀) (n : ℕ) → (α ≈ β) n → (ds⟨ α ⟩ ≈ ds⟨ β ⟩) (succ n)
-cs-≡ α β n α≈β zero i<n = refl
-cs-≡ α β n α≈β (succ i) i<n
-  = ap (_⊕ cs⟨ α ⟩ i)
-      (affine-transport
-        (cs-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
-        (ds-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
-        (α≈β i i<n))
-    ∙ ap (affine (cs⟨ β ⟩ i) (ds⟨ β ⟩ i) (β i) ⊕_)
-        (cs-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
-ds-≡ α β n α≈β zero i<n = refl
-ds-≡ α β n α≈β (succ i) i<n
-  = ap (_⊕ ds⟨ α ⟩ i)
-      (affine-transport
-        (cs-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
-        (ds-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
-        (α≈β i i<n))
-    ∙ ap (affine (cs⟨ β ⟩ i) (ds⟨ β ⟩ i) (β i) ⊕_)
-        (ds-≡ α β n α≈β i (<ℕ-left-down i (succ n) i<n))
-
 append-one : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n → Vec X (succ n)
 append-one y zero [] = y ∷ []
 append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
 
-𝕀-induction = {!!}
-
--- affine x y b ≡ affine x y c → x ≢ y → b ≡ c
-
 m : (n : ℕ) → Vec 𝕀 (succ n) → 𝕀
-m zero (x ∷ []) = x
+m 0 (x ∷ []) = x
 m (succ n) (x ∷ xs) = x ⊕ m n xs
-
-constant-vec : {X : 𝓤 ̇ } → X → (n : ℕ) → Vec X n
-constant-vec x n = (first- n) (λ _ → x)
 
 approximation : 𝓤 ̇
 approximation = (x y : ℕ → 𝕀)
-              → (Π n ꞉ ℕ , Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+              → (Π n ꞉ ℕ , Σ (z , w) ꞉ 𝕀 × 𝕀
                  , m n (append-one z n ((first- n) x))
                  ≡ m n (append-one w n ((first- n) y)))
               → M x ≡ M y
 
-approximation' : 𝓤 ̇
-approximation' = (x y : ℕ → 𝕀)
-               → (Σ z ꞉ (ℕ → 𝕀) , Σ w ꞉ (ℕ → 𝕀) , Π n ꞉ ℕ
-                  , m n (append-one (z n) n ((first- n) x))
-                  ≡ m n (append-one (w n) n ((first- n) y)))
-               → M x ≡ M y
-
-M-prop₁-n : (α : ℕ → 𝕀) (n : ℕ)
-          → M α ≡ m n (append-one (M ((tail- n) α)) n ((first- n) α))
-M-prop₁-n α zero = refl
-M-prop₁-n α (succ n) = M-prop₁ α ∙ ap (α 0 ⊕_) (M-prop₁-n (α ∘ succ) n)
-
-m-seq-fin' : (α : ℕ → 𝕀) (n : ℕ)
-           → m n (append-one (M ((tail- n) α)) n ((first- n) α))
-           ≡ affine (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) (M ((tail- n) α))
-m-seq-fin' α n = M-prop₁-n α n ⁻¹ ∙ M-cs-ds α n
-
-tail-++ : (α β : ℕ → 𝕀) (n : ℕ) → (tail- n) (((first- n) α) ++ β) ≡ β
-tail-++ α β zero = refl
-tail-++ α β (succ n) = tail-++ (α ∘ succ) β n
-
-first-++ : (α β : ℕ → 𝕀) (n : ℕ)
-         → (first- n) ((first- n) α ++ β) ≡ (first- n) α
-first-++ α β zero = refl
-first-++ α β (succ n) = ap (α 0 ∷_) (first-++ (α ∘ succ) β n)
-
-first-≈ : (α β : ℕ → 𝕀) (n : ℕ) → (((first- n) α ++ β) ≈ α) n
-first-≈ α β (succ n) zero i<n = refl
-first-≈ α β (succ n) (succ i) i<n = first-≈ (α ∘ succ) β n i i<n
-
-m-seq-fin : (α : ℕ → 𝕀) (z : 𝕀) (n : ℕ)
-          → m n (append-one z n ((first- n) α))
-          ≡ affine (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) z
-m-seq-fin α z n = ap (λ - → m n (append-one z n -)) first-≡
-                ∙ ap (λ - → m n (append-one - n ((first- n) β))) tail-≡
-                ∙ m-seq-fin' β n
-                ∙ affine-transport
-                    (cs-≡ β α n (first-≈ α (λ _ → z) n) n (<-succ n))
-                    (ds-≡ β α n (first-≈ α (λ _ → z) n) n (<-succ n))
-                    (tail-≡ ⁻¹)
- where
-  β : ℕ → 𝕀
-  β = ((first- n) α) ++ (λ _ → z)
-  first-≡ : ((first- n) α) ≡ ((first- n) β)
-  first-≡ = first-++ α (λ _ → z) n ⁻¹
-  tail-≡  : z ≡ (M ((tail- n) β))
-  tail-≡  = (M-idem z ⁻¹) ∙ (ap M (tail-++ α (λ _ → z) n ⁻¹))
-
-approximation'' : 𝓤 ̇
-approximation'' = (x y : ℕ → 𝕀)
-                → ((n : ℕ) → Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
-                   , affine (cs⟨ x ⟩ n) (ds⟨ x ⟩ n) z
-                   ≡ affine (cs⟨ y ⟩ n) (ds⟨ y ⟩ n) w)
-                → M x ≡ M y
-
-approx''→approx : approximation'' → approximation
-approx''→approx a x y f = a x y γ
- where
-   γ : (n : ℕ) →
-         Sigma 𝕀
-         (λ z →
-            Sigma 𝕀
-            (λ w →
-               affine (cs⟨ x ⟩ n) (ds⟨ x ⟩ n) z ≡
-               affine (cs⟨ y ⟩ n) (ds⟨ y ⟩ n) w))
-   γ n = z , w
-       , (m-seq-fin x z n ⁻¹
-        ∙ δ
-        ∙ m-seq-fin y w n)
-    where
-      z = pr₁ (f n)
-      w = pr₁ (pr₂ (f n))
-      δ = pr₂ (pr₂ (f n))
-
-within : (a b c d : 𝕀) → a ≤ b → c ≤ d → 𝓤₀ ̇
-within a b c d a≤b c≤d = (a ≤ d) × (c ≤ b)
-
-within-approx : (a b c d : 𝕀)
-              → within a b c d {!!} {!!}
-              → Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀 , (affine a b z ≡ affine c d w)
-within-approx a b c d = {!!}
-
-within-cs-ds : (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤₀ ̇
-within-cs-ds α β = (n : ℕ)
-                 → within (cs⟨ α ⟩ (succ n)) (ds⟨ α ⟩ (succ n))
-                          (cs⟨ β ⟩ (succ n)) (ds⟨ β ⟩ (succ n))
-                          (cs≤ds α (succ n)) (cs≤ds β (succ n))
-
-half-div2-within : (α : 𝟝ᴺ) → within-cs-ds (λ n → q (div2 (−2' ∶∶ α) n))
-                                            (map half (−2' ∶∶ α))
-half-div2-within α n = {!!}
-
-n-approx : ℕ → (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤 ̇
-n-approx n xs ys = Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
-                 , affine (cs⟨ xs ⟩ (succ n)) (ds⟨ xs ⟩ (succ n)) z
-                 ≡ affine (cs⟨ ys ⟩ (succ n)) (ds⟨ ys ⟩ (succ n)) w
-
 n-approx' : ℕ → (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤 ̇
-n-approx' n x y = Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+n-approx' n x y = Σ (z , w) ꞉ 𝕀 × 𝕀
                 , m (succ n) (append-one z (succ n) ((first- (succ n)) x))
                 ≡ m (succ n) (append-one w (succ n) ((first- (succ n)) y))
 
-{-
-   IH   : n-approx n (λ i → q (div2 (b ∶∶ (head α ∶∶ tail α)) i))
-                     (map half (b ∶∶ (head α ∶∶ tail α)))
-   IH   = half-div2-approx b (head α) (tail α) n
--}
-
 ⊕-hom-l : {a b c : 𝕀} → a ⊕ (b ⊕ c) ≡ (a ⊕ b) ⊕ (a ⊕ c)
-⊕-hom-l {a} {b} {c} = ⊕-is-⊕-homomorphism-l fe (𝕀 , {!!} , {!!}) a b c
+⊕-hom-l {a} {b} {c} = ⊕-is-⊕-homomorphism-r fe 𝓘 a b c
 
 half-div2-approx : (a b : 𝟝) (α : 𝟝ᴺ) (n : ℕ)
-                 → n-approx' n (λ i → q (div2 (a ∶∶ (b ∶∶ α)) i))
+                 → n-approx' n (map q (div2 (a ∶∶ (b ∶∶ α))))
                                (map half (a ∶∶ (b ∶∶ α)))
-half-div2-approx −2' b α 0 = −1 , −1 , refl
-half-div2-approx  O' b α 0 = −1 , −1 , refl
-half-div2-approx +2' b α 0 = −1 , −1 , refl
-half-div2-approx −2' b α (succ n)
- = pr₁ IH , pr₁ (pr₂ IH) , ap (u ⊕_) (pr₂ (pr₂ IH))
- where IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
-                                         (map half (b ∶∶ -)))
-              head-tail-eta (half-div2-approx b (head α) (tail α) n)
-half-div2-approx  O' b α (succ n)
- = pr₁ IH , pr₁ (pr₂ IH) , ap ((u ⊕ v) ⊕_) (pr₂ (pr₂ IH))
- where IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
-                                         (map half (b ∶∶ -)))
-              head-tail-eta (half-div2-approx b (head α) (tail α) n)
-half-div2-approx +2' b α (succ n)
- = pr₁ IH , pr₁ (pr₂ IH) , ap (v ⊕_) (pr₂ (pr₂ IH))
- where IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
-                                         (map half (b ∶∶ -)))
-              head-tail-eta (half-div2-approx b (head α) (tail α) n)
 
-half-div2-approx −1' −2' α 0 = (u ⊕ v) , (u ⊕ (u ⊕ v)) , (⊕-idem ⁻¹)
-half-div2-approx −1' −2' α 1 = (u ⊕ v) , (u ⊕ v)
+half-div2-approx −2' b α 0 = (u , u) , refl
+half-div2-approx −2' b α (succ n)
+ = pr₁ IH , ap (u ⊕_) (pr₂ IH)
+ where
+  IH : n-approx' n (map q (div2 (b ∶∶ α))) (map half (b ∶∶ α))
+  IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
+                                    (map half (b ∶∶ -)))
+         head-tail-eta
+         (half-div2-approx b (head α) (tail α) n)
+
+half-div2-approx  O' b α 0 = (u , u) , refl
+half-div2-approx  O' b α (succ n)
+ = pr₁ IH , ap ((u ⊕ v) ⊕_) (pr₂ IH)
+ where
+  IH : n-approx' n (map q (div2 (b ∶∶ α))) (map half (b ∶∶ α))
+  IH = transport (λ - → n-approx' n (map q (div2 (b ∶∶ -)))
+                                    (map half (b ∶∶ -)))
+         head-tail-eta
+         (half-div2-approx b (head α) (tail α) n)
+
+half-div2-approx +2' b α 0 = (u , u) , refl
+half-div2-approx +2' b α (succ n)
+ = pr₁ IH , ap (v ⊕_) (pr₂ IH)
+ where
+  IH : n-approx' n (map q (div2 (b ∶∶ α))) (map half (b ∶∶ α))
+  IH = transport (λ - → n-approx' n (map q (div2 (b ∶∶ -)))
+                                    (map half (b ∶∶ -)))
+         head-tail-eta
+         (half-div2-approx b (head α) (tail α) n)
+
+half-div2-approx −1' −2' α 0 = ((u ⊕ v) , (u ⊕ (u ⊕ v))) , (⊕-idem ⁻¹)
+half-div2-approx −1' −2' α 1 = ((u ⊕ v) , (u ⊕ v))
                              , (ap (u ⊕_) ⊕-idem ∙ ⊕-idem ⁻¹)
 half-div2-approx −1' −2' α (succ (succ n))
- = pr₁ IH , pr₁ (pr₂ IH)
- , (ap (λ - → (u ⊕ ((u ⊕ v) ⊕ -))) (pr₂ (pr₂ IH))
-   ∙ γ (m (succ n) (append-one (pr₁ (pr₂ IH)) (succ n)
-                   ((first- succ n) (map half α)))))
+ = pr₁ IH , (ap (λ - → (u ⊕ ((u ⊕ v) ⊕ -))) (pr₂ IH) ∙ γ)
  where
-   δ : head α ∶∶ ((head (tail α)) ∶∶ (tail (tail α))) ≡ α
-   δ = ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta
-   IH : n-approx' n (λ i → q (div2 α i)) (map half α)
-   IH = transport (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
-          δ (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
-   γ : (x : 𝕀) → (u ⊕ ((u ⊕ v) ⊕ x)) ≡ ((u ⊕ (u ⊕ v)) ⊕ (u ⊕ x))
-   γ x = ap (_⊕ ((u ⊕ v) ⊕ x)) (⊕-idem ⁻¹)
-       ∙ ⊕-tran
-half-div2-approx −1' −1' α 0 = (u ⊕ v) , (u ⊕ (u ⊕ v)) , (⊕-idem ⁻¹)
+  IH : n-approx' n (map q (div2 α)) (map half α)
+  IH = transport (λ - → n-approx' n (map q (div2 -))
+                                    (map half -))
+         (ap (head α ∶∶_) (head-tail-eta {_} {_} {tail α})
+                         ∙ head-tail-eta {_} {_} {α})
+         (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+  γ : {x : 𝕀} → (u ⊕ ((u ⊕ v) ⊕ x)) ≡ ((u ⊕ (u ⊕ v)) ⊕ (u ⊕ x))
+  γ {x} = ap (_⊕ ((u ⊕ v) ⊕ x)) (⊕-idem ⁻¹)
+        ∙ ⊕-tran
+
+half-div2-approx −1' −1' α 0 = ((u ⊕ v) , (u ⊕ (u ⊕ v)))
+                             , (⊕-idem ⁻¹)
 half-div2-approx −1' −1' α (succ n)
- = pr₁ IH , pr₁ (pr₂ IH)
- , (ap (u ⊕_) (pr₂ (pr₂ IH))
-   ∙ γ (m n (append-one (pr₁ (pr₂ IH)) n
-            ((first- n) (λ n₁ → map half (+1' ∶∶ α) (succ n₁))))))
+ = pr₁ IH , (ap (u ⊕_) (pr₂ IH) ∙ γ)
  where
-  IH : n-approx' n (λ i → q (div2 (+1' ∶∶ α) i)) (map half (+1' ∶∶ α))
-  IH = transport (λ - → n-approx' n (λ i → q (div2 (+1' ∶∶ -) i))
-                                                  (map half (+1' ∶∶ -)))
-          (head-tail-eta {_} {_} {α}) (half-div2-approx +1' (head α) (tail α) n)
-  γ : (x : 𝕀) → (u ⊕ ((v ⊕ (u ⊕ v)) ⊕ x)) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ (u ⊕ v)) ⊕ x))
-  γ x = ⊕-hom-l
-      ∙ ap (_⊕ (u ⊕ x)) ⊕-hom-l
-      ∙ ⊕-tran
-      ∙ ap (_⊕ ((u ⊕ (u ⊕ v)) ⊕ x)) ⊕-comm
-half-div2-approx −1'  O' α 0 = u , (u ⊕ (u ⊕ v)) , (⊕-comm ∙ ⊕-idem ⁻¹)
-half-div2-approx −1'  O' α 1 = u , u
+  IH : n-approx' n (map q (div2 (+1' ∶∶ α))) (map half (+1' ∶∶ α))
+  IH = transport (λ - → n-approx' n (map q (div2 (+1' ∶∶ -)))
+                                    (map half (+1' ∶∶ -)))
+         (head-tail-eta {_} {_} {α})
+         (half-div2-approx +1' (head α) (tail α) n)
+  γ : {x : 𝕀} → (u ⊕ ((v ⊕ (u ⊕ v)) ⊕ x)) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ (u ⊕ v)) ⊕ x))
+  γ {x} = ⊕-hom-l
+        ∙ ap (_⊕ (u ⊕ x)) ⊕-hom-l
+        ∙ ⊕-tran
+        ∙ ap (_⊕ ((u ⊕ (u ⊕ v)) ⊕ x)) ⊕-comm
+
+half-div2-approx −1'  O' α 0 = (u , (u ⊕ (u ⊕ v)))
+                             , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx −1'  O' α 1 = (u , u)
                              , (ap ((u ⊕ v) ⊕_) ⊕-idem
-                               ∙ (ap (_⊕ ((u ⊕ v) ⊕ u)) ⊕-comm ∙ ⊕-idem) ⁻¹)
+                             ∙ (ap (_⊕ ((u ⊕ v) ⊕ u)) ⊕-comm ∙ ⊕-idem) ⁻¹)
 half-div2-approx −1'  O' α (succ (succ n))
- = pr₁ IH , pr₁ (pr₂ IH)
- , (ap (λ - → (u ⊕ v) ⊕ (u ⊕ -)) (pr₂ (pr₂ IH))
- ∙ γ (m (succ n) (append-one (pr₁ (pr₂ IH)) (succ n)
-                 ((first- succ n) (map half α)))))
+ = pr₁ IH , (ap (λ - → (u ⊕ v) ⊕ (u ⊕ -)) (pr₂ IH) ∙ γ)
  where
-   δ : head α ∶∶ ((head (tail α)) ∶∶ (tail (tail α))) ≡ α
-   δ = ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta
-   IH : n-approx' n (λ i → q (div2 α i)) (map half α)
-   IH = transport (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
-          δ (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
-   γ : (x : 𝕀) → (u ⊕ v) ⊕ (u ⊕ x) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ v) ⊕ x))
-   γ x = ⊕-hom-l ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm
-half-div2-approx −1' +1' α 0 = u , (u ⊕ (u ⊕ v)) , (⊕-comm ∙ ⊕-idem ⁻¹)
-half-div2-approx −1' +1' α (succ n) = {!!} , {!!} , {!!}
-half-div2-approx −1' +2' α 0 = u , (u ⊕ (u ⊕ v)) , (⊕-comm ∙ ⊕-idem ⁻¹)
-half-div2-approx −1' +2' α 1 = u , u ,
-                             (⊕-comm ∙ ap (((u ⊕ v) ⊕ u) ⊕_) ⊕-comm
-                                     ∙ ap (_⊕ (v ⊕ u)) ⊕-comm)
+  IH : n-approx' n (map q (div2 α)) (map half α)
+  IH = transport (λ - → n-approx' n (map q (div2 -))
+                                    (map half -))
+         (ap (head α ∶∶_) (head-tail-eta {_} {_} {tail α})
+                        ∙ head-tail-eta {_} {_} {α}) 
+         (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+  γ : {x : 𝕀} → (u ⊕ v) ⊕ (u ⊕ x) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ v) ⊕ x))
+  γ {x} = ⊕-hom-l ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm
+
+half-div2-approx −1' +1' α 0 = (u , (u ⊕ (u ⊕ v)))
+                             , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx −1' +1' α (succ n)
+ = pr₁ IH , (ap (λ - → (u ⊕ v) ⊕ -) (pr₂ IH) ∙ γ)
+ where
+   IH : n-approx' n (map q (div2 (−1' ∶∶ α))) (map half (−1' ∶∶ α))
+   IH = transport (λ - → n-approx' n (map q (div2 (−1' ∶∶ -)))
+                                     (map half (−1' ∶∶ -)))
+          (head-tail-eta {_} {_} {α})
+          (half-div2-approx −1' (head α) (tail α) n)
+   γ : {x : 𝕀} → (u ⊕ v) ⊕ ((u ⊕ (u ⊕ v)) ⊕ x) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((v ⊕ (u ⊕ v)) ⊕ x))
+   γ {x} = ap ((u ⊕ v) ⊕_) ⊕-comm
+         ∙ ⊕-tran
+         ∙ ap ((u ⊕ x) ⊕_)
+             (ap (_⊕ (u ⊕ (u ⊕ v))) (⊕-idem ⁻¹)
+             ∙ ⊕-tran
+             ∙ ap (_⊕ (v ⊕ (u ⊕ v))) ⊕-comm)
+         ∙ ⊕-tran
+         ∙ ap ((u ⊕ (u ⊕ v)) ⊕_) ⊕-comm
+
+half-div2-approx −1' +2' α 0 = (u , (u ⊕ (u ⊕ v)))
+                             , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx −1' +2' α 1 = (u , u)
+                             , (⊕-comm ∙ ap (((u ⊕ v) ⊕ u) ⊕_) ⊕-comm
+                                       ∙ ap (_⊕ (v ⊕ u)) ⊕-comm)
 half-div2-approx −1' +2' α (succ (succ n))
- = pr₁ IH , pr₁ (pr₂ IH)
- , (ap (λ - → (u ⊕ v) ⊕ ((u ⊕ v) ⊕ -)) (pr₂ (pr₂ IH))
- ∙ ⊕-tran)
+ = pr₁ IH , (ap (λ - → (u ⊕ v) ⊕ ((u ⊕ v) ⊕ -)) (pr₂ IH) ∙ ⊕-tran)
  where
-   δ : head α ∶∶ ((head (tail α)) ∶∶ (tail (tail α))) ≡ α
-   δ = ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta
-   IH : n-approx' n (λ i → q (div2 α i)) (map half α)
-   IH = transport (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
-          δ (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
-half-div2-approx +1' b α zero = {!b!}
-half-div2-approx +1' b α (succ n) = {!!}
+  IH : n-approx' n (map q (div2 α)) (map half α)
+  IH = transport (λ - → n-approx' n (map q (div2 -))
+                                    (map half -))
+         (ap (head α ∶∶_) (head-tail-eta {_} {_} {tail α})
+                         ∙ head-tail-eta {_} {_} {α})
+         (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
 
+half-div2-approx +1' −2' α 0 = (((u ⊕ v) ⊕ u) , (u ⊕ u))
+                             , (ap (_⊕ ((u ⊕ v) ⊕ u)) ⊕-comm
+                             ∙ ⊕-tran)
+half-div2-approx +1' −2' α 1 = (v , v)
+                             , (⊕-comm
+                             ∙ ap (_⊕ (u ⊕ v)) ⊕-comm)
+half-div2-approx +1' −2' α (succ (succ n))
+ = pr₁ IH , (ap (λ - → (u ⊕ v) ⊕ ((u ⊕ v) ⊕ -)) (pr₂ IH) ∙ γ)
+ where
+   IH : n-approx' n (map q (div2 α)) (map half α)
+   IH = transport (λ - → n-approx' n (map q (div2 -))
+                                     (map half -))
+          (ap (head α  ∶∶_) (head-tail-eta {_} {_} {tail α})
+                          ∙ head-tail-eta {_} {_} {α})
+          (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+   γ : {x : 𝕀} → (u ⊕ v) ⊕ ((u ⊕ v) ⊕ x) ≡ (v ⊕ (u ⊕ v)) ⊕ (u ⊕ x)
+   γ {x} = ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm ∙ ⊕-tran
+   
+half-div2-approx +1' −1' α 0 = (((u ⊕ v) ⊕ u) , (u ⊕ u))
+                             , (ap (_⊕ ((u ⊕ v) ⊕ u)) ⊕-comm
+                             ∙ ⊕-tran)
+half-div2-approx +1' −1' α (succ n)
+ = pr₁ IH , (ap ((u ⊕ v) ⊕_) (pr₂ IH) ∙ γ)
+ where
+  IH : n-approx' n (map q (div2 (+1' ∶∶ α))) (map half (+1' ∶∶ α))
+  IH = transport (λ - → n-approx' n (map q (div2 (+1' ∶∶ -)))
+                                     (map half (+1' ∶∶ -)))
+          (head-tail-eta {_} {_} {α})
+          (half-div2-approx +1' (head α) (tail α) n)
+  γ : {x : 𝕀} → (u ⊕ v) ⊕ ((v ⊕ (u ⊕ v)) ⊕ x) ≡ ((v ⊕ (u ⊕ v)) ⊕ ((u ⊕ (u ⊕ v)) ⊕ x))
+  γ {x} = ⊕-hom-l
+        ∙ ap (λ - → ((- ⊕ (v ⊕ (u ⊕ v))) ⊕ ((u ⊕ v) ⊕ x))) ⊕-comm
+        ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-tran
+        ∙ ap (λ - → ((- ⊕ (u ⊕ (u ⊕ v))) ⊕ ((u ⊕ v) ⊕ x))) ⊕-idem 
+        ∙ ⊕-tran
 
-mid-realisability : approximation → mid realises² _⊕_
-mid-realisability a α β = γ (add2 α β) ∙ half-real α β
+half-div2-approx +1' O' α 0 = (v , (v ⊕ (u ⊕ v)))
+                            , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx +1' O' α 1 = (v , v)
+                            , (ap ((u ⊕ v) ⊕_) ⊕-idem
+                            ∙ ⊕-idem ⁻¹
+                            ∙ ap (_⊕ ((u ⊕ v) ⊕ v)) ⊕-comm)
+half-div2-approx +1' O' α (succ (succ n))
+ = pr₁ IH
+ , (ap (λ - → (u ⊕ v) ⊕ (v ⊕ -)) (pr₂ IH) ∙ γ)
+ where
+  IH : n-approx' n (map q (div2 α)) (map half α)
+  IH = transport (λ - → n-approx' n (map q (div2 -))
+                                    (map half -))
+         (ap (head α  ∶∶_) (head-tail-eta {_} {_} {tail α})
+                          ∙ head-tail-eta {_} {_} {α})
+         (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+  γ : {x : 𝕀} → ((u ⊕ v) ⊕ (v ⊕ x)) ≡ ((v ⊕ (u ⊕ v)) ⊕ ((u ⊕ v) ⊕ x))
+  γ {x} = ap (_⊕ (v ⊕ x)) (⊕-idem ⁻¹)
+        ∙ ⊕-tran
+        ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm
+
+half-div2-approx +1' +1' α 0 = ((u ⊕ v) , (v ⊕ (u ⊕ v)))
+                             , (⊕-idem ⁻¹)
+half-div2-approx +1' +1' α (succ n)
+ = pr₁ IH , (ap (v ⊕_) (pr₂ IH) ∙ γ)
+ where
+  IH : n-approx' n (map q (div2 (−1' ∶∶ α))) (map half (−1' ∶∶ α))
+  IH = transport (λ - → n-approx' n (map q (div2 (−1' ∶∶ -)))
+                                    (map half (−1' ∶∶ -)))
+         (head-tail-eta {_} {_} {α})
+         (half-div2-approx −1' (head α) (tail α) n)
+  γ : {x : 𝕀} → v ⊕ ((u ⊕ (u ⊕ v)) ⊕ x) ≡ ((v ⊕ (u ⊕ v)) ⊕ ((v ⊕ (u ⊕ v)) ⊕ x))
+  γ {x} = ap (_⊕ ((u ⊕ (u ⊕ v)) ⊕ x)) (⊕-idem ⁻¹)
+        ∙ ⊕-tran
+        ∙ ap (_⊕ (v ⊕ x)) (⊕-hom-l ∙ ap (_⊕ (v ⊕ (u ⊕ v))) ⊕-comm)
+        ∙ ⊕-tran
+        ∙ ap (_⊕ ((v ⊕ (u ⊕ v)) ⊕ x)) ⊕-comm
+
+half-div2-approx +1' +2' α 0 = ((u ⊕ v) , (v ⊕ (u ⊕ v)))
+                             , (⊕-idem ⁻¹)
+half-div2-approx +1' +2' α 1 = ((u ⊕ v) , (u ⊕ v))
+                             , (ap (v ⊕_) ⊕-idem ∙ ⊕-idem ⁻¹)
+half-div2-approx +1' +2' α (succ (succ n))
+ = pr₁ IH , (ap (λ - → v ⊕ ((u ⊕ v) ⊕ -)) (pr₂ IH) ∙ γ)
+ where
+  IH : n-approx' n (map q (div2 α)) (map half α)
+  IH = transport (λ - → n-approx' n (map q (div2 -))
+                                    (map half -))
+         (ap (head α  ∶∶_) (head-tail-eta {_} {_} {tail α})
+                          ∙ head-tail-eta {_} {_} {α})
+         (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+  γ : {x : 𝕀} → v ⊕ ((u ⊕ v) ⊕ x) ≡ ((v ⊕ (u ⊕ v)) ⊕ (v ⊕ x))
+  γ {x} = ⊕-hom-l
+  
+mid-realisability' : approximation → mid realises² _⊕_
+mid-realisability' a α β = γ (add2 α β) ∙ half-real α β
  where
   γ : (α : 𝟝ᴺ) → 𝕢 (div2 α) ≡ M (map half α)
-  γ α = a (λ n → q (div2 α n)) (map half α) δ
+  γ α = a (map q (div2 α)) (map half α) δ
    where
-    δ : (n : ℕ) → Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
-      , m n (append-one z n ((first- n) (λ i → q (div2 α i))))
-      ≡ m n (append-one w n ((first- n) (λ i → half (α i))))
-    δ 0 = u , u , refl
-    δ (succ n) = transport
-                   (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
-                   (ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta)
-                   (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+    δ : (n : ℕ) → Σ (z , w) ꞉ 𝕀 × 𝕀
+      , m n (append-one z n ((first- n) (map q (div2 α))))
+      ≡ m n (append-one w n ((first- n) (map half α)))
+    δ 0 = (u , u) , refl
+    δ (succ n)
+     = transport (λ - → n-approx' n (map q (div2 -))
+                                    (map half -))
+         (ap (head α ∶∶_) (head-tail-eta {_} {_} {tail α})
+                         ∙ head-tail-eta {_} {_} {α})
+         (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
 
 
-within-inf : (α β : ℕ → 𝕀)
-           → ((n : ℕ)
-             → within (cs⟨ α ⟩ n) (ds⟨ α ⟩ n)
-                      (cs⟨ β ⟩ n) (ds⟨ β ⟩ n)
-                      (cs≤ds α n) (cs≤ds β n))
-           → approximation''
-           → M α ≡ M β
-within-inf α β f a = a α β (λ n → within-approx (cs⟨ α ⟩ n) (ds⟨ α ⟩ n) (cs⟨ β ⟩ n) (ds⟨ β ⟩ n) (f n))
+multi-canc : (w z : 𝕀) (y : ℕ → 𝕀) (n : ℕ)
+           → m n (append-one w n ((first- n) y))
+           ≡ m n (append-one z n ((first- n) y))
+           → w ≡ z
+multi-canc w .w y zero refl = refl
+multi-canc w z y (succ n) e = multi-canc w z (y ∘ succ) n
+                              (⊕-canc _ _ _ (⊕-comm ∙ e ∙ ⊕-comm))
 
-approx→approx' : approximation → approximation'
-approx→approx' f x y (zs , ws , γ) = f x y (λ n → zs n , ws n , γ n)
+one-sided-approx : (x : 𝕀) (y : ℕ → 𝕀)
+                 → ((n : ℕ) → Σ w ꞉ 𝕀 , x ≡ m n (append-one w n ((first- n) y)))
+                 → x ≡ M y
+one-sided-approx x y f = M-prop₂ ws y γ where
+  ws : ℕ → 𝕀
+  ws 0 = x
+  ws (succ i) = pr₁ (f (succ i))
+  γ : (i : ℕ) → ws i ≡ (y i ⊕ ws (succ i))
+  γ zero = pr₂ (f 1)
+  γ (succ i) = multi-canc (ws (succ i)) (y (succ i) ⊕ ws (succ (succ i)))
+               y (succ i) (pr₂ (f (succ i)) ⁻¹  ∙ (pr₂ (f (succ (succ i))) ∙ δ'' y (ws (succ (succ i))) i))
+   where
+    δ'' : (y : ℕ → 𝕀) (z : 𝕀) (i : ℕ)
+        → m (succ (succ i)) (append-one z (succ (succ i)) ((first- (succ (succ i))) y))
+        ≡ m (succ i) (append-one (y (succ i) ⊕ z) (succ i) ((first- (succ i)) y))
+    δ'' y z zero = refl
+    δ'' y z (succ i) = ap (y 0 ⊕_) (δ'' (y ∘ succ) z i)
 
-approx'→approx : approximation' → approximation
-approx'→approx f x y g = f x y
-                           ((λ n → pr₁ (g n))
-                         , ((λ n → pr₁ (pr₂ (g n)))
-                         , (λ n → pr₂ (pr₂ (g n)))))
-
-unfold : cancellative fe _⊕_
-       → (x : 𝕀) (y : ℕ → 𝕀) (w : ℕ → 𝕀)
-       → ((n : ℕ) → x ≡ m n (append-one (w n) n ((first- n) y)))
-       → (i : ℕ) → Σ z ꞉ 𝕀
-       , (((z ⊕ w i) ≡ m i (append-one (w i) i ((first- i) y)))
-       × (m (succ i) (append-one (w (succ i)) (succ i) ((first- succ i) y))
-          ≡ (z ⊕ (y i ⊕ w (succ i)))))
-unfold c x y w f zero = w 0 , ⊕-idem , {!!}
-unfold c x y w f (succ i) = {!!}
-
-one-sided-approximation : cancellative fe _⊕_
-                      → (x : 𝕀) (y : ℕ → 𝕀)
-                      → (Σ w ꞉ (ℕ → 𝕀) , Π n ꞉ ℕ
-                      , x ≡ m n (append-one (w n) n ((first- n) y)))
-                      → x ≡ M y
-one-sided-approximation c x y (w , f) = {!!} -- M-prop₂ w' y (induction (f 0 ∙ γ 0) (λ k _ → γ (succ k)))
+_++_ : {n i : ℕ} {X : 𝓤 ̇ } → Vec X n → Vec X i → Vec X (n +ℕ i)
+_++_ {zero} {zero} {X} [] v₂ = v₂
+_++_ {zero} {succ i} {X} [] v₂ = transport (Vec X) (ap succ (zero-left-neutral i ⁻¹)) v₂
+_++_ {succ n} {zero} {X} v₁ [] = v₁
+_++_ {succ n} {succ i} {X} (v ∷ v₁) v₂ = transport (Vec X) (ap succ (δ n i)) (v ∷ (v₁ ++ v₂))
  where
-   w' : ℕ → 𝕀
-   w' 0 = x
-   w' (succ n) = w (succ n)
-   p : x ≡ w 0
-   p = f 0
-   γ : (i : ℕ) → w i ≡ (y i ⊕ w (succ i))
-   γ i = c (w i) (y i ⊕ w (succ i)) (pr₁ (unfold c x y w f i))
-         (⊕-comm ∙ pr₁ (pr₂ (unfold c x y w f i))
-          ∙ f i ⁻¹ ∙ f (succ i)
-          ∙ {!!} ∙ ⊕-comm)
+  δ : ∀ n i → succ (n +ℕ i) ≡ succ n +ℕ i
+  δ n zero = refl
+  δ n (succ i) = ap succ (δ n i)
 
-cancellation-implies-approximation : cancellative fe _⊕_ → approximation
-cancellation-implies-approximation c x y f
- = M x ≡⟨ c (M x) (M y) (M z) (seven 0) ⟩
-   M y ∎
+_++'_ : {n : ℕ} {X : 𝓤 ̇ } → Vec X n → (ℕ → X) → (ℕ → X)
+[] ++' y = y
+((x ∷ _) ++' _) zero = x
+((_ ∷ v₁) ++' y) (succ n) = (v₁ ++' y) n
+
+five : (n : ℕ) (a b c : ℕ → 𝕀) (e : 𝕀)
+     → m (succ n) (append-one e (succ n) ((first- succ n) a))
+       ⊕ M ((first- n) b ++' λ i → (c (succ (i +ℕ n))))
+     ≡ M ((append-one (a n ⊕ e) n ((first- n) λ i → a i ⊕ b i))
+         ++' (λ i → c (succ (i +ℕ n))))
+five zero a b c e = M-prop₁ _ ⁻¹
+five (succ n) a b c e = ap ((a 0 ⊕ (a 1 ⊕
+                             m n (append-one e n ((first- n) (λ n₁ → a (succ (succ n₁)))))))
+                           ⊕_)
+                          (M-prop₁ ((first- succ n) b ++' (λ i → c (succ (i +ℕ succ n)))))
+                      ∙ ⊕-tran
+                      ∙ ap ((a 0 ⊕ b 0) ⊕_) (five n (tail a) (tail b) (tail c) e)
+                      ∙ M-prop₁ (append-one (a (succ n) ⊕ e) (succ n)
+                                  ((first- succ n) (λ i → a i ⊕ b i))
+                                  ++' (λ i → c (succ (i +ℕ succ n)))) ⁻¹
+
+equals : (x : ℕ → 𝕀) (n : ℕ) → M x ≡ M (append-one (x n) n ((first- n) x) ++' (λ i → x (succ (i +ℕ n))))
+equals x zero = M-prop₁ x
+              ∙ M-prop₁ (append-one (x zero) zero ((first- zero) x) ++'
+                          (λ i → x (succ (i +ℕ zero)))) ⁻¹
+equals x (succ n) = M-prop₁ x
+                  ∙ ap (x 0 ⊕_) (equals (tail x) n)
+                  ∙ M-prop₁ (append-one (x (succ n)) (succ n) ((first- succ n) x) ++'
+                              (λ i → x (succ (i +ℕ succ n)))) ⁻¹
+
+next : (x y : ℕ → 𝕀) (n : ℕ)
+     → M (λ i → x i ⊕ y i) ≡ m (succ n) (append-one (y n) (succ n) ((first- succ n) x))
+                           ⊕ M (((first- n) y) ++' (λ i → (x (succ (i +ℕ n))) ⊕ (y (succ (i +ℕ n)))))
+next x y n = equals (λ i → x i ⊕ y i) n
+           ∙ five n x y (λ i → x i ⊕ y i) (y n) ⁻¹
+
+equals2 : (x y : ℕ → 𝕀) (w : 𝕀) (n : ℕ)
+        → (append-one w n ((first- n) x)) ++' y
+        ≡ ((first- n) x) ++' (w ∶∶ y)
+equals2 x y w zero = dfunext (fe 𝓤₀ 𝓤) (induction refl λ _ _ → refl)
+equals2 x y w (succ n) = dfunext (fe 𝓤₀ 𝓤) (induction refl (λ k _ → happly (equals2 (tail x) y w n) k))
+
+tail-_ : {X : 𝓤 ̇ } → ℕ → (ℕ → X) → (ℕ → X)
+(tail- 0) α = α
+(tail- succ n) α = tail ((tail- n) α)
+
+M→m : (α : ℕ → 𝕀) (n : ℕ)
+    → M α ≡ m n (append-one (M ((tail- n) α)) n ((first- n) α))
+M→m α zero = refl
+M→m α (succ n) = M-prop₁ α
+               ∙ ap (α 0 ⊕_)
+               (transport
+                    (λ - → M (tail α)
+                         ≡ m n (append-one (M -) n ((first- n) (tail α))))
+                    (γ α n) (M→m (tail α) n))
+  where
+    γ : (α : ℕ → 𝕀) (n : ℕ) → ((tail- n) (tail α)) ≡ ((tail- succ n) α)
+    γ α 0 = refl
+    γ α (succ n) = ap tail (γ α n)
+
+tl : {X : 𝓤 ̇} {m : ℕ} → Vec X (succ m) → Vec X m
+tl (_ ∷ xs) = xs
+
+tail-first' : {X : 𝓤 ̇ } {m : ℕ} → (a : Vec X (succ m)) (β : ℕ → X) (n : ℕ) → (tail- succ n) (a ++' β) ≡ (tail- n) (tl a ++' β)
+tail-first' {X} {m} (_ ∷ xs) β 0 = refl
+tail-first' {X} {m} (_ ∷ xs) β (succ n) = ap tail (tail-first' {X} {m} (_ ∷ xs) β n)
+
+tail-first : {X : 𝓤 ̇ } → (α β : ℕ → X) (n : ℕ) → (tail- n) (((first- n) α) ++' β) ≡ β
+tail-first α β zero = refl
+tail-first α β (succ n) = tail-first' ((first- (succ n)) α) β n ∙ tail-first (tail α) β n
+
+first-first : {X : 𝓤 ̇ } → (α β : ℕ → X) (n : ℕ) → ((first- n) ((first- n) α ++' β)) ≡ (first- n) α
+first-first α β 0 = refl
+first-first α β (succ n) = ap (α 0 ∷_) (first-first (tail α) β n)
+
+approx-holds : approximation
+approx-holds x y f = ⊕-canc (M x) (M y) (M (tail z)) seven
  where
   z w : ℕ → 𝕀
-  z n = pr₁ (f (succ n))
-  w n = pr₁ (pr₂ (f (succ n)))
-  next : (x y : ℕ → 𝕀) (n : ℕ)
-       → M (λ i → x i ⊕ y i)
-       ≡ (m (succ n) (append-one (y n) (succ n) ((first- succ n) x)))
-       ⊕ (M ((first- n) y ++ λ i → x (succ (n +ℕ i)) ⊕ y (succ (n +ℕ i))))
-  next x y zero = M-prop₁ (λ i → x i ⊕ y i)
-                ∙ ap (λ - → (x 0 ⊕ y 0) ⊕ M -)
-                  (dfunext (fe 𝓤₀ 𝓤)
-                  (λ i → ap (λ - → x (succ -) ⊕ y (succ -))
-                         (zero-left-neutral i ⁻¹)))
-  next x y (succ n)
-   = M-prop₁ (λ i → x i ⊕ y i)
-   ∙ ap ((x 0 ⊕ y 0) ⊕_) (next (x ∘ succ) (y ∘ succ) n)
-   ∙ ⊕-tran
-   ∙ ap ((x 0 ⊕ m (succ n)
-         (append-one (y (succ n)) (succ n) ((first- (succ n)) (x ∘ succ))))
-         ⊕_)
-        (ap (λ - → y 0 ⊕ M (((first- n) (y ∘ succ)) ++ -))
-          (dfunext (fe 𝓤₀ 𝓤)
-          (λ i → ap (λ - → x (succ -) ⊕ y (succ -))
-                 (δ n i)))
-        ∙ M-prop₁ ((first- succ n) y ++ (λ i → x (succ (succ n +ℕ i))
-                  ⊕ y (succ (succ n +ℕ i)))) ⁻¹)
-    where
-      δ : (n i : ℕ) → succ (n +ℕ i) ≡ succ n +ℕ i
-      δ n zero = refl
-      δ n (succ i) = ap succ (δ n i)
-  seven : (n : ℕ) → M x ⊕ M z ≡ M y ⊕ M z
-  seven n = M x ⊕ M z             ≡⟨ M-hom x z ⟩
-            M (λ i → x i ⊕ z i)   ≡⟨ next x z n ⟩
-            (m (succ n)
-              (append-one (pr₁ (f (succ n))) (succ n) ((first- succ n) x))
-              ⊕
-              M
-              ((first- n) (λ n₁ → pr₁ (f (succ n₁))) ++
-               (λ i → x (succ (n +ℕ i)) ⊕ pr₁ (f (succ (succ (n +ℕ i)))))))                 ≡⟨ one-sided-approximation c _ (λ i → y i ⊕ z i) {!!} ⟩
-            M (λ i → y i ⊕ z i) ≡⟨ M-hom y z ⁻¹ ⟩
-            M y ⊕ M z  ∎
-   where
-     γ : (j : ℕ) → M (λ i → x i ⊕ z i) ≡ m j (append-one (w j) j ((first- j) (λ i → y i ⊕ z i)))
-     γ j = M (λ i → x i ⊕ z i)
-                               ≡⟨ next x z j ⟩
-           (m (succ j) (append-one (z j) (succ j) ((first- succ j) x))
-             ⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
-                               ≡⟨ ap (_⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
-                                     (pr₂ (pr₂ (f (succ j)))) ⟩
-           (m (succ j) (append-one (w j) (succ j) ((first- succ j) y))
-             ⊕ M ((first- j) z ++ (λ i → x (succ (j +ℕ i)) ⊕ z (succ (j +ℕ i)))))
-                               ≡⟨ {!next y z j ⁻¹!} ⟩
-           y j ≡⟨ {!!} ⟩
-           m j (append-one (w j) j ((first- j) (λ i → y i ⊕ z i))) ∎
+  z n = pr₁ (pr₁ (f n))
+  w n = pr₂ (pr₁ (f n))
+  w'' : (n : ℕ) → (ℕ → 𝕀)
+  w'' n =  ((y n ⊕ pr₂ (pr₁ (f (succ n)))) ∶∶
+               (λ i → x (succ (i +ℕ n)) ⊕ pr₁ (pr₁ (f (succ (succ (i +ℕ n)))))))
+  six : (n : ℕ) → m n (append-one (z n) n ((first- n) x))
+                ≡ m n (append-one (w n) n ((first- n) y))
+  six n = pr₂ (f n)
+  γ' : (n : ℕ) → Σ w* ꞉ 𝕀 , M (λ i → x i ⊕ (tail z) i)
+                           ≡ m n (append-one w* n ((first- n) (λ i → y i ⊕ (tail z) i)))
+  γ' n = M (w'' n)
+       , (next x (tail z) n
+       ∙ ap (_⊕ M ((first- n) (tail z) ++' (λ i → x (succ (i +ℕ n)) ⊕ tail z (succ (i +ℕ n)))))
+           (six (succ n))
+       ∙ five n y (tail z) (λ i → x i ⊕ (tail z) i) (w (succ n))
+       ∙ ap M (equals2 (λ i → y i ⊕ (tail z) i) ((λ i → x (succ (i +ℕ n)) ⊕ (tail z) (succ (i +ℕ n)))) (w'' n 0) n)
+       ∙ M→m (((first- n) (λ i → y i ⊕ (tail z) i) ++' (w'' n))) n
+       ∙ (ap (λ - →
+                  m n (append-one (M -) n
+                  ((first- n) ((first- n) (λ i → y i ⊕ (tail z) i) ++' (w'' n)))))
+                 (tail-first (λ i → y i ⊕ (tail z) i) (w'' n) n)
+            ∙ ap (λ - →
+                  m n (append-one (M (w'' n)) n -))
+                  (first-first (λ i → y i ⊕ (tail z) i) (w'' n) n)))
+  seven : M x ⊕ M (z ∘ succ) ≡ M y ⊕ M (z ∘ succ)
+  seven = M-hom x (z ∘ succ)
+        ∙ one-sided-approx (M (λ i → x i ⊕ pr₁ (pr₁ (f (succ i))))) (λ i → y i ⊕ z (succ i)) γ'
+        ∙ M-hom y (z ∘ succ) ⁻¹
 
-approximation-implies-cancellation : approximation → cancellative fe _⊕_
-approximation-implies-cancellation f x y z x⊕z≡y⊕z
- = transport (_≡ y) (M-idem x) (transport (M (λ _ → x) ≡_) (M-idem y)
-   (f (λ _ → x) (λ _ → y) (λ n → z , z , m-idem n)))
- where
-   m-idem : (n : ℕ) → m n (append-one z n (constant-vec x n))
-                    ≡ m n (append-one z n (constant-vec y n))
-   m-idem zero = refl
-   m-idem (succ zero) = x⊕z≡y⊕z
-   m-idem (succ (succ n))
-    =    x    ⊕ (x ⊕ w)  ≡⟨ ap (_⊕ (x ⊕ w)) (⊕-idem ⁻¹) ⟩
-      (x ⊕ x) ⊕ (x ⊕ w)  ≡⟨ ap ((x ⊕ x) ⊕_) (m-idem (succ n)
-                          ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
-      (x ⊕ x) ⊕ (y ⊕ w)  ≡⟨ ⊕-tran ⟩
-      (x ⊕ y) ⊕ (x ⊕ w)  ≡⟨ ap ((x ⊕ y) ⊕_) (m-idem (succ n)
-                          ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
-      (x ⊕ y) ⊕ (y ⊕ w)  ≡⟨ ap (_⊕ (y ⊕ w)) ⊕-comm ⟩
-      (y ⊕ x) ⊕ (y ⊕ w)  ≡⟨ ⊕-tran ⟩
-      (y ⊕ y) ⊕ (x ⊕ w)  ≡⟨ ap ((y ⊕ y) ⊕_) (m-idem (succ n)
-                          ∙ ap (y ⊕_) (m-idem n ⁻¹)) ⟩
-      (y ⊕ y) ⊕ (y ⊕ w)  ≡⟨ ap (_⊕ (y ⊕ w)) ⊕-idem ⟩
-         y    ⊕ (y ⊕ w)  ≡⟨ ap (λ - → y ⊕ (y ⊕ -)) (m-idem n) ⟩
-         y    ⊕ (y ⊕ w') ∎
-    where
-      w  = m n (append-one z n (constant-vec x n))
-      w' = m n (append-one z n (constant-vec y n))
+mid-realisability : mid realises² _⊕_
+mid-realisability = mid-realisability' approx-holds
