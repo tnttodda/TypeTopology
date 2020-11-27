@@ -9,7 +9,7 @@ open import UF-PropTrunc
 open import OrderedIntervalObject
 
 module RealisabilityMid
- (𝓤 : Universe)
+ -- (𝓤 : Universe)
  (fe : FunExt)
  (io : Interval-object fe 𝓤)
  (db : has-double fe 𝓤 io)
@@ -273,11 +273,6 @@ mid-div +1' α e = {!!}
 mid-div +2' α e = M-prop₁ (λ n → q (div2 (+2' ∶∶ α) n)) ∙ ap (v ⊕_) e ∙ M-prop₁ (map half (+2' ∶∶ α)) ⁻¹
 -}
 
-mid-realisability : mid realises² _⊕_
-mid-realisability α β = γ (add2 α β) ∙ half-real α β
- where
-  γ : (α : 𝟝ᴺ) → 𝕢 (div2 α) ≡ M (map half α)
-  γ α = {!!}
 
 data Vec (A : 𝓥 ̇) : ℕ → 𝓥 ̇ where
   [] : Vec A 0
@@ -375,7 +370,7 @@ n-tail-eq {𝓥} (succ n) α = n-tail-eq n (α ∘ succ)
 
 cs⟨_⟩' ds⟨_⟩' : (ℕ → 𝕀) → 𝕀 → 𝕀 → (ℕ → 𝕀)
 cs⟨ α ⟩' a b 0 = a
-cs⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n) (α n)
+cs⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n ) (α n)
                       ⊕ (cs⟨ α ⟩' a b n)
 ds⟨ α ⟩' a b 0 = b
 ds⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n) (α n)
@@ -384,7 +379,7 @@ ds⟨ α ⟩' a b (succ n) = affine (cs⟨ α ⟩' a b n) (ds⟨ α ⟩' a b n) 
 M-seq-inf : (a b : 𝕀) → a ≤ b → (α : ℕ → 𝕀)
           → let cs = cs⟨ α ⟩' a b in
             let ds = ds⟨ α ⟩' a b in
-            (increasing cs) -- (n : ℕ) → cs n ≤ cs (succ n)
+            (increasing cs)
           × ((n : ℕ) → cs n ≤ ds n)
           × (decreasing ds)
           × ((n : ℕ)
@@ -486,60 +481,6 @@ append-one y (succ n) (x ∷ xs) = x ∷ append-one y n xs
 
 𝕀-induction = {!!}
 
-u-sequence : (a : ℕ → 𝕀) → u ≡ M a → (n : ℕ) → u ≡ a n
-u-sequence a u≡Ma n = {!!}
-
-cancellation : (a b c : 𝕀) → a ⊕ b ≡ a ⊕ c → b ≡ c
-cancellation a b c = 𝕀-induction (λ a → a ⊕ b ≡ a ⊕ c → b ≡ c)
-                       (λ _ → Π-is-prop (fe 𝓤 𝓤) (λ _ → 𝕀-set))
-                       {!!}
-                       {!!}
-                       {!!}
-                       a
- where
-   xx-cancellation : {i x : 𝕀} → i ⊕ x ≡ i ⊕ x → x ≡ x
-   xx-cancellation _ = refl
-   uuv-cancellation : u ⊕ u ≡ u ⊕ v → u ≡ v
-   uuv-cancellation p =     u       ≡⟨ ⊕-idem ⁻¹ ⟩
-                          u ⊕ u     ≡⟨ p ⟩
-                          u ⊕ v     ≡⟨ ⊕-comm ⟩
-                          v ⊕ u     ≡⟨ ap (_⊕ u) (−1-inverse ⁻¹) ⟩
-                        − u ⊕ u     ≡⟨ ap (− u ⊕_) (+1-inverse ⁻¹) ⟩
-                        − u ⊕ − v   ≡⟨ −-is-⊕-homomorphism u v ⁻¹ ⟩
-                       − (u ⊕ v)    ≡⟨ ap −_ (p ⁻¹) ⟩
-                       − (u ⊕ u)    ≡⟨ ap −_ ⊕-idem ⟩
-                           − u      ≡⟨ −1-inverse ⟩
-                            v       ∎
-   uMu-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ u) → a n ≡ u)
-                                    → (u ⊕ M a) ≡ (u ⊕ u) → M a ≡ u
-   uMu-cancellation a f p = M a         ≡⟨ ap M (dfunext (fe 𝓤₀ 𝓤)
-                                           (λ i → f i (s i ∙ ⊕-idem ⁻¹))) ⟩
-                            M (λ _ → u) ≡⟨ M-idem u ⟩
-                            u           ∎
-     where
-       r : u ≡ M (λ n → u ⊕ a n)
-       r =   u    ≡⟨ ⊕-idem ⁻¹ ⟩
-           u ⊕ u  ≡⟨ transport ((u ⊕ u) ≡_)
-                       (M-hom (λ _ → u) a)
-                       (p ⁻¹ ∙ ap (_⊕ M a) (M-idem u ⁻¹)) ⟩
-           M (λ n → u ⊕ a n) ∎
-       s : (i : ℕ) → (u ⊕ a i) ≡ u
-       s i = u-sequence (λ n → u ⊕ a n) r i ⁻¹
-   uMv-cancellation : (a : ℕ → 𝕀) → ((n : ℕ) → (u ⊕ a n) ≡ (u ⊕ v) → a n ≡ v)
-                                    → (u ⊕ M a) ≡ (u ⊕ v) → M a ≡ v
-   uMv-cancellation a f p = M a         ≡⟨ ap M (dfunext (fe 𝓤₀ 𝓤)
-                                           (λ i → f i (s i))) ⟩
-                            M (λ _ → v) ≡⟨ M-idem v ⟩
-                            v           ∎
-     where
-       r : u ⊕ v ≡ M (λ n → u ⊕ a n)
-       r = u ⊕ v  ≡⟨ transport ((u ⊕ v) ≡_)
-                       (M-hom (λ _ → u) a)
-                       (p ⁻¹ ∙ ap (_⊕ M a) (M-idem u ⁻¹)) ⟩
-           M (λ n → u ⊕ a n) ∎
-       s : (i : ℕ) → (u ⊕ a i) ≡ (u ⊕ v)
-       s i = {!!}
-
 -- affine x y b ≡ affine x y c → x ≢ y → b ≡ c
 
 m : (n : ℕ) → Vec 𝕀 (succ n) → 𝕀
@@ -552,8 +493,8 @@ constant-vec x n = (first- n) (λ _ → x)
 approximation : 𝓤 ̇
 approximation = (x y : ℕ → 𝕀)
               → (Π n ꞉ ℕ , Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
-                 , m n (append-one z n ((first- n) x)) -- x ++ [z]
-                 ≡ m n (append-one w n ((first- n) y))) -- y ++ [w]
+                 , m n (append-one z n ((first- n) x))
+                 ≡ m n (append-one w n ((first- n) y)))
               → M x ≡ M y
 
 approximation' : 𝓤 ̇
@@ -646,7 +587,134 @@ within-cs-ds α β = (n : ℕ)
 
 half-div2-within : (α : 𝟝ᴺ) → within-cs-ds (λ n → q (div2 (−2' ∶∶ α) n))
                                             (map half (−2' ∶∶ α))
-half-div2-within α n = ?
+half-div2-within α n = {!!}
+
+n-approx : ℕ → (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤 ̇
+n-approx n xs ys = Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+                 , affine (cs⟨ xs ⟩ (succ n)) (ds⟨ xs ⟩ (succ n)) z
+                 ≡ affine (cs⟨ ys ⟩ (succ n)) (ds⟨ ys ⟩ (succ n)) w
+
+n-approx' : ℕ → (ℕ → 𝕀) → (ℕ → 𝕀) → 𝓤 ̇
+n-approx' n x y = Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+                , m (succ n) (append-one z (succ n) ((first- (succ n)) x))
+                ≡ m (succ n) (append-one w (succ n) ((first- (succ n)) y))
+
+{-
+   IH   : n-approx n (λ i → q (div2 (b ∶∶ (head α ∶∶ tail α)) i))
+                     (map half (b ∶∶ (head α ∶∶ tail α)))
+   IH   = half-div2-approx b (head α) (tail α) n
+-}
+
+⊕-hom-l : {a b c : 𝕀} → a ⊕ (b ⊕ c) ≡ (a ⊕ b) ⊕ (a ⊕ c)
+⊕-hom-l {a} {b} {c} = ⊕-is-⊕-homomorphism-l fe (𝕀 , {!!} , {!!}) a b c
+
+half-div2-approx : (a b : 𝟝) (α : 𝟝ᴺ) (n : ℕ)
+                 → n-approx' n (λ i → q (div2 (a ∶∶ (b ∶∶ α)) i))
+                               (map half (a ∶∶ (b ∶∶ α)))
+half-div2-approx −2' b α 0 = −1 , −1 , refl
+half-div2-approx  O' b α 0 = −1 , −1 , refl
+half-div2-approx +2' b α 0 = −1 , −1 , refl
+half-div2-approx −2' b α (succ n)
+ = pr₁ IH , pr₁ (pr₂ IH) , ap (u ⊕_) (pr₂ (pr₂ IH))
+ where IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
+                                         (map half (b ∶∶ -)))
+              head-tail-eta (half-div2-approx b (head α) (tail α) n)
+half-div2-approx  O' b α (succ n)
+ = pr₁ IH , pr₁ (pr₂ IH) , ap ((u ⊕ v) ⊕_) (pr₂ (pr₂ IH))
+ where IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
+                                         (map half (b ∶∶ -)))
+              head-tail-eta (half-div2-approx b (head α) (tail α) n)
+half-div2-approx +2' b α (succ n)
+ = pr₁ IH , pr₁ (pr₂ IH) , ap (v ⊕_) (pr₂ (pr₂ IH))
+ where IH = transport (λ - → n-approx' n (λ i → q (div2 (b ∶∶ -) i))
+                                         (map half (b ∶∶ -)))
+              head-tail-eta (half-div2-approx b (head α) (tail α) n)
+
+half-div2-approx −1' −2' α 0 = (u ⊕ v) , (u ⊕ (u ⊕ v)) , (⊕-idem ⁻¹)
+half-div2-approx −1' −2' α 1 = (u ⊕ v) , (u ⊕ v)
+                             , (ap (u ⊕_) ⊕-idem ∙ ⊕-idem ⁻¹)
+half-div2-approx −1' −2' α (succ (succ n))
+ = pr₁ IH , pr₁ (pr₂ IH)
+ , (ap (λ - → (u ⊕ ((u ⊕ v) ⊕ -))) (pr₂ (pr₂ IH))
+   ∙ γ (m (succ n) (append-one (pr₁ (pr₂ IH)) (succ n)
+                   ((first- succ n) (map half α)))))
+ where
+   δ : head α ∶∶ ((head (tail α)) ∶∶ (tail (tail α))) ≡ α
+   δ = ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta
+   IH : n-approx' n (λ i → q (div2 α i)) (map half α)
+   IH = transport (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
+          δ (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+   γ : (x : 𝕀) → (u ⊕ ((u ⊕ v) ⊕ x)) ≡ ((u ⊕ (u ⊕ v)) ⊕ (u ⊕ x))
+   γ x = ap (_⊕ ((u ⊕ v) ⊕ x)) (⊕-idem ⁻¹)
+       ∙ ⊕-tran
+half-div2-approx −1' −1' α 0 = (u ⊕ v) , (u ⊕ (u ⊕ v)) , (⊕-idem ⁻¹)
+half-div2-approx −1' −1' α (succ n)
+ = pr₁ IH , pr₁ (pr₂ IH)
+ , (ap (u ⊕_) (pr₂ (pr₂ IH))
+   ∙ γ (m n (append-one (pr₁ (pr₂ IH)) n
+            ((first- n) (λ n₁ → map half (+1' ∶∶ α) (succ n₁))))))
+ where
+  IH : n-approx' n (λ i → q (div2 (+1' ∶∶ α) i)) (map half (+1' ∶∶ α))
+  IH = transport (λ - → n-approx' n (λ i → q (div2 (+1' ∶∶ -) i))
+                                                  (map half (+1' ∶∶ -)))
+          (head-tail-eta {_} {_} {α}) (half-div2-approx +1' (head α) (tail α) n)
+  γ : (x : 𝕀) → (u ⊕ ((v ⊕ (u ⊕ v)) ⊕ x)) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ (u ⊕ v)) ⊕ x))
+  γ x = ⊕-hom-l
+      ∙ ap (_⊕ (u ⊕ x)) ⊕-hom-l
+      ∙ ⊕-tran
+      ∙ ap (_⊕ ((u ⊕ (u ⊕ v)) ⊕ x)) ⊕-comm
+half-div2-approx −1'  O' α 0 = u , (u ⊕ (u ⊕ v)) , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx −1'  O' α 1 = u , u
+                             , (ap ((u ⊕ v) ⊕_) ⊕-idem
+                               ∙ (ap (_⊕ ((u ⊕ v) ⊕ u)) ⊕-comm ∙ ⊕-idem) ⁻¹)
+half-div2-approx −1'  O' α (succ (succ n))
+ = pr₁ IH , pr₁ (pr₂ IH)
+ , (ap (λ - → (u ⊕ v) ⊕ (u ⊕ -)) (pr₂ (pr₂ IH))
+ ∙ γ (m (succ n) (append-one (pr₁ (pr₂ IH)) (succ n)
+                 ((first- succ n) (map half α)))))
+ where
+   δ : head α ∶∶ ((head (tail α)) ∶∶ (tail (tail α))) ≡ α
+   δ = ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta
+   IH : n-approx' n (λ i → q (div2 α i)) (map half α)
+   IH = transport (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
+          δ (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+   γ : (x : 𝕀) → (u ⊕ v) ⊕ (u ⊕ x) ≡ ((u ⊕ (u ⊕ v)) ⊕ ((u ⊕ v) ⊕ x))
+   γ x = ⊕-hom-l ∙ ap (_⊕ ((u ⊕ v) ⊕ x)) ⊕-comm
+half-div2-approx −1' +1' α 0 = u , (u ⊕ (u ⊕ v)) , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx −1' +1' α (succ n) = {!!} , {!!} , {!!}
+half-div2-approx −1' +2' α 0 = u , (u ⊕ (u ⊕ v)) , (⊕-comm ∙ ⊕-idem ⁻¹)
+half-div2-approx −1' +2' α 1 = u , u ,
+                             (⊕-comm ∙ ap (((u ⊕ v) ⊕ u) ⊕_) ⊕-comm
+                                     ∙ ap (_⊕ (v ⊕ u)) ⊕-comm)
+half-div2-approx −1' +2' α (succ (succ n))
+ = pr₁ IH , pr₁ (pr₂ IH)
+ , (ap (λ - → (u ⊕ v) ⊕ ((u ⊕ v) ⊕ -)) (pr₂ (pr₂ IH))
+ ∙ ⊕-tran)
+ where
+   δ : head α ∶∶ ((head (tail α)) ∶∶ (tail (tail α))) ≡ α
+   δ = ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta
+   IH : n-approx' n (λ i → q (div2 α i)) (map half α)
+   IH = transport (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
+          δ (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+half-div2-approx +1' b α zero = {!b!}
+half-div2-approx +1' b α (succ n) = {!!}
+
+
+mid-realisability : approximation → mid realises² _⊕_
+mid-realisability a α β = γ (add2 α β) ∙ half-real α β
+ where
+  γ : (α : 𝟝ᴺ) → 𝕢 (div2 α) ≡ M (map half α)
+  γ α = a (λ n → q (div2 α n)) (map half α) δ
+   where
+    δ : (n : ℕ) → Σ z ꞉ 𝕀 , Σ w ꞉ 𝕀
+      , m n (append-one z n ((first- n) (λ i → q (div2 α i))))
+      ≡ m n (append-one w n ((first- n) (λ i → half (α i))))
+    δ 0 = u , u , refl
+    δ (succ n) = transport
+                   (λ - → n-approx' n (λ i → q (div2 - i)) (map half -))
+                   (ap (head α ∶∶_) head-tail-eta ∙ head-tail-eta)
+                   (half-div2-approx (head α) (head (tail α)) (tail (tail α)) n)
+
 
 within-inf : (α β : ℕ → 𝕀)
            → ((n : ℕ)
