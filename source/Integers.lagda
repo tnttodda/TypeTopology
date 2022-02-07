@@ -5,7 +5,15 @@ Earlier version: 18 September 2020
 We construct the type of integers with the aim of using them in constructing the
 circle as the type of ℤ-torsors, as described in "Construction of the circle in
 UniMath" by Bezem, Buchholtz, Grayson and Shulman
-(doi:10.1016/j.jpaa.2021.106687).
+(doi:10.1016/j.jpneg x <ℤ neg y = x <ℕ y
+neg x <ℤ 𝟎     = 𝟙
+neg x <ℤ pos _ = 𝟙
+𝟎     <ℤ neg _ = 𝟘
+𝟎     <ℤ 𝟎     = 𝟘
+𝟎     <ℤ pos _ = 𝟙
+pos _ <ℤ neg _ = 𝟘
+pos _ <ℤ 𝟎     = 𝟘
+pos x <ℤ pos y = x <ℕ yaa.2021.106687).
 
 See Integers-Properties and Integers-SymmetricInduction for (more) properties of
 the type of integers.
