@@ -4,6 +4,7 @@
 open import SpartanMLTT hiding (decidable)
 open import Two-Properties hiding (zero-is-not-one)
 open import NaturalsOrder
+open import NaturalsAddition renaming (_+_ to _+ℕ_)
 open import IntegersB
 -- open import IntegersOrder
 open import IntegersAddition renaming (_+_ to _+ℤ_)
@@ -73,8 +74,8 @@ downLeft downMid downRight upLeft upRight : ℤ → ℤ
 downLeft  x = x +ℤ x
 downMid   x = downLeft x +ℤ (ι 1)
 downRight x = downLeft x +ℤ (ι 2) 
-upLeft    x = {!!}
-upRight   x = {!!}
+upLeft    x = x
+upRight   x = x
 
 _below_ : ℤ → ℤ → 𝓤₀ ̇ 
 x below y = downLeft y ≤ℤ x ≤ℤ downRight y
@@ -107,31 +108,40 @@ negsucc-lc x .x refl = refl
 ℤ-is-discrete (pos x) (negsucc y) = inr (λ ())
 ℤ-is-discrete (negsucc x) (pos y) = inr (λ ())
 
-≤ℕ-up : (x y : ℕ) → x ≤ℕ y → ¬ (x ≡ y) → x ≤ℕ succ y
-≤ℕ-up zero y p f = ⋆
+≤ℕ-up : (x y : ℕ) → x ≤ℕ y → ¬ (x ≡ y) → succ x ≤ℕ y
+≤ℕ-up zero zero p f = f refl
+≤ℕ-up zero (succ y) p f = ⋆
 ≤ℕ-up (succ x) (succ y) p f = ≤ℕ-up x y p (f ∘ ap succ)
 
-≤ℤ-up : (x y : ℤ) → x ≤ℤ y → ¬ (x ≡ y) → x ≤ℤ succℤ y
+≤ℤ-up : (x y : ℤ) → x ≤ℤ y → ¬ (x ≡ y) → succℤ x ≤ℤ y
 ≤ℤ-up (pos x) (pos y) p f = ≤ℕ-up x y p (f ∘ ap pos)
-≤ℤ-up (negsucc x) (pos y) _ _ = ⋆
-≤ℤ-up (negsucc x) (negsucc 0) _ _ = ⋆
-≤ℤ-up (negsucc x) (negsucc (succ y)) p f = {!!}
+≤ℤ-up (negsucc 0) (pos y) _ _ = ⋆
+≤ℤ-up (negsucc (succ x)) (pos y) _ _ = ⋆
+≤ℤ-up (negsucc 0) (negsucc y) p f = f (ap negsucc (zero-minimal'' y p ⁻¹))
+≤ℤ-up (negsucc (succ x)) (negsucc y) p f
+ = ≤ℕ-up y (succ x) p (λ y≡sx → f (ap negsucc (y≡sx ⁻¹)))
 
-≤ℤ-split : (x y : ℤ) → x ≤ℤ y → (x ≡ y) + (x ≤ℤ succℤ y)
+≤ℤ-split : (x y : ℤ) → x ≤ℤ y → (x ≡ y) + (succℤ x ≤ℤ y)
 ≤ℤ-split x y p
  = Cases (ℤ-is-discrete x y) inl (inr ∘ ≤ℤ-up x y p)
 
-fact : (x y : ℤ) → y ≤ℤ succℤ x → x ≤ℤ succℤ (succℤ (succℤ y)) → x ≡ succℤ y
-fact (pos x) (pos x₁) y≤sx x≤sssy = {!!}
-fact (pos x) (negsucc x₁) y≤sx x≤sssy = {!!}
-fact (negsucc x) (pos x₁) y≤sx x≤sssy = {!!}
-fact (negsucc x) (negsucc x₁) y≤sx x≤sssy = {!!}
+fact : (x y : ℤ) → x ≤ℤ y → y ≤ℤ x → x ≡ y
+fact (pos x) (pos y) x≤y y≤x = ap pos (≤-anti x y x≤y y≤x)
+fact (negsucc x) (negsucc y) x≤y y≤x = ap negsucc (≤-anti x y y≤x x≤y)
+
+unsucc-≤ℤ : (x y : ℤ) → succℤ x ≤ℤ succℤ y → x ≤ℤ y
+unsucc-≤ℤ (pos x) (pos y) sx≤sy = sx≤sy
+unsucc-≤ℤ (pos x) (negsucc 0) ()
+unsucc-≤ℤ (pos x) (negsucc (succ y)) ()
+unsucc-≤ℤ (negsucc x) (pos y) sx≤sy = ⋆
+unsucc-≤ℤ (negsucc x) (negsucc 0) sx≤sy = ⋆
+unsucc-≤ℤ (negsucc (succ x)) (negsucc (succ y)) sx≤sy = sx≤sy
 
 below→below' : (x y : ℤ) → x below y → x below' y
 below→below' x y (p , q)
  = Cases (≤ℤ-split (downLeft y) x p) (inl ∘ _⁻¹)
      λ ly≤sx → Cases (≤ℤ-split x (downRight y) q) (inr ∘ inr)
-     (λ x≤sry → inr (inl {!!}))
+     (λ x≤sry → inr (inl (fact x (downMid y) (unsucc-≤ℤ x (succℤ (y +ℤ y)) x≤sry) ly≤sx)))
 
 ≤ℤ-succ : (x : ℤ) → x ≤ℤ succℤ x
 ≤ℤ-succ (pos x) = ≤-succ x
@@ -202,18 +212,25 @@ share-ancestor-refl x
 
 share-ancestor-sym : (x y : ℤ) → share-ancestor x y
                    → share-ancestor y x
-share-ancestor-sym x y = {!!}
+share-ancestor-sym x y p = transport (_≤ℕ 2) (abs-flip x y) p
 
+triangle-ineq : (a b c : ℤ) → abs (a −ℤ c) ≤ℕ abs (a −ℤ b) +ℕ abs (b −ℤ c)
+triangle-ineq a b c = {!!}
+
+-- wrong?
 share-ancestor-trans : (a b c : ℤ)
                      → share-ancestor a b → share-ancestor b c
-                     → share-ancestor a c
-share-ancestor-trans a b c s t = {!!}
+                     → (d e : ℤ) → a below d → c below e 
+                     → share-ancestor d e
+share-ancestor-trans a b c s t d e (u , v) (w , z) 
+ = {!!}
 
 above-share-ancestor : (x₁ x₂ y₁ y₂ : ℤ) → x₁ below y₁ → x₂ below y₂
                      → share-ancestor x₁ x₂
                      → share-ancestor y₁ y₂
 above-share-ancestor x₁ x₂ y₁ y₂ (a , b) (c , d) dy≤2
  = {!!}
+
 -- abs (x₁ − x₂) ≤ 2
 -- 2y₁ ≤ x₁ ≤ (2y₁ + 2)
 -- 2y₂ ≤ x₂ ≤ (2y₂ + 2)
@@ -264,15 +281,33 @@ c-eai : (α : 𝕂) → c (α , α) ≡ ∞
 c-eai (α , _)
  = ℕ∞-equals (λ i → dec-to-𝟚-is-₁ (share-ancestor-refl (α (pos i))))
 
+c-ult' : (α β ζ : 𝕂) (n : ℕ) → pr₁ (min (c (α , β)) (c (β , ζ))) (succ n) ≡ ₁
+       → pr₁ (c (α , ζ)) n ≡ ₁
+c-ult' α β ζ n r
+ = dec-to-𝟚-is-₁
+     (share-ancestor-trans
+       (pr₁ α (pos (succ n)))
+       (pr₁ β (pos (succ n)))
+       (pr₁ ζ (pos (succ n)))
+       (dec-to-𝟚-was-₁
+         (Lemma[min𝟚ab≡₁→a≡₁] {pr₁ (c (α , β)) (succ n)} {pr₁ (c (β , ζ)) (succ n)} r))
+       (dec-to-𝟚-was-₁
+         (Lemma[min𝟚ab≡₁→b≡₁] {pr₁ (c (α , β)) (succ n)} {pr₁ (c (β , ζ)) (succ n)} r))
+       (pr₁ α (pos n))
+       (pr₁ ζ (pos n) )
+       (pr₂ α (pos (succ n)))
+       (pr₂ ζ (pos (succ n))))
+
 c-ult : (α β ζ : 𝕂) → min (c (α , β)) (c (β , ζ)) ≼ c (α , ζ)
 c-ult α β ζ n r
- = dec-to-𝟚-is-₁
+ = {!pr₂ (c (α , ζ!}
+ {- dec-to-𝟚-is-₁
      (share-ancestor-trans
        (pr₁ α (pos n))
        (pr₁ β (pos n))
        (pr₁ ζ (pos n))
        (dec-to-𝟚-was-₁ (Lemma[min𝟚ab≡₁→a≡₁] {pr₁ (c (α , β)) n} {pr₁ (c (β , ζ)) n} r))
-       (dec-to-𝟚-was-₁ (Lemma[min𝟚ab≡₁→b≡₁] {pr₁ (c (α , β)) n} {pr₁ (c (β , ζ)) n} r)))
+       (dec-to-𝟚-was-₁ (Lemma[min𝟚ab≡₁→b≡₁] {pr₁ (c (α , β)) n} {pr₁ (c (β , ζ)) n} r))) -}
 
 -- Incorrect!! The sequences don't converge
 c-iae : (α β : 𝕂) → c (α , β) ≡ ∞ → α ≡ β
