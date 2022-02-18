@@ -86,17 +86,69 @@ num : ℤ → ℕ
 num  (pos     n) = n
 num  (negsucc n) = n
 
-mod1 : ℕ → ℕ
-mod1 0 = 1
-mod1 1 = 0
-mod1 (succ (succ n)) = mod1 n
+odd even : ℤ → 𝓤₀ ̇
+odd (pos                   0) = 𝟘
+odd (pos                   1) = 𝟙
+odd (pos (succ (succ x)))     = odd (pos x)
+odd (negsucc               0) = 𝟙
+odd (negsucc               1) = 𝟘
+odd (negsucc (succ (succ x))) = odd (negsucc x)
+even x = ¬ odd x
+
+even-or-odd? : (x : ℤ) → even x + odd x
+even-or-odd? (pos                   0) = inl (λ x → x)
+even-or-odd? (pos                   1) = inr ⋆
+even-or-odd? (pos (succ (succ x)))     = even-or-odd? (pos x)
+even-or-odd? (negsucc               0) = inr ⋆
+even-or-odd? (negsucc               1) = inl (λ x → x)
+even-or-odd? (negsucc (succ (succ x))) = even-or-odd? (negsucc x)
+
+odd-is-prop : (x : ℤ) → is-prop (odd x)
+odd-is-prop (pos                   0) = 𝟘-is-prop
+odd-is-prop (pos                   1) = 𝟙-is-prop
+odd-is-prop (pos (succ (succ x)))     = odd-is-prop (pos x)
+odd-is-prop (negsucc               0) = 𝟙-is-prop
+odd-is-prop (negsucc               1) = 𝟘-is-prop
+odd-is-prop (negsucc (succ (succ x))) = odd-is-prop (negsucc x)
+
+¬-is-prop : {X : 𝓤 ̇ } → is-prop (¬ X)
+¬-is-prop p q = fe (λ i → 𝟘-is-prop (p i) (q i))
+
+even-is-prop : (x : ℤ) → is-prop (even x)
+even-is-prop x = ¬-is-prop
+
+even-or-odd-is-prop : (x : ℤ) → (p q : even x + odd x) → p ≡ q
+even-or-odd-is-prop x = +-is-prop (even-is-prop x) (odd-is-prop x) id
 
 downLeft downMid downRight upLeft upRight : ℤ → ℤ
 downLeft  x = x +ℤ x
 downMid   x = downLeft x +ℤ (ι 1)
 downRight x = downLeft x +ℤ (ι 2)
 upRight   x = sign x (num x /2)
-upLeft    x = upRight x −ℤ pos (mod1 (num x))
+
+upLeft' : (x : ℤ) → even x + odd x → ℤ
+upLeft' x (inl _) = predℤ (upRight x)
+upLeft' x (inr _) = upRight x
+
+upLeft    x = upLeft' x (even-or-odd? x)
+
+odd-succ2 : (x : ℤ) → odd x → odd (succℤ (succℤ x))
+odd-succ2 (pos (succ x)) o = o
+odd-succ2 (negsucc 0) o = ⋆
+odd-succ2 (negsucc (succ (succ x))) o = o
+
+even-succ2 : (x : ℤ) → even x → even (succℤ (succℤ x))
+even-succ2 (pos 0) e = id
+even-succ2 (pos (succ x)) e = e
+even-succ2 (negsucc 0) e = λ _ → e ⋆
+even-succ2 (negsucc (succ zero)) e = λ z → z
+even-succ2 (negsucc (succ (succ x))) e = e
+
+upLeft-even : (x : ℤ) → even x → upLeft x ≡ predℤ (upRight x)
+upLeft-even x e = ap (upLeft' x) (even-or-odd-is-prop x (even-or-odd? x) (inl e))
+
+upLeft-odd : (x : ℤ) → odd x → upLeft x ≡ upRight x
+upLeft-odd x o = ap (upLeft' x) (even-or-odd-is-prop x (even-or-odd? x) (inr o))
 
 _below_ : ℤ → ℤ → 𝓤₀ ̇ 
 x below y = downLeft y ≤ℤ x ≤ℤ downRight y
@@ -242,19 +294,50 @@ upRight-succ (negsucc 0) = refl
 upRight-succ (negsucc 1) = refl
 upRight-succ (negsucc (succ (succ x))) = refl
 
+upLeft'-succ : (x : ℤ) → (p : even x + odd x)
+             → upLeft (succℤ (succℤ x)) ≡ succℤ (upLeft' x p)
+upLeft'-succ x (inl e) = upLeft-even (succℤ (succℤ x)) (even-succ2 x e)
+                       ∙ (succpredℤ (upRight x)
+                       ∙ predsuccℤ (upRight x) ⁻¹
+                       ∙ ap predℤ (upRight-succ x ⁻¹)) ⁻¹
+upLeft'-succ x (inr o) = upLeft-odd (succℤ (succℤ x)) (odd-succ2 x o)
+                       ∙ upRight-succ x
+
 upLeft-succ : (x : ℤ) → upLeft (succℤ (succℤ x)) ≡ succℤ (upLeft x)
-upLeft-succ x = ap (_−ℤ pos (mod1 (num (succℤ (succℤ x))))) (upRight-succ x)
-              ∙ ap (λ  - → succℤ (upRight x) −ℤ pos -) γ
-              ∙ {!refl!}
- where
-   γ : mod1 (num (succℤ (succℤ x))) ≡ mod1 (num x)
-   γ = {!!}
+upLeft-succ x = upLeft'-succ x (even-or-odd? x)
+
+downLeft-below : (x : ℤ) → downLeft x below x
+downLeft-below x = (≤ℤ-refl (x +ℤ x))
+                 , ≤ℤ-trans (x +ℤ x) (succℤ (x +ℤ x)) (succℤ (succℤ (x +ℤ x)))
+                     (≤ℤ-succ (x +ℤ x))
+                     (≤ℤ-succ (succℤ (x +ℤ x)))
+
+downMid-below : (x : ℤ) → downMid x below x
+downMid-below x = {!!}
+
+downRight-below : (x : ℤ) → downRight x below x
+downRight-below x = {!!}
+
+{-
+x/2-double-even : (x : ℤ) → even x → ((x /2) +ℤ (x /2)) ≡ x
+x/2-double-even = ?
+
+x/2-double-odd : (x : ℤ) → odd x → ((x /2) +ℤ (x /2)) ≡ x +ℤ (sign x 1)
+x/2-double-odd = ?
+-}
+
+up-below-right : (x : ℤ) → x below upRight x
+up-below-right (pos zero) = ⋆ , ⋆
+up-below-right (pos (succ zero)) = ⋆ , ⋆
+up-below-right (pos (succ (succ x)))
+ = transport (pos (succ (succ x)) below_) (upRight-succ (pos x) ⁻¹)
+     (below'→below (pos (succ (succ x))) (pos (succ (x /2))) {!!})
+up-below-right (negsucc zero) = ⋆ , ⋆
+up-below-right (negsucc (succ zero)) = ⋆ , ⋆
+up-below-right (negsucc (succ (succ x))) = {!!}
 
 up-below : (x : ℤ) → (x below upLeft x) × (x below upRight x)
-up-below (pos zero) = (⋆ , ⋆) , ⋆ , ⋆
-up-below (pos (succ zero)) = (⋆ , ⋆) , ⋆ , ⋆
-up-below (pos (succ (succ x))) = ({!!} , {!!}) , {!!}
-up-below (negsucc x) = {!!}
+up-below = {!!} 
 
 below-up : (x y : ℤ) → x below y → (y ≡ upLeft x) + (y ≡ upRight x)
 below-up x y (p , q) = {!!}
@@ -321,7 +404,14 @@ share-ancestor-trans x y z (a , p) (b , q)
    i : b ≡ upRight y → a ≡ upRight y → share-ancestor a b
    i w e = transport (share-ancestor a) (e ∙ w ⁻¹)
              (share-ancestor-refl a)
- 
+
+
+above-share-ancestor : (x y a b : ℤ) → x below a → y below b
+                     → ((c , _) : share-ancestor x y)
+                     → share-ancestor a b
+above-share-ancestor x y a b p q (c , r , s)
+ = share-ancestor-trans x (downMid c) y (a , p , {!!}) (b , {!!} , q)
+
 ```
 
 Definition of closeness function for sequences
@@ -355,14 +445,14 @@ Definition of closeness function for 𝕂
 c : 𝕂 × 𝕂 → ℕ∞
 c  ((α , γα) , (β , γβ))
  = c' (λ n → share-ancestor-decidable (α (pos n)) (β (pos n)))
-      {!!} {- (λ n → above-share-ancestor
-         (α (pos (succ n)))  (β (pos (succ n)))
-         (α (pos       n))   (β (pos       n))
-        (γα (pos (succ n))) (γβ (pos (succ n)))) -}
+      (λ n → above-share-ancestor
+               (α (pos (succ n)))  (β (pos (succ n)))
+               (α (pos       n ))  (β (pos       n ))
+              (γα (pos (succ n))) (γβ (pos (succ n))))
 
 c-sym : (α β : 𝕂) → c (α , β) ≡ c (β , α)
 c-sym (α , γα) (β , γβ)
- = ℕ∞-equals λ i → {!!}
+ = ℕ∞-equals λ i → ?
 
 c-eai : (α : 𝕂) → c (α , α) ≡ ∞
 c-eai (α , _)
