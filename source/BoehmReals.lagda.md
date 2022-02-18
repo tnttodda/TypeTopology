@@ -63,25 +63,52 @@ abs-neg (pos 0) = refl
 abs-neg (pos (succ x)) = refl
 abs-neg (negsucc x) = refl
 
-abs-flip : (x y : ℤ) → abs (x −ℤ y) ≡ abs (y −ℤ x)
+diff : ℤ → ℤ → ℕ
+diff x y = abs (x −ℤ y)
+
+abs-flip : (x y : ℤ) → diff x y ≡ diff y x
 abs-flip x y = ap abs (neg-flip x y) ∙ abs-neg (y −ℤ x) ⁻¹
 ```
 
 Definition of below and thus 𝕂
 
 ```agda
+_/2 : ℕ → ℕ
+0 /2 = 0
+1 /2 = 0
+succ (succ n) /2 = succ (n /2)
+
+sign : ℤ → (ℕ → ℤ)
+sign (pos     _) = pos
+sign (negsucc _) = negsucc
+
+num : ℤ → ℕ
+num  (pos     n) = n
+num  (negsucc n) = n
+
+mod1 : ℕ → ℕ
+mod1 0 = 1
+mod1 1 = 0
+mod1 (succ (succ n)) = mod1 n
+
 downLeft downMid downRight upLeft upRight : ℤ → ℤ
 downLeft  x = x +ℤ x
 downMid   x = downLeft x +ℤ (ι 1)
-downRight x = downLeft x +ℤ (ι 2) 
-upLeft    x = x
-upRight   x = x
+downRight x = downLeft x +ℤ (ι 2)
+upRight   x = sign x (num x /2)
+upLeft    x = upRight x −ℤ pos (mod1 (num x))
 
 _below_ : ℤ → ℤ → 𝓤₀ ̇ 
 x below y = downLeft y ≤ℤ x ≤ℤ downRight y
 
+_below2_ : ℤ → ℤ → 𝓤₀ ̇ 
+x below2 y = downLeft (downLeft y) ≤ℤ x ≤ℤ downRight (downRight y)
+
 _below'_ : ℤ → ℤ → 𝓤₀ ̇
 x below' y = (x ≡ downLeft y) + (x ≡ downMid y) + (x ≡ downRight y)
+
+_below''_ : ℤ → ℤ → 𝓤₀ ̇ 
+x below'' y = diff x (downLeft y) ≤ℕ 2
 
 succ-lc : (x y : ℕ) → succ x ≡ succ y → x ≡ y
 succ-lc zero zero refl = refl
@@ -125,9 +152,9 @@ negsucc-lc x .x refl = refl
 ≤ℤ-split x y p
  = Cases (ℤ-is-discrete x y) inl (inr ∘ ≤ℤ-up x y p)
 
-fact : (x y : ℤ) → x ≤ℤ y → y ≤ℤ x → x ≡ y
-fact (pos x) (pos y) x≤y y≤x = ap pos (≤-anti x y x≤y y≤x)
-fact (negsucc x) (negsucc y) x≤y y≤x = ap negsucc (≤-anti x y y≤x x≤y)
+≤ℤ-anti : (x y : ℤ) → x ≤ℤ y → y ≤ℤ x → x ≡ y
+≤ℤ-anti (pos x) (pos y) x≤y y≤x = ap pos (≤-anti x y x≤y y≤x)
+≤ℤ-anti (negsucc x) (negsucc y) x≤y y≤x = ap negsucc (≤-anti x y y≤x x≤y)
 
 unsucc-≤ℤ : (x y : ℤ) → succℤ x ≤ℤ succℤ y → x ≤ℤ y
 unsucc-≤ℤ (pos x) (pos y) sx≤sy = sx≤sy
@@ -141,7 +168,7 @@ below→below' : (x y : ℤ) → x below y → x below' y
 below→below' x y (p , q)
  = Cases (≤ℤ-split (downLeft y) x p) (inl ∘ _⁻¹)
      λ ly≤sx → Cases (≤ℤ-split x (downRight y) q) (inr ∘ inr)
-     (λ x≤sry → inr (inl (fact x (downMid y) (unsucc-≤ℤ x (succℤ (y +ℤ y)) x≤sry) ly≤sx)))
+     (λ x≤sry → inr (inl (≤ℤ-anti x (downMid y) (unsucc-≤ℤ x (downMid y) x≤sry) ly≤sx)))
 
 ≤ℤ-succ : (x : ℤ) → x ≤ℤ succℤ x
 ≤ℤ-succ (pos x) = ≤-succ x
@@ -184,6 +211,12 @@ below'→below .(downRight y) y (inr (inr refl))
 ×-decidable (inr ¬x) (inl  _) = inr (λ (x , _) → ¬x x)
 ×-decidable (inr ¬x) (inr  _) = inr (λ (x , _) → ¬x x)
 
++-decidable : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+            → decidable X → decidable Y → decidable (X + Y)
++-decidable (inl  x) _        = inl (inl x)
++-decidable (inr ¬x) (inl  y) = inl (inr y)
++-decidable (inr ¬x) (inr ¬y) = inr (cases ¬x ¬y)
+
 ≤ℤ-decidable : (x y : ℤ) → decidable (x ≤ℤ y)
 ≤ℤ-decidable (pos x) (pos y)         = ≤-decidable x y
 ≤ℤ-decidable (negsucc x) (negsucc y) = ≤-decidable y x
@@ -201,40 +234,94 @@ Definition of share-ancestor and properties
 
 ```agda
 share-ancestor : (x y : ℤ) → 𝓤₀ ̇
-share-ancestor x y = abs (x −ℤ y) ≤ℕ 2
+share-ancestor x y = Σ z ꞉ ℤ , (x below z) × (y below z)
+
+upRight-succ : (x : ℤ) → upRight (succℤ (succℤ x)) ≡ succℤ (upRight x)
+upRight-succ (pos x) = refl
+upRight-succ (negsucc 0) = refl
+upRight-succ (negsucc 1) = refl
+upRight-succ (negsucc (succ (succ x))) = refl
+
+upLeft-succ : (x : ℤ) → upLeft (succℤ (succℤ x)) ≡ succℤ (upLeft x)
+upLeft-succ x = ap (_−ℤ pos (mod1 (num (succℤ (succℤ x))))) (upRight-succ x)
+              ∙ ap (λ  - → succℤ (upRight x) −ℤ pos -) γ
+              ∙ {!refl!}
+ where
+   γ : mod1 (num (succℤ (succℤ x))) ≡ mod1 (num x)
+   γ = {!!}
+
+up-below : (x : ℤ) → (x below upLeft x) × (x below upRight x)
+up-below (pos zero) = (⋆ , ⋆) , ⋆ , ⋆
+up-below (pos (succ zero)) = (⋆ , ⋆) , ⋆ , ⋆
+up-below (pos (succ (succ x))) = ({!!} , {!!}) , {!!}
+up-below (negsucc x) = {!!}
+
+below-up : (x y : ℤ) → x below y → (y ≡ upLeft x) + (y ≡ upRight x)
+below-up x y (p , q) = {!!}
+
+share-ancestor-up : (x y : ℤ) → share-ancestor x y
+                  → (upLeft  x ≡ upLeft y) + (upLeft  x ≡ upRight y)
+                  + (upRight x ≡ upLeft y) + (upRight x ≡ upRight y)
+share-ancestor-up x y (z , p , q) = γ x y z (below-up x z p) (below-up y z q) where
+  γ : ∀ x y z
+    → (z ≡ upLeft x) + (z ≡ upRight x)
+    → (z ≡ upLeft y) + (z ≡ upRight y)
+    → (upLeft  x ≡ upLeft y) + (upLeft  x ≡ upRight y)
+    + (upRight x ≡ upLeft y) + (upRight x ≡ upRight y)
+  γ x y .(upLeft x)  (inl refl) (inl r) = inl r
+  γ x y .(upLeft x)  (inl refl) (inr r) = inr (inl r)
+  γ x y .(upRight x) (inr refl) (inl r) = inr (inr (inl r))
+  γ x y .(upRight x) (inr refl) (inr r) = inr (inr (inr r))
 
 share-ancestor-decidable : (x y : ℤ) → decidable (share-ancestor x y)
-share-ancestor-decidable x y = ≤-decidable (abs (x +ℤ (−ℤ y))) 2
+share-ancestor-decidable x y = Cases γ (inl ∘ δ) (inr ∘ ζ)
+ where
+   γ : decidable ((y below upLeft x) + (y below upRight x)) 
+   γ = +-decidable (below-decidable y (upLeft x)) (below-decidable y (upRight x))
+   δ : (y below upLeft x) + (y below upRight x) → share-ancestor x y
+   δ (inl g) = upLeft  x , pr₁ (up-below x) , g
+   δ (inr g) = upRight x , pr₂ (up-below x) , g
+   ζ : ¬ ((y below upLeft x) + (y below upRight x)) → ¬ share-ancestor x y
+   ζ f (z , p , q) = f (Cases (below-up x z p)
+                         (λ l → inl (transport (y below_) l q))
+                         (λ r → inr (transport (y below_) r q)))
 
 share-ancestor-refl : (x : ℤ) → share-ancestor x x
-share-ancestor-refl x
- = transport (_≤ℕ 2) (abs-0-is-0 ∙ ap abs (neg-same x) ⁻¹) ⋆
+share-ancestor-refl x = upRight x , pr₂ (up-below x) , pr₂ (up-below x)
 
-share-ancestor-sym : (x y : ℤ) → share-ancestor x y
-                   → share-ancestor y x
-share-ancestor-sym x y p = transport (_≤ℕ 2) (abs-flip x y) p
+share-ancestor-sym : (x y : ℤ) → share-ancestor x y → share-ancestor y x
+share-ancestor-sym x y (z , p , q) = z , q , p
 
-triangle-ineq : (a b c : ℤ) → abs (a −ℤ c) ≤ℕ abs (a −ℤ b) +ℕ abs (b −ℤ c)
-triangle-ineq a b c = {!!}
+share-ancestor-up2 : (x : ℤ) → share-ancestor (upLeft x) (upRight x)
+share-ancestor-up2 x = {!!}
 
--- wrong?
-share-ancestor-trans : (a b c : ℤ)
-                     → share-ancestor a b → share-ancestor b c
-                     → (d e : ℤ) → a below d → c below e 
-                     → share-ancestor d e
-share-ancestor-trans a b c s t d e (u , v) (w , z) 
- = {!!}
-
-above-share-ancestor : (x₁ x₂ y₁ y₂ : ℤ) → x₁ below y₁ → x₂ below y₂
-                     → share-ancestor x₁ x₂
-                     → share-ancestor y₁ y₂
-above-share-ancestor x₁ x₂ y₁ y₂ (a , b) (c , d) dy≤2
- = {!!}
-
--- abs (x₁ − x₂) ≤ 2
--- 2y₁ ≤ x₁ ≤ (2y₁ + 2)
--- 2y₂ ≤ x₂ ≤ (2y₂ + 2)
--- abs (y₁ − y₂) ≤ 2
+share-ancestor-trans : (x y z : ℤ)
+                     → ((a , _) : share-ancestor x y)
+                     → ((b , _) : share-ancestor y z)
+                     → share-ancestor a b
+share-ancestor-trans x y z (a , p) (b , q)
+ = Cases γ (Cases δ f g) (Cases δ h i)
+ where
+   γ : (a ≡ upLeft y) + (a ≡ upRight y)
+   γ = below-up y a (pr₂ p)
+   δ : (b ≡ upLeft y) + (b ≡ upRight y)
+   δ = below-up y b (pr₁ q)
+   f : b ≡ upLeft y → a ≡ upLeft y → share-ancestor a b
+   f w e = transport (share-ancestor a) (e ∙ w ⁻¹)
+             (share-ancestor-refl a)
+   g : b ≡ upRight y → a ≡ upLeft y → share-ancestor a b
+   g w e = transport (share-ancestor a) (w ⁻¹)
+             (transport (λ - → share-ancestor - (upRight y)) (e ⁻¹)
+               (share-ancestor-up2 y))
+   h : b ≡ upLeft y → a ≡ upRight y → share-ancestor a b
+   h w e = transport (share-ancestor a) (w ⁻¹)
+             (transport (λ - → share-ancestor - (upLeft y)) (e ⁻¹)
+               (share-ancestor-sym (upLeft y) (upRight y)
+                 (share-ancestor-up2 y)))
+   i : b ≡ upRight y → a ≡ upRight y → share-ancestor a b
+   i w e = transport (share-ancestor a) (e ∙ w ⁻¹)
+             (share-ancestor-refl a)
+ 
 ```
 
 Definition of closeness function for sequences
@@ -268,14 +355,14 @@ Definition of closeness function for 𝕂
 c : 𝕂 × 𝕂 → ℕ∞
 c  ((α , γα) , (β , γβ))
  = c' (λ n → share-ancestor-decidable (α (pos n)) (β (pos n)))
-      (λ n → above-share-ancestor
+      {!!} {- (λ n → above-share-ancestor
          (α (pos (succ n)))  (β (pos (succ n)))
          (α (pos       n))   (β (pos       n))
-        (γα (pos (succ n))) (γβ (pos (succ n))))
+        (γα (pos (succ n))) (γβ (pos (succ n)))) -}
 
 c-sym : (α β : 𝕂) → c (α , β) ≡ c (β , α)
 c-sym (α , γα) (β , γβ)
- = ℕ∞-equals (λ i → ap (λ - → dec-to-𝟚 (≤-decidable - 2)) (abs-flip (α (pos i)) (β (pos i))))
+ = ℕ∞-equals λ i → {!!}
 
 c-eai : (α : 𝕂) → c (α , α) ≡ ∞
 c-eai (α , _)
@@ -284,19 +371,7 @@ c-eai (α , _)
 c-ult' : (α β ζ : 𝕂) (n : ℕ) → pr₁ (min (c (α , β)) (c (β , ζ))) (succ n) ≡ ₁
        → pr₁ (c (α , ζ)) n ≡ ₁
 c-ult' α β ζ n r
- = dec-to-𝟚-is-₁
-     (share-ancestor-trans
-       (pr₁ α (pos (succ n)))
-       (pr₁ β (pos (succ n)))
-       (pr₁ ζ (pos (succ n)))
-       (dec-to-𝟚-was-₁
-         (Lemma[min𝟚ab≡₁→a≡₁] {pr₁ (c (α , β)) (succ n)} {pr₁ (c (β , ζ)) (succ n)} r))
-       (dec-to-𝟚-was-₁
-         (Lemma[min𝟚ab≡₁→b≡₁] {pr₁ (c (α , β)) (succ n)} {pr₁ (c (β , ζ)) (succ n)} r))
-       (pr₁ α (pos n))
-       (pr₁ ζ (pos n) )
-       (pr₂ α (pos (succ n)))
-       (pr₂ ζ (pos (succ n))))
+ = {!!}
 
 c-ult : (α β ζ : 𝕂) → min (c (α , β)) (c (β , ζ)) ≼ c (α , ζ)
 c-ult α β ζ n r
@@ -315,5 +390,4 @@ c-iae (α , _) (β , _) e = {!!}
  where
    γ : α ≡ β
    γ = {!!}
-
 ```
