@@ -153,14 +153,8 @@ upLeft-odd x o = ap (upLeft' x) (even-or-odd-is-prop x (even-or-odd? x) (inr o))
 _below_ : ℤ → ℤ → 𝓤₀ ̇ 
 x below y = downLeft y ≤ℤ x ≤ℤ downRight y
 
-_below2_ : ℤ → ℤ → 𝓤₀ ̇ 
-x below2 y = downLeft (downLeft y) ≤ℤ x ≤ℤ downRight (downRight y)
-
 _below'_ : ℤ → ℤ → 𝓤₀ ̇
 x below' y = (x ≡ downLeft y) + (x ≡ downMid y) + (x ≡ downRight y)
-
-_below''_ : ℤ → ℤ → 𝓤₀ ̇ 
-x below'' y = diff x (downLeft y) ≤ℕ 2
 
 succ-lc : (x y : ℕ) → succ x ≡ succ y → x ≡ y
 succ-lc zero zero refl = refl
@@ -331,10 +325,16 @@ up-below-right (pos zero) = ⋆ , ⋆
 up-below-right (pos (succ zero)) = ⋆ , ⋆
 up-below-right (pos (succ (succ x)))
  = transport (pos (succ (succ x)) below_) (upRight-succ (pos x) ⁻¹)
-     (below'→below (pos (succ (succ x))) (pos (succ (x /2))) {!!})
+     ({!!} , {!!})
 up-below-right (negsucc zero) = ⋆ , ⋆
 up-below-right (negsucc (succ zero)) = ⋆ , ⋆
 up-below-right (negsucc (succ (succ x))) = {!!}
+
+fact : {X : 𝓤 ̇ } → (f g : 𝟙 {𝓤} → X) → f ⋆ ≡ g ⋆ → f ≡ g
+fact f g e = {!!}
+ where
+  γ : (i : 𝟙) → f i ≡ g i
+  γ ⋆ = e
 
 up-below : (x : ℤ) → (x below upLeft x) × (x below upRight x)
 up-below = {!!} 
@@ -452,7 +452,7 @@ c  ((α , γα) , (β , γβ))
 
 c-sym : (α β : 𝕂) → c (α , β) ≡ c (β , α)
 c-sym (α , γα) (β , γβ)
- = ℕ∞-equals λ i → ?
+ = ℕ∞-equals λ i → {!!}
 
 c-eai : (α : 𝕂) → c (α , α) ≡ ∞
 c-eai (α , _)
@@ -481,3 +481,11 @@ c-iae (α , _) (β , _) e = {!!}
    γ : α ≡ β
    γ = {!!}
 ```
+
+Special predicates:
+
+```
+
+special-predicate : (p : 𝕂 → 𝓤 ̇ ) → 𝓤 ̇
+special-predicate p = (α β : 𝕂) → Σ δ ꞉ ℕ , (pr₁ α (pos δ) ≡ pr₁ β (pos δ) → p α → p β)
+
