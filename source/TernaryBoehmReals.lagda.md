@@ -79,8 +79,11 @@ a below b = downLeft b ≤ℤ a ≤ℤ downRight b
 
 The real number represented by x : 𝕂 is defined as ⟦ x ⟧ : ℝ.
 
+⟨_⟩ : 𝕂 → (ℤ → ℤ)
+⟨ x , _ ⟩ = x
+
 ⟦_⟧ : 𝕂 → ℝ
-⟦ x , _ ⟧ = ⋃ᵢ ⟪ x(i) ⟫
+⟦ x ⟧ = ⋃ᵢ ⟪ ⟨ x ⟩ i ⟫
 
 ## upLeft / upRight
 
@@ -240,16 +243,74 @@ by boehm-signed-iso₁.
 The key difference between the signed digit approach and the Boehm
 approach is that,
  * With signed digit, the information kept in x(n) *depends on*
-                      that in all x(i) such that i < n,
+                      the information in all x(i) such that i < n,
  * With Boehm codes,  the information kept in x(n) *includes*
-                      that in all x(i) such that i < n.
+                      the information in all x(i) such that i < n.
+
+## Closeness function on 𝕂
+
+For every discrete-sequence type ℕ → X (where X is discrete), we have
+a canonical closeness function c : (ℕ → X) × (ℕ → X) → ℕ∞.
+
+Recall that for x,y : ℕ → X and any δ : ℕ,
+
+c (x , y) ≼ ι δ ⇔ (x ≈ y) δ,
+
+where c(x , y) : ℕ∞ is the value of the discrete-sequence closeness
+function for x and y.
+
+_≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
+(α ≈ β) n = (i : ℕ) → i ≤ n → α n ≡ β n
+
+From the canonical closeness function on (ℕ → ℤ), we can define one
+on 𝕂:
+
+c : 𝕂 × 𝕂 → ℕ∞
+c ((α , _) , (β , _)) = c (α ∘ pos , β ∘ pos)
+
+Note that we only take into account positive precision-levels of
+object x : 𝕂; but, as we already said, for our purposes of encoding
+real numbers, the information kept in any ⟨ x ⟩ (pos n₁) : ℤ includes
+the information kept in any ⟨ x ⟩ (negsucc n₂) : ℤ.
+
+This closeness function, like that on signed-digits, gives the
+closeness of *encodings* of real numbers; not the real numbers
+themselves. If we wish to determine the closeness of the numbers
+themselves, we can instead use the following pseudo-closenss
+function (I THINK!)
+
+
 
 ## Predicates we wish to search
+
+In our general regression framework, we search uniformly continuous
+decidable predicates on types equipped with closeness functions.
+
+(Recall that there is no non-trivial uniformly continuous decidable
+predicate on the real numbers ℝ.)
 
 When defining uniformly continuous predicates on signed-digits,
 we utilised the discrete-sequence closeness function.
 
+uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : X → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
+uc-d-predicate-on-seqs {X} p
+ = ((x : X) → decidable (p x))
+ × (Σ δ ꞉ ℕ , (α β : ℕ → X) → (α ≈ β) n → p α ⇔ p β)
+
+We call the δ : ℕ of such a predicate its 'modulus of continuity'.
+
+So for uniformly continuous decidable predicates p on signed-digit
+encodings x,y : ℕ → 𝟛, with modulus of continuity δ : ℕ, it is enough
+to know that (x ≈ y) δ to know that p(x) is logically equivalent
+to p(y).
+
+(Reword ↓)
+But! With Boehm codes 𝕂, all the information is kept in the most recent
+code. So if an "equivalent" predicate should only need to satisfy the
+following.
+
 special-predicate : (p : 𝕂 → 𝓤 ̇ ) → 𝓤 ̇
 special-predicate p
- = (α β : 𝕂) → Σ δ ꞉ ℕ , (pr₁ α (pos δ) ≡ pr₁ β (pos δ) → p α → p β)
+ = ((x : 𝕂) → decidable (p x))
+ × (Σ δ ꞉ ℕ , (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
 
