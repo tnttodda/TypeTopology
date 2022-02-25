@@ -260,7 +260,7 @@ where c(x , y) : ℕ∞ is the value of the discrete-sequence closeness
 function for x and y.
 
 _≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
-(α ≈ β) n = (i : ℕ) → i ≤ n → α n ≡ β n
+(α ≈ β) n = (i : ℕ) → i < n → α n ≡ β n
 
 From the canonical closeness function on (ℕ → ℤ), we can define one
 on 𝕂:
@@ -279,7 +279,9 @@ themselves. If we wish to determine the closeness of the numbers
 themselves, we can instead use the following pseudo-closenss
 function (I THINK!)
 
-
+pc : 𝕂 × 𝕂 → ℕ∞ 
+pc ((α , _) , (β , _))
+ = λ n → dec-to-𝟚 (abs (α (pos n) −ℤ β (pos n)) ≤ℤ 2)
 
 ## Predicates we wish to search
 
@@ -295,7 +297,7 @@ we utilised the discrete-sequence closeness function.
 uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : X → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
 uc-d-predicate-on-seqs {X} p
  = ((x : X) → decidable (p x))
- × (Σ δ ꞉ ℕ , (α β : ℕ → X) → (α ≈ β) n → p α ⇔ p β)
+ × (Σ δ ꞉ ℕ , (α β : ℕ → X) → (α ≈ β) δ → p α ⇔ p β)
 
 We call the δ : ℕ of such a predicate its 'modulus of continuity'.
 
@@ -314,3 +316,8 @@ special-predicate p
  = ((x : 𝕂) → decidable (p x))
  × (Σ δ ꞉ ℕ , (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
 
+
+Relationships:
+ * c (α , β) ≼ δ                 → pc (α , β) ≼ δ
+ * c (α , β) ≼ (succ δ)          → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
+ * ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → pc (α , β) ≼ δ ?
