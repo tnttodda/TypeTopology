@@ -22,7 +22,7 @@ open import InfiniteSearch2 fe
 {-# BUILTIN INTEGERNEGSUC negsucc #-}
 ```
 
-##
+## Idea and Illustration
 
 We encode real numbers using the data type for ternary Boehm reals 𝕂.
 
@@ -32,8 +32,6 @@ function of type ℤ → ℤ.
 
 The function x : ℤ → ℤ takes a "precision-level" n : ℤ and gives back
 an encoding x(n) : ℤ of a real interval.
-
-##
 
 The idea is that each precision-level n : ℤ represents a "layer" in
 the following illustrative "brick pattern".
@@ -58,7 +56,7 @@ Each brick encodes a real interval; specifically the interval
 ⟪_⟫ : ℤ × ℤ → ℚ × ℚ
 ⟪ k , p ⟫ = (k / 2^{p + 1}) , ((k + 2) / 2^{p + 1})
 
-##
+## Formal definition
 
 Therefore, an encoding of a real number is a sequence of encodings of
 real intervals -- the restriction we add is that each brick x(n) is
@@ -71,7 +69,7 @@ downLeft  a = a +ℤ a
 downMid   a = succℤ (downLeft a)
 downRight a = succℤ (downMid  a)
 
-_below_ : ℤ → ℤ
+_below_ : ℤ → ℤ → ℤ
 a below b = downLeft b ≤ℤ a ≤ℤ downRight b
 
 𝕂 : 𝓤₀ ̇ 
@@ -83,7 +81,9 @@ The real number represented by x : 𝕂 is defined as ⟦ x ⟧ : ℝ.
 ⟨ x , _ ⟩ = x
 
 ⟦_⟧ : 𝕂 → ℝ
-⟦ x ⟧ = ⋃ᵢ ⟪ ⟨ x ⟩ i ⟫
+⟦ x ⟧ = ⋂ᵢ ⟪ ⟨ x ⟩ i ⟫
+
+-------------------------------------------------------------------
 
 ## upLeft / upRight
 
@@ -126,8 +126,6 @@ It is the case that for all α : 𝕂 and i : ℤ, ⟦ α ⟧ ≡ ⟦ replace α
 What this means is that all information held at x(n) about locating
 ⟦ x ⟧ is held at x(n+1).
 
-##
-
 Similarly to the replacement function, we can construct 𝕂 using just
 a function ℕ → ℤ.
 
@@ -138,8 +136,10 @@ build (x , γx) i = λ n → if   n <ℤ i
                  , λ n → if   n <ℤ i
                          then rec upRight-is-below (i - n) γx(i) 
                          else γx(n - i)
-                         
-##
+
+-------------------------------------------------------------------
+
+## Representing closed intervals
 
 Given any specific brick on a specific level, i.e. (k , p) : ℤ × ℤ
 representing ⟪ k , p ⟫, we can define an element of the closed
@@ -154,7 +154,7 @@ build-ci : (Σ x ꞉ (ℕ → ℤ) , (n : ℕ) → (x (succ n)) below (x n))
          → (i : ℤ) → ClosedInterval (x(0) , i)
 build-ci x = build x i , {!!}
 
-## Signed-digits are isomorphic
+## Signed-digits are isomorphic to Ternary Boehm reals
 
 Recall that we previously represented numbers in the closed interval
 [-1,1] using signed-digit functions of type ℕ → 𝟛.
@@ -238,6 +238,13 @@ our proof follows: we immediately get that for all x : ℕ → 𝟛,
 
 by boehm-signed-iso₁.
 
+----
+
+Ask Andrew:
+ * Implement countable/iterated midpoint on Dedekind reals
+
+-------------------------------------------------------------------
+
 ## The key difference
 
 The key difference between the signed digit approach and the Boehm
@@ -246,6 +253,8 @@ approach is that,
                       the information in all x(i) such that i < n,
  * With Boehm codes,  the information kept in x(n) *includes*
                       the information in all x(i) such that i < n.
+
+-------------------------------------------------------------------
 
 ## Closeness function on 𝕂
 
@@ -276,8 +285,8 @@ the information kept in any ⟨ x ⟩ (negsucc n₂) : ℤ.
 This closeness function, like that on signed-digits, gives the
 closeness of *encodings* of real numbers; not the real numbers
 themselves. If we wish to determine the closeness of the numbers
-themselves, we can instead use the following pseudo-closenss
-function (I THINK!)
+themselves, we can instead use the following pseudo-closeness
+function (BUT MAYBE NOT)
 
 pc : 𝕂 × 𝕂 → ℕ∞ 
 pc ((α , _) , (β , _))
@@ -294,7 +303,7 @@ predicate on the real numbers ℝ.)
 When defining uniformly continuous predicates on signed-digits,
 we utilised the discrete-sequence closeness function.
 
-uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : X → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
+uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : ℕ → X → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
 uc-d-predicate-on-seqs {X} p
  = ((x : X) → decidable (p x))
  × (Σ δ ꞉ ℕ , (α β : ℕ → X) → (α ≈ β) δ → p α ⇔ p β)
@@ -308,13 +317,14 @@ to p(y).
 
 (Reword ↓)
 But! With Boehm codes 𝕂, all the information is kept in the most recent
-code. So if an "equivalent" predicate should only need to satisfy the
+code. So an "equivalent" predicate should only need to satisfy the
 following.
 
 special-predicate : (p : 𝕂 → 𝓤 ̇ ) → 𝓤 ̇
 special-predicate p
  = ((x : 𝕂) → decidable (p x))
  × (Σ δ ꞉ ℕ , (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
+
 
 
 Relationships:
