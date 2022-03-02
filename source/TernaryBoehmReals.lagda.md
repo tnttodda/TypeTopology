@@ -26,15 +26,14 @@ open import InfiniteSearch2 fe
 
 We encode real numbers using the data type for ternary Boehm reals 𝕂.
 
-Each 𝕂 is a function x ꞉ ℤ → ℤ with some restrictions on it, so that
-we only have our encodings of real numbers inside 𝕂, and not any
-function of type ℤ → ℤ.
+Each 𝕂 is a function x ꞉ ℤ → ℤ with some restrictions on it, so that we only
+have our encodings of real numbers inside 𝕂, and not any function of type ℤ → ℤ.
 
-The function x : ℤ → ℤ takes a "precision-level" n : ℤ and gives back
-an encoding x(n) : ℤ of a real interval.
+The function x : ℤ → ℤ takes a "precision-level" n : ℤ and gives back an
+encoding x(n) : ℤ of a real interval.
 
-The idea is that each precision-level n : ℤ represents a "layer" in
-the following illustrative "brick pattern".
+The idea is that each precision-level n : ℤ represents a "layer" in the
+following illustrative "brick pattern".
 
 Level n+1 has bricks half the size of those on level n.
 Here level 0 and 1 are shown.
@@ -47,20 +46,19 @@ __________ _________ _________ ____
 |-4__|-2__|_0__|_2__|_4__|_6__|_8__|
  _|_-3_|_-1_|__1_|__3_|__5_|__7_|__
 
-Then, x(n) : ℤ refers to a precise labelled "brick" in the brick
-pattern.
+Then, x(n) : ℤ refers to a precise labelled "brick" in the brick pattern.
 
-Each brick encodes a real interval; specifically the interval
-⟪ x(n) , n ⟫ as defined below.
+Each brick encodes a real interval; specifically the interval ⟪ x(n) , n ⟫ as
+defined below.
 
 ⟪_⟫ : ℤ × ℤ → ℚ × ℚ
 ⟪ k , p ⟫ = (k / 2^{p + 1}) , ((k + 2) / 2^{p + 1})
 
 ## Formal definition
 
-Therefore, an encoding of a real number is a sequence of encodings of
-real intervals -- the restriction we add is that each brick x(n) is
-"below" the brick x(n+1); meaning ⟪ x(n+1) , n+1 ⟫ ⊂ ⟪ x(n) , n ⟫.
+Therefore, an encoding of a real number is a sequence of encodings of real
+intervals -- the restriction we add is that each brick x(n) is "below" the brick
+-- x(n+1); meaning ⟪ x(n+1) , n+1 ⟫ ⊂ ⟪ x(n) , n ⟫.
 
 Note that there are precisely three brick below each brick.
 
@@ -90,12 +88,10 @@ The real number represented by x : 𝕂 is defined as ⟦ x ⟧ : ℝ.
 We may also wish to go "up" the brick pattern from a specific brick.
 
 Even-numbered bricks are covered by two bricks at the preceeding
-precision-level, whereas odd-numbered bricks are covered by exactly
-one.
+precision-level, whereas odd-numbered bricks are covered by exactly one.
 
-We define the functions upLeft : ℤ → ℤ and upRight : ℤ → ℤ, such that
-when k : ℤ is even upLeft k = predℤ (upRight k) and when n is odd
-upLeft k = upRight k.
+We define the functions upLeft : ℤ → ℤ and upRight : ℤ → ℤ, such that when k : ℤ
+is even upLeft k = predℤ (upRight k) and when n is odd upLeft k = upRight k.
 
 upLeft upRight : ℤ → ℤ
 upLeft  = {!!}
@@ -137,6 +133,18 @@ build (x , γx) i = λ n → if   n <ℤ i
                          then rec upRight-is-below (i - n) γx(i) 
                          else γx(n - i)
 
+We can also build a 𝕂 that goes 'via' some given interval encoding.
+
+build-via : ℤ × ℤ → 𝕂
+build-via (k , i) = λ n → if   n <ℤ i
+                          then rec upRight (i - n) k
+                          if   n ≡  i
+                          then k
+                          else rec downLeft (n - i) k
+                  , λ n → if   n ≤ℤ i
+                          then rec upRight-is-below (i - n) i
+                          else rec downLeft-is-above (n - i) i
+
 -------------------------------------------------------------------
 
 ## Representing closed intervals
@@ -146,7 +154,10 @@ representing ⟪ k , p ⟫, we can define an element of the closed
 interval ⟪ k , p ⟫.
 
 ClosedInterval : ℤ × ℤ → 𝓤₀ ̇
-ClosedInterval (k , p) = Σ (x , _) : 𝕂 , x(p) ≡ k 
+ClosedInterval (k , p) = Σ (x , _) : 𝕂 , x(p) ≡ k
+
+ι : {i : ℤ × ℤ} → ClosedInterval i → 𝕂
+ι = pr₁
 
 You can also build an element of a closed interval in a similar way
 
@@ -320,14 +331,132 @@ But! With Boehm codes 𝕂, all the information is kept in the most recent
 code. So an "equivalent" predicate should only need to satisfy the
 following.
 
-special-predicate : (p : 𝕂 → 𝓤 ̇ ) → 𝓤 ̇
-special-predicate p
- = ((x : 𝕂) → decidable (p x))
+special-predicate-𝕂 : 𝓤 ̇
+special-predicate-𝕂
+ = Σ p : (𝕂 → 𝓤 ̇ )
+ , ((x : 𝕂) → decidable (p x))
  × (Σ δ ꞉ ℕ , (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
-
-
 
 Relationships:
  * c (α , β) ≼ δ                 → pc (α , β) ≼ δ
  * c (α , β) ≼ (succ δ)          → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
  * ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → pc (α , β) ≼ δ ?
+
+special-predicate-𝕂 : (δ : ℕ) → 𝓤 ̇
+special-predicate-𝕂 δ
+ = Σ p : (𝕂 → 𝓤 ̇ )
+ , ((x : 𝕂) → decidable (p x))
+ × ((α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
+
+special-predicate-I : (δ : ℕ) → 𝓤 ̇
+special-predicate-I δ
+ = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
+ , ((k : ℤ) → decidable (p (k , δ)))
+
+special-predicate-I-to-𝕂 : (δ : ℕ)
+                         → special-predicate-on-I δ → special-predicate-on-𝕂 δ
+special-predicate-I-to-𝕂 δ (p , d) = p* , d* , ϕ
+ where
+   p* : 𝕂 → 𝓤 ̇
+   p* x = p (⟨ x ⟩ (pos δ) , δ)
+   d* : (x : 𝕂) → decidable (p x)
+   d* x = d (⟨ x ⟩ (pos δ))
+   ϕ : (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
+                 → p (⟨ α ⟩ (pos δ) , δ) ⇔ p (⟨ β ⟩ (pos δ) , δ)
+   ϕ α β αδ≡βδ = transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
+               , transport (p ∘ (_, δ))  αδ≡βδ
+
+special-predicate-𝕂-to-I : (δ : ℕ)
+                         → special-predicate-on-𝕂 δ → special-predicate-on-I δ
+special-predicate-𝕂-to-I δ (p* , d* , ϕ) = p , d
+ where
+   p : ℤ × ℤ → 𝓤 ̇ 
+   p (k , i) = p* (build-via (k , i))
+   d : (k : ℤ) → decidable (p* (build-via (k , δ))) 
+   d  k      = d* (build-via (k , δ))
+
+But these are not searchable!
+
+special-predicate-𝕂c : ((k , i) : ℤ × ℤ) (δ : ℕ) → 𝓤 ̇
+special-predicate-𝕂c (k , i) δ
+ = Σ p : (CompactInterval (k , i) → 𝓤 ̇ )
+ , ((x : CompactInterval (k , i)) → decidable (p x))
+ × ((α β : CompactInterval (k , i))
+   → ⟨ ι α ⟩ (pos δ) ≡ ⟨ ι β ⟩ (pos δ) → p α ⇔ p β)
+
+special-predicate-Ic : (δ l u : ℤ) → 𝓤 ̇
+special-predicate-Ic δ l u
+ = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
+ , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+
+These are searchable.
+
+special-predicate-𝕂c-to-𝕂 : ((k , i) : ℤ × ℤ) (δ : ℕ)
+                          → special-predicate-on-𝕂c (k , i) δ
+                          → special-predicate-on-𝕂 δ
+special-predicate-𝕂c-to-𝕂 (p* , d* , ϕ)
+ = p( ∘ ι , d* ∘ ι , λ α β → ϕ (ι α) (ι β)
+
+lower upper : ℤ × ℤ → ℤ → ℤ
+lower (k , i) δ = rec (upLeft /downLeft ) (i - δ)
+upper (k , i) δ = rec (upRight/downRight) (i - δ)
+
+ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
+               → (δ : ℤ) → lower (k , i) δ ≤ℤ x(δ) ≤ℤ upper (k , i) δ 
+ci-lower-upper = {!!}
+
+special-predicate-𝕂-to-Ic : (δ l u : ℕ)
+                          → special-predicate-on-𝕂 δ 
+                          → special-predicate-on-Ic δ l u
+special-predicate-𝕂-to-Ic δ l u (p* , d* , ϕ) = p , d
+ where
+   p : ℤ × ℤ → 𝓤 ̇ 
+   p (k , i) = p* (build-via (k , i))
+   d : (k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p* (build-via (k , δ))) 
+   d  k _    = d* (build-via (k , δ))
+
+special-predicate-Ic-to-𝕂 : ((k , i) : ℤ × ℤ) (δ : ℕ)
+                          → special-predicate-on-Ic δ
+                              (lower (k , i) δ) (upper (k , i) δ)
+                          → special-predicate-on-𝕂c (k , i) δ
+special-predicate-Ic-to-𝕂 (k , i) (p , δ , l , u , d) = p* , d* , δ , ϕ
+ where
+   p* : 𝕂 → 𝓤 ̇
+   p* x = p (⟨ x ⟩ (pos δ) , δ)
+   d* : (x : 𝕂) → decidable (p x)
+   d* x = d (⟨ x ⟩ (pos δ)) (ci-lower-upper (k , i) x δ)
+   ϕ : (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
+                 → p (⟨ α ⟩ (pos δ) , δ) ⇔ p (⟨ β ⟩ (pos δ) , δ)
+   ϕ α β αδ≡βδ = transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
+               , transport (p ∘ (_, δ))  αδ≡βδ
+
+special-predicate-𝕂c-to-Ic : ((k , i) : ℤ × ℤ) (δ : ℕ)
+                          → special-predicate-on-𝕂c (k , i) δ 
+                          → special-predicate-on-Ic δ
+                              (lower (k , i) δ) (upper (k , i) δ)
+special-predicate-𝕂c-to-Ic (k , i) δ
+ = special-predicate-𝕂-to-Ic δ (lower (k , i) δ) (upper (k , i) δ)
+ ∘ special-predicate-𝕂c-to-𝕂 (k , i) δ
+
+The Ic predicates are searchable, and are logically equivalent to the 𝕂c
+predicates.
+
+special-predicate-Ic : (δ l u : ℤ) → 𝓤 ̇
+special-predicate-Ic δ l u
+ = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
+ , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+
+Ic-predicates-are-searchable : (δ l u : ℤ) → l ≤ℤ u 
+                             → let p
+                             = λ k → p⟨ special-predicate-Ic δ l u ⟩ (k , δ)
+                             in Σ k ꞉ ℤ , (Σ k₀ : ℤ , p (k₀ , δ)) → p (k , δ)
+Ic-predicates-are-searchable δ l l (0 , refl)
+ = l , γ
+ where
+   γ : (Σ k₀ : ℤ , p (k₀ , δ)) → p (k , δ)
+   γ (l₀ , pl₀) = transport (p ∘ (_, δ)) (l≡l₀ ⁻¹) pl₀
+   where
+     l≡l₀ : l ≡ l₀
+     l≡l₀ = ?
+Ic-predicates-are-searchable δ l u (succ n , succ(l+n)≡u)
+ = {!!}
