@@ -1,25 +1,10 @@
 ```agda
 {-# OPTIONS --without-K --exact-split #-}
 
-open import SpartanMLTT hiding (decidable)
-open import Two-Properties hiding (zero-is-not-one)
-open import NaturalsOrder
-open import NaturalsAddition renaming (_+_ to _+ℕ_)
-open import IntegersB
--- open import IntegersOrder
-open import IntegersAddition renaming (_+_ to _+ℤ_)
-open import IntegersNegation renaming (-_  to  −ℤ_)
-open import UF-Subsingletons
+open import TernaryBoehmRealsPrelude
 
-module TernaryBoehmReals
- (fe : {𝓤 𝓥 : Universe} → {X : 𝓤 ̇ } {Y : X → 𝓥 ̇ } {f g : Π Y}
-                        → f ∼ g → f ≡ g) where
+module TernaryBoehmReals where
 
-open import InfiniteSearch2 fe
-
-{-# BUILTIN INTEGER       ℤ       #-}
-{-# BUILTIN INTEGERPOS    pos     #-}
-{-# BUILTIN INTEGERNEGSUC negsucc #-}
 ```
 
 ## Idea and Illustration
@@ -45,7 +30,7 @@ __________ _________ _________ ____
  ____ ____ ____ ____ ____ ____ ____
 |-4__|-2__|_0__|_2__|_4__|_6__|_8__|
  _|_-3_|_-1_|__1_|__3_|__5_|__7_|__
-
+4
 Then, x(n) : ℤ refers to a precise labelled "brick" in the brick pattern.
 
 Each brick encodes a real interval; specifically the interval ⟪ x(n) , n ⟫ as
@@ -62,21 +47,25 @@ intervals -- the restriction we add is that each brick x(n) is "below" the brick
 
 Note that there are precisely three brick below each brick.
 
-downLeft downMid downRight : ℤ
+```
+downLeft downMid downRight : ℤ → ℤ
 downLeft  a = a +ℤ a
 downMid   a = succℤ (downLeft a)
 downRight a = succℤ (downMid  a)
 
-_below_ : ℤ → ℤ → ℤ
+_below_ : ℤ → ℤ → 𝓤₀ ̇ 
 a below b = downLeft b ≤ℤ a ≤ℤ downRight b
 
 𝕂 : 𝓤₀ ̇ 
-𝕂 = Σ x ꞉ ℤ → ℤ , (n : ℤ) → (x (succℤ n)) below (x n)
+𝕂 = Σ x ꞉ (ℤ → ℤ) , ((n : ℤ) → (x (succℤ n)) below (x n))
+```
 
 The real number represented by x : 𝕂 is defined as ⟦ x ⟧ : ℝ.
 
+```
 ⟨_⟩ : 𝕂 → (ℤ → ℤ)
 ⟨ x , _ ⟩ = x
+```
 
 ⟦_⟧ : 𝕂 → ℝ
 ⟦ x ⟧ = ⋂ᵢ ⟪ ⟨ x ⟩ i ⟫
@@ -93,9 +82,13 @@ precision-level, whereas odd-numbered bricks are covered by exactly one.
 We define the functions upLeft : ℤ → ℤ and upRight : ℤ → ℤ, such that when k : ℤ
 is even upLeft k = predℤ (upRight k) and when n is odd upLeft k = upRight k.
 
-upLeft upRight : ℤ → ℤ
-upLeft  = {!!}
-upRight = {!!}
+```
+upRight upLeft : ℤ → ℤ
+upRight x = sign x (num x /2)
+upLeft  x with even-or-odd? x
+...     | (inl e) = predℤ (upRight x)
+...     | (inr o) =        upRight x
+```
 
 upLeft-is-below  : (k : ℕ) → k below upLeft  k
 upLeft-is-below  = {!!}
@@ -153,16 +146,18 @@ Given any specific brick on a specific level, i.e. (k , p) : ℤ × ℤ
 representing ⟪ k , p ⟫, we can define an element of the closed
 interval ⟪ k , p ⟫.
 
-ClosedInterval : ℤ × ℤ → 𝓤₀ ̇
-ClosedInterval (k , p) = Σ (x , _) : 𝕂 , x(p) ≡ k
+```
+CompactInterval : ℤ × ℤ → 𝓤₀ ̇
+CompactInterval (k , p) = Σ (x , _) ꞉ 𝕂 , x(p) ≡ k
 
-ι : {i : ℤ × ℤ} → ClosedInterval i → 𝕂
+ι : {i : ℤ × ℤ} → CompactInterval i → 𝕂
 ι = pr₁
+```
 
 You can also build an element of a closed interval in a similar way
 
 build-ci : (Σ x ꞉ (ℕ → ℤ) , (n : ℕ) → (x (succ n)) below (x n))
-         → (i : ℤ) → ClosedInterval (x(0) , i)
+         → (i : ℤ) → CompactInterval (x(0) , i)
 build-ci x = build x i , {!!}
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
@@ -175,8 +170,10 @@ Recall that we previously represented numbers in the closed interval
 
 This interval is represented by the Boehm "brick" (-1 , -1) : ℕ × ℕ.
 
+```
 [−1,1]-code : ℤ × ℤ
-[−1,1]-code = (-1 , -1)
+[−1,1]-code = (negsucc 0 , negsucc 0)
+```
 
 The location structure of the signed-digit approach is actually
 isomorphic to the ternary Boehm approach.
@@ -186,21 +183,23 @@ For example, the signed digit function
 follows the same location structure as
  x ≔ {-1 , downLeft x(0) , downMid x(1) , downRight x(2) ...} : ℕ → ℤ
 
+```
 𝟛-to-down : 𝟛 → (ℤ → ℤ)
 𝟛-to-down −1 = downLeft
 𝟛-to-down  O = downMid
 𝟛-to-down +1 = downRight
 
 signed-to-boehm' : (ℕ → 𝟛) → (ℕ → ℤ)
-signed-to-boehm' α 0 = -1
+signed-to-boehm' α 0 = negsucc 0
 signed-to-boehm' α (succ n) = 𝟛-to-down (α n) (signed-to-boehm' α n)
+```
 
 signed-to-boehm'-below
   : (α : ℕ → 𝟛) → (n : ℕ)
   → (signed-to-boehm' α (succ n)) below (signed-to-boehm' α n)
 signed-to-boehm'-below α n = {!!} -- Easy
 
-signed-to-boehm : (ℕ → 𝟛) → ClosedInterval [−1-1]-code
+signed-to-boehm : (ℕ → 𝟛) → CompactInterval [−1,1]-code
 signed-to-boehm α
  = build-ci (signed-to-boehm' α , signed-to-boehm'-below α)
 
@@ -279,8 +278,10 @@ c (x , y) ≼ ι δ ⇔ (x ≈ y) δ,
 where c(x , y) : ℕ∞ is the value of the discrete-sequence closeness
 function for x and y.
 
+```
 _≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
-(α ≈ β) n = (i : ℕ) → i < n → α n ≡ β n
+(α ≈ β) n = (i : ℕ) → i <ℕ n → α n ≡ β n
+```
 
 From the canonical closeness function on (ℕ → ℤ), we can define one
 on 𝕂:
@@ -314,10 +315,12 @@ predicate on the real numbers ℝ.)
 When defining uniformly continuous predicates on signed-digits,
 we utilised the discrete-sequence closeness function.
 
+```
 uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : (ℕ → X) → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
-uc-d-predicate-on-seqs {X} p
+uc-d-predicate-on-seqs {𝓤} {𝓥} {X} p
  = ((α : ℕ → X) → decidable (p α))
- × (Σ δ ꞉ ℕ , (α β : ℕ → X) → (α ≈ β) δ → p α ⇔ p β)
+ × (Σ δ ꞉ ℕ , ((α β : ℕ → X) → (α ≈ β) δ → p α ⇔ p β))
+```
 
 We call the δ : ℕ of such a predicate its 'modulus of continuity'.
 
@@ -331,11 +334,13 @@ But! With Boehm codes 𝕂, all the information is kept in the most recent
 code. So an "equivalent" predicate should only need to satisfy the
 following.
 
-special-predicate-𝕂 : (δ : ℕ) → 𝓤 ̇
-special-predicate-𝕂 δ
- = Σ p : (𝕂 → 𝓤 ̇ )
+```
+special-predicate-on-𝕂 : (δ : ℤ) → 𝓤 ⁺ ̇
+special-predicate-on-𝕂 {𝓤} δ
+ = Σ p ꞉ (𝕂 → 𝓤 ̇ )
  , ((x : 𝕂) → decidable (p x))
- × ((α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
+ × ((α β : 𝕂) → ⟨ α ⟩ δ ≡ ⟨ β ⟩ δ → p α ⇔ p β)
+```
 
 Relationships:
  * c (α , β) ≼ δ                 → pc (α , β) ≼ δ
@@ -344,23 +349,26 @@ Relationships:
 
 ## Special predicates on K relate to predicates on I
 
-special-predicate-I : (δ : ℕ) → 𝓤 ̇
-special-predicate-I δ
+```
+special-predicate-on-I : (δ : ℤ) → 𝓤 ⁺ ̇
+special-predicate-on-I {𝓤} δ
  = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
  , ((k : ℤ) → decidable (p (k , δ)))
 
-special-predicate-I-to-𝕂 : (δ : ℕ)
-                         → special-predicate-on-I δ → special-predicate-on-𝕂 δ
-special-predicate-I-to-𝕂 δ (p , d) = p* , d* , ϕ
+special-predicate-I-to-𝕂 : {𝓤 : Universe} → (δ : ℤ)
+                         → special-predicate-on-I {𝓤} δ
+                         → special-predicate-on-𝕂 {𝓤} δ
+special-predicate-I-to-𝕂 {𝓤} δ (p , d) = p* , d* , ϕ
  where
    p* : 𝕂 → 𝓤 ̇
-   p* x = p (⟨ x ⟩ (pos δ) , δ)
-   d* : (x : 𝕂) → decidable (p x)
-   d* x = d (⟨ x ⟩ (pos δ))
-   ϕ : (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
-                 → p (⟨ α ⟩ (pos δ) , δ) ⇔ p (⟨ β ⟩ (pos δ) , δ)
-   ϕ α β αδ≡βδ = transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
-               , transport (p ∘ (_, δ))  αδ≡βδ
+   p* x = p (⟨ x ⟩ δ , δ) 
+   d* : (x : 𝕂) → decidable (p* x)
+   d* x = d (⟨ x ⟩ δ) 
+   ϕ : (α β : 𝕂) → ⟨ α ⟩ δ ≡ ⟨ β ⟩ δ
+                 → p (⟨ α ⟩ δ , δ) ⇔ p (⟨ β ⟩ δ , δ)
+   ϕ α β αδ≡βδ = transport (p ∘ (_, δ))  αδ≡βδ
+               , transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
+```
 
 special-predicate-𝕂-to-I : (δ : ℕ)
                          → special-predicate-on-𝕂 δ → special-predicate-on-I δ
@@ -375,95 +383,144 @@ But these are not searchable!
 
 ## Special predicates on CompactIntervals relate to searchable predicates on I
 
-special-predicate-𝕂c : ((k , i) : ℤ × ℤ) (δ : ℕ) → 𝓤 ̇
-special-predicate-𝕂c (k , i) δ
- = Σ p : (CompactInterval (k , i) → 𝓤 ̇ )
+```
+special-predicate-on-𝕂c : ((k , i) : ℤ × ℤ) (δ : ℤ) → 𝓤 ⁺ ̇ 
+special-predicate-on-𝕂c {𝓤} (k , i) δ
+ = Σ p ꞉ (CompactInterval (k , i) → 𝓤 ̇ )
  , ((x : CompactInterval (k , i)) → decidable (p x))
  × ((α β : CompactInterval (k , i))
-   → ⟨ ι α ⟩ (pos δ) ≡ ⟨ ι β ⟩ (pos δ) → p α ⇔ p β)
+   → ⟨ ι α ⟩ δ ≡ ⟨ ι β ⟩ δ → p α ⇔ p β)
 
-special-predicate-Ic : (δ l u : ℤ) → 𝓤 ̇
-special-predicate-Ic δ l u
+special-predicate-on-Ic : (δ l u : ℤ) → 𝓤 ⁺ ̇ 
+special-predicate-on-Ic {𝓤} δ l u
  = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
  , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+```
 
 These are searchable.
 
-special-predicate-𝕂c-to-𝕂 : ((k , i) : ℤ × ℤ) (δ : ℕ)
-                          → special-predicate-on-𝕂c (k , i) δ
-                          → special-predicate-on-𝕂 δ
-special-predicate-𝕂c-to-𝕂 (p* , d* , ϕ)
- = p( ∘ ι , d* ∘ ι , λ α β → ϕ (ι α) (ι β)
+```
+η : (n : ℤ) → (x : 𝕂) → CompactInterval (⟨ x ⟩ n , n)
+η n = _, refl
+
+-- Not sure about this:
+special-predicate-𝕂c-to-𝕂
+ : {𝓤 : Universe} (δ : ℤ)
+ → (((k , i) : ℤ × ℤ) → special-predicate-on-𝕂c {𝓤} (k , i) δ)
+ → special-predicate-on-𝕂 {𝓤} δ
+special-predicate-𝕂c-to-𝕂 δ ps
+ = (λ α → pr₁      (ps (⟨ α ⟩ δ , δ)) (η δ α))
+ , (λ α → pr₁ (pr₂ (ps (⟨ α ⟩ δ , δ))) (η δ α))
+ , (λ α β αδ≡βδ → (λ psαα → {!!}) , {!!})
+```
+
+TODO
+
+```
+rec-upLeft/downLeft  : ℤ → ℤ → ℤ
+rec-upLeft/downLeft x (pos n)     = rec x downLeft n
+rec-upLeft/downLeft x (negsucc n) = rec x upLeft   (succ n)
+
+rec-upRight/downRight  : ℤ → ℤ → ℤ
+rec-upRight/downRight x (pos n)     = rec x downRight n
+rec-upRight/downRight x (negsucc n) = rec x upRight   (succ n)
 
 lower upper : ℤ × ℤ → ℤ → ℤ
-lower (k , i) δ = rec (upLeft /downLeft ) (i - δ)
-upper (k , i) δ = rec (upRight/downRight) (i - δ)
+lower (k , i) δ = rec-upLeft/downLeft   k (i −ℤ δ)
+upper (k , i) δ = rec-upRight/downRight k (i −ℤ δ)
 
 ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
-               → (δ : ℤ) → lower (k , i) δ ≤ℤ x(δ) ≤ℤ upper (k , i) δ 
-ci-lower-upper = {!!}
+               → (δ : ℤ)
+               → lower (k , i) δ ≤ℤ ⟨ ι x ⟩ δ ≤ℤ upper (k , i) δ 
+ci-lower-upper (k , i) x δ with (i −ℤ δ)
+... | pos n = {!!}
+... | negsucc n = {!!}
+```
 
-special-predicate-𝕂-to-Ic : (δ l u : ℕ)
-                          → special-predicate-on-𝕂 δ 
-                          → special-predicate-on-Ic δ l u
-special-predicate-𝕂-to-Ic δ l u (p* , d* , ϕ) = p , d
+TODO
+
+```
+special-predicate-𝕂-to-Ic : {𝓤 : Universe} (δ l u : ℤ)
+                          → special-predicate-on-𝕂 {𝓤} δ 
+                          → special-predicate-on-Ic {𝓤} δ l u
+special-predicate-𝕂-to-Ic {𝓤} δ l u (p* , d* , ϕ) = p , d
  where
    p : ℤ × ℤ → 𝓤 ̇ 
-   p (k , i) = p* (build-via (k , i))
-   d : (k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p* (build-via (k , δ))) 
-   d  k _    = d* (build-via (k , δ))
+   p (k , i) = p* {!!} -- (build-via (k , i))
+   d : (k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)) 
+   d  k _    = d* {!!} -- (build-via (k , δ))
 
-special-predicate-Ic-to-𝕂 : ((k , i) : ℤ × ℤ) (δ : ℕ)
-                          → special-predicate-on-Ic δ
+special-predicate-Ic-to-𝕂 : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+                          → special-predicate-on-Ic {𝓤} δ
                               (lower (k , i) δ) (upper (k , i) δ)
-                          → special-predicate-on-𝕂c (k , i) δ
-special-predicate-Ic-to-𝕂 (k , i) (p , δ , d) = p* , d* , δ , ϕ
+                          → special-predicate-on-𝕂c {𝓤} (k , i) δ
+special-predicate-Ic-to-𝕂 {𝓤} (k , i) δ (p , d) = p* , d* , ϕ
  where
-   p* : 𝕂 → 𝓤 ̇
-   p* x = p (⟨ x ⟩ (pos δ) , δ)
-   d* : (x : 𝕂) → decidable (p x)
-   d* x = d (⟨ x ⟩ (pos δ)) (ci-lower-upper (k , i) x δ)
-   ϕ : (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
-                 → p (⟨ α ⟩ (pos δ) , δ) ⇔ p (⟨ β ⟩ (pos δ) , δ)
-   ϕ α β αδ≡βδ = transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
-               , transport (p ∘ (_, δ))  αδ≡βδ
+   p* : CompactInterval (k , i) → 𝓤 ̇
+   p* x = p (⟨ ι x ⟩ δ , δ)
+   d* : (x : CompactInterval (k , i)) → decidable (p* x)
+   d* x = d (⟨ ι x ⟩ δ) (ci-lower-upper (k , i) x δ)
+   ϕ : (α β : CompactInterval (k , i)) → ⟨ ι α ⟩ δ ≡ ⟨ ι β ⟩ δ
+                 → p (⟨ ι α ⟩ δ , δ) ⇔ p (⟨ ι β ⟩ δ , δ)
+   ϕ α β αδ≡βδ = transport (p ∘ (_, δ))  αδ≡βδ
+               , transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
+```
 
 special-predicate-𝕂c-to-Ic : ((k , i) : ℤ × ℤ) (δ : ℕ)
                           → special-predicate-on-𝕂c (k , i) δ 
                           → special-predicate-on-Ic δ
                               (lower (k , i) δ) (upper (k , i) δ)
 special-predicate-𝕂c-to-Ic (k , i) δ
- = special-predicate-𝕂-to-Ic δ (lower (k , i) δ) (upper (k , i) δ)
- ∘ special-predicate-𝕂c-to-𝕂 (k , i) δ
+ = ?
 
 The Ic predicates are searchable, and are logically equivalent to the 𝕂c
 predicates.
 
-special-predicate-Ic : (δ l u : ℤ) → 𝓤 ̇
-special-predicate-Ic δ l u
+```
+special-predicate-Ic : (δ l u : ℤ) → 𝓤 ⁺ ̇
+special-predicate-Ic {𝓤} δ l u
  = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
  , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+```
+
+```
+postulate ≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ≡ y
 
 Ic-predicates-are-searchable
- : (δ l u : ℤ) → l ≤ℤ u 
- → let p = λ k → pr₁ (special-predicate-Ic δ l u) in
-   Σ k ꞉ ℤ , (Σ k₀ : ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ)
-Ic-predicates-are-searchable δ l u (0 , l≡u)
+ : {𝓤 : Universe} (δ l u : ℤ) → l ≤ℤ u
+ → (spIc : special-predicate-Ic {𝓤} δ l u)
+ → let p = pr₁ spIc in
+   Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
+Ic-predicates-are-searchable δ .u u (0 , refl) spIc
  = u , γ
  where
-   p = pr₁ (special-predicate-Ic δ l u)
-   γ : (Σ k₀ : ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ)
-   γ (u₀ , e , pl₀) = transport (p ∘ (_, δ)) (l≡l₀ ⁻¹) pl₀
-   where
-     u≡u₀ : u ≡ u₀
-     u≡u₀ = {!!} -- by e and l≡u
-Ic-predicates-are-searchable δ l u (succ n , succ(l+n)≡u)
- = Cases (d (u , δ) (l≤u , u≤u))
+   p = pr₁ spIc
+   γ : Σ k₀ ꞉ ℤ , u ≤ℤ k₀ ≤ℤ u × p (k₀ , δ) → p (u , δ)
+   γ (u₀ , e , pu₀) = transport (p ∘ (_, δ)) (u≡u₀ ⁻¹) pu₀
+    where
+      u≡u₀ : u ≡ u₀
+      u≡u₀ = ≤ℤ-antisym u u₀ e 
+Ic-predicates-are-searchable δ l u (succ n , l+n≡u) (p , d)
+ = Cases (d u ((succ n , l+n≡u) , ℤ≤-refl u))
+     (λ  pu → u , λ _                    → pu)
+     (λ ¬pu → k , λ (k₀ , (l≤k₀ , k₀≤u) , pk₀) →
+       Cases (ℤ≤-split k₀ u k₀≤u)
+         (λ k₀<u → γ (k₀ , (l≤k₀ , {!!}) , pk₀))
+         (λ k₀≡u → 𝟘-elim (¬pu (transport p (ap (_, δ) k₀≡u) pk₀))))
  where
-  d = pr₂ (special-predicate-Ic δ l u)
+  predℤu = l +pos n
+  IH : Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ predℤu × p (k₀ , δ)) → p (k , δ))
+  IH = Ic-predicates-are-searchable δ l predℤu (n , refl) {!!}
+  k = pr₁ IH
+  γ = pr₂ IH
+```
 
+Therefore, 𝕂c predicates are searchable in two ways: directly, or
+via the isomorphism.
 
+## Predicates to test
 
+## Fuel
 
 
 
