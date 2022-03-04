@@ -2,6 +2,7 @@
 {-# OPTIONS --without-K --exact-split #-}
 
 open import TernaryBoehmRealsPrelude
+open import UF-Equiv
 
 module TernaryBoehmReals where
 
@@ -484,39 +485,103 @@ special-predicate-Ic {𝓤} δ l u
 ```
 
 ```
-postulate ≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ≡ y
+≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ≡ y
+≤ℤ-antisym x y (x≤y , y≤x) with ℤ≤-split x y x≤y | ℤ≤-split y x y≤x
+... | inl (n , γ) | inl (m , δ)
+ = 𝟘-elim (ℤ-equal-not-less-than x (ℤ<-trans x y x (n , γ) (m , δ)))
+... | inl  _  | inr y≡x = y≡x ⁻¹
+... | inr x≡y | _       = x≡y
 
-Ic-predicates-are-searchable
- : {𝓤 : Universe} (δ l u : ℤ) → l ≤ℤ u
- → (spIc : special-predicate-Ic {𝓤} δ l u)
- → let p = pr₁ spIc in
-   Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
-Ic-predicates-are-searchable δ .u u (0 , refl) spIc
+≤ℤ-back : ∀ x y → x <ℤ y → x ≤ℤ predℤ y
+≤ℤ-back x .(succℤ x +ℤ pos n) (n , refl)
+ = ℤ≤-trans x (x +pos n) (predℤ (succℤ x +pos n))
+     (n , refl)
+     (transport ((x +pos n) ≤ℤ_)
+       (predsuccℤ (x +pos n) ⁻¹
+       ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
+       (ℤ≤-refl (x +pos n)))
+
+Ic-predicates-are-searchable'
+ : {𝓤 : Universe} (δ l u : ℤ) → (n : ℕ) → l +pos n ≡ u
+ → ((p , _) : special-predicate-Ic {𝓤} δ l u)
+ →  Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
+Ic-predicates-are-searchable' δ .u u 0 refl (p , d)
  = u , γ
  where
-   p = pr₁ spIc
    γ : Σ k₀ ꞉ ℤ , u ≤ℤ k₀ ≤ℤ u × p (k₀ , δ) → p (u , δ)
    γ (u₀ , e , pu₀) = transport (p ∘ (_, δ)) (u≡u₀ ⁻¹) pu₀
     where
       u≡u₀ : u ≡ u₀
       u≡u₀ = ≤ℤ-antisym u u₀ e 
-Ic-predicates-are-searchable δ l u (succ n , l+n≡u) (p , d)
+Ic-predicates-are-searchable' δ l u (succ n) l+n≡u (p , d)
  = Cases (d u ((succ n , l+n≡u) , ℤ≤-refl u))
      (λ  pu → u , λ _                    → pu)
      (λ ¬pu → k , λ (k₀ , (l≤k₀ , k₀≤u) , pk₀) →
        Cases (ℤ≤-split k₀ u k₀≤u)
-         (λ k₀<u → γ (k₀ , (l≤k₀ , {!!}) , pk₀))
+         (λ k₀<u → γ (k₀ , (l≤k₀
+                         , transport (k₀ ≤ℤ_)
+                             (succℤ-lc (succpredℤ u ∙ l+n≡u ⁻¹))
+                             (≤ℤ-back k₀ u k₀<u))
+                         , pk₀))
          (λ k₀≡u → 𝟘-elim (¬pu (transport p (ap (_, δ) k₀≡u) pk₀))))
  where
-  predℤu = l +pos n
-  IH : Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ predℤu × p (k₀ , δ)) → p (k , δ))
-  IH = Ic-predicates-are-searchable δ l predℤu (n , refl) {!!}
+  IH : Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ (l +pos n) × p (k₀ , δ)) → p (k , δ))
+  IH = Ic-predicates-are-searchable' δ l (l +pos n) n refl
+        (p , λ k (l≤k , (i , k+i≡pu))
+           → d k (l≤k , succ i , (ap succℤ k+i≡pu ∙ l+n≡u)))
   k = pr₁ IH
   γ = pr₂ IH
+
+Ic-predicates-are-searchable
+ : {𝓤 : Universe} (δ l u : ℤ)
+ → ((p , _) : special-predicate-Ic {𝓤} δ l u)
+ → Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
+Ic-predicates-are-searchable δ l u (p , d)
+ = Cases (ℤ-dichotomous l u)
+     (λ (n , l≤u) → Ic-predicates-are-searchable' δ l u n l≤u (p , d))
+     (λ      u≤l  → l
+                  , λ (k₀ , (l≤k₀ , k₀≤u) , pk₀)
+                  → transport (λ - → p (- , δ))
+                      (≤ℤ-antisym k₀ l ((ℤ≤-trans k₀ u l k₀≤u u≤l) , l≤k₀))
+                      pk₀)
 ```
 
 Therefore, 𝕂c predicates are searchable in two ways: directly, or
 via the isomorphism.
+
+```
+ℤ[_] : ℤ × ℤ → Type
+ℤ[ l , u ] = Σ k ꞉ ℤ , l ≤ℤ k ≤ℤ u
+
+Ic-predicates-are-searchable2
+ : {𝓤 : Universe} (δ l u : ℤ)
+ → (p : ℤ[ l , u ] × ℤ → 𝓤 ̇ )
+ → (d : (k : ℤ[ l , u ]) → decidable (p (k , δ)))
+ → Σ k ꞉ ℤ[ l , u ] , ((Σ k₀ ꞉ ℤ[ l , u ] , p (k₀ , δ)) → p (k , δ))
+Ic-predicates-are-searchable2 = {!!}
+
+logically-equivalent
+ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+ → (px : X → 𝓦 ̇  ) (py : Y → 𝓦 ̇ )
+ → (f : X ≃ Y)
+ → 𝓤 ⊔ 𝓦 ̇ 
+logically-equivalent {𝓤} {𝓥} {𝓦} {X} {Y} px py (f , _)
+ = (x : X) → px x ⇔ py (f x)
+
+logically-equivalent-properties
+ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+ → (px : X → 𝓦 ̇  ) (py : Y → 𝓦 ̇ )
+ → (f : X ≃ Y)
+ → logically-equivalent px py f
+ → (Σ x ꞉ X , (Σ px → px x))
+ → (Σ y ꞉ Y , (Σ py → py y))
+logically-equivalent-properties px py (f , (g , fg) , _) l (x , γx)
+ = (f x) , γ
+ where
+   γ : Σ py → py (f x)
+   γ (y , pyy) = pr₁ (l x) (γx (g y , pr₂ (l (g y)) (transport py (fg y ⁻¹) pyy)))
+
+```
 
 ## Predicates to test
 
