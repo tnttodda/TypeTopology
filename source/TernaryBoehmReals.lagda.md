@@ -314,9 +314,9 @@ predicate on the real numbers ℝ.)
 When defining uniformly continuous predicates on signed-digits,
 we utilised the discrete-sequence closeness function.
 
-uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : ℕ → X → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
+uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : (ℕ → X) → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
 uc-d-predicate-on-seqs {X} p
- = ((x : X) → decidable (p x))
+ = ((α : ℕ → X) → decidable (p α))
  × (Σ δ ꞉ ℕ , (α β : ℕ → X) → (α ≈ β) δ → p α ⇔ p β)
 
 We call the δ : ℕ of such a predicate its 'modulus of continuity'.
@@ -331,22 +331,18 @@ But! With Boehm codes 𝕂, all the information is kept in the most recent
 code. So an "equivalent" predicate should only need to satisfy the
 following.
 
-special-predicate-𝕂 : 𝓤 ̇
-special-predicate-𝕂
+special-predicate-𝕂 : (δ : ℕ) → 𝓤 ̇
+special-predicate-𝕂 δ
  = Σ p : (𝕂 → 𝓤 ̇ )
  , ((x : 𝕂) → decidable (p x))
- × (Σ δ ꞉ ℕ , (α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
+ × ((α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
 
 Relationships:
  * c (α , β) ≼ δ                 → pc (α , β) ≼ δ
  * c (α , β) ≼ (succ δ)          → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
  * ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → pc (α , β) ≼ δ ?
 
-special-predicate-𝕂 : (δ : ℕ) → 𝓤 ̇
-special-predicate-𝕂 δ
- = Σ p : (𝕂 → 𝓤 ̇ )
- , ((x : 𝕂) → decidable (p x))
- × ((α β : 𝕂) → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → p α ⇔ p β)
+## Special predicates on K relate to predicates on I
 
 special-predicate-I : (δ : ℕ) → 𝓤 ̇
 special-predicate-I δ
@@ -376,6 +372,8 @@ special-predicate-𝕂-to-I δ (p* , d* , ϕ) = p , d
    d  k      = d* (build-via (k , δ))
 
 But these are not searchable!
+
+## Special predicates on CompactIntervals relate to searchable predicates on I
 
 special-predicate-𝕂c : ((k , i) : ℤ × ℤ) (δ : ℕ) → 𝓤 ̇
 special-predicate-𝕂c (k , i) δ
@@ -419,7 +417,7 @@ special-predicate-Ic-to-𝕂 : ((k , i) : ℤ × ℤ) (δ : ℕ)
                           → special-predicate-on-Ic δ
                               (lower (k , i) δ) (upper (k , i) δ)
                           → special-predicate-on-𝕂c (k , i) δ
-special-predicate-Ic-to-𝕂 (k , i) (p , δ , l , u , d) = p* , d* , δ , ϕ
+special-predicate-Ic-to-𝕂 (k , i) (p , δ , d) = p* , d* , δ , ϕ
  where
    p* : 𝕂 → 𝓤 ̇
    p* x = p (⟨ x ⟩ (pos δ) , δ)
@@ -446,17 +444,63 @@ special-predicate-Ic δ l u
  = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
  , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
 
-Ic-predicates-are-searchable : (δ l u : ℤ) → l ≤ℤ u 
-                             → let p
-                             = λ k → p⟨ special-predicate-Ic δ l u ⟩ (k , δ)
-                             in Σ k ꞉ ℤ , (Σ k₀ : ℤ , p (k₀ , δ)) → p (k , δ)
-Ic-predicates-are-searchable δ l l (0 , refl)
- = l , γ
+Ic-predicates-are-searchable
+ : (δ l u : ℤ) → l ≤ℤ u 
+ → let p = λ k → pr₁ (special-predicate-Ic δ l u) in
+   Σ k ꞉ ℤ , (Σ k₀ : ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ)
+Ic-predicates-are-searchable δ l u (0 , l≡u)
+ = u , γ
  where
-   γ : (Σ k₀ : ℤ , p (k₀ , δ)) → p (k , δ)
-   γ (l₀ , pl₀) = transport (p ∘ (_, δ)) (l≡l₀ ⁻¹) pl₀
+   p = pr₁ (special-predicate-Ic δ l u)
+   γ : (Σ k₀ : ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ)
+   γ (u₀ , e , pl₀) = transport (p ∘ (_, δ)) (l≡l₀ ⁻¹) pl₀
    where
-     l≡l₀ : l ≡ l₀
-     l≡l₀ = ?
+     u≡u₀ : u ≡ u₀
+     u≡u₀ = {!!} -- by e and l≡u
 Ic-predicates-are-searchable δ l u (succ n , succ(l+n)≡u)
- = {!!}
+ = Cases (d (u , δ) (l≤u , u≤u))
+ where
+  d = pr₂ (special-predicate-Ic δ l u)
+
+
+
+
+
+
+
+
+---------------------------------------------------------------------
+
+## Predicates on interval encodings
+
+A uc-d predicate on an interval encoding is as follows:
+
+uc-d-predicate-on-I : (p : ℤ × ℤ → 𝓤 ̇ ) → 𝓤 ̇
+uc-d-predicate-on-I p
+ = ((k , i) : ℤ × ℤ) → decidable (p (k , i)))
+ × (((k , i) (c , j) : ℤ) → (k , i) ≡ (c , j) → p (k , i) ⇔ p (c , j))
+
+Of course, because ℤ × ℤ is discrete, such predicates are always
+uniformly continuous -- the second condition always holds. Therefore,
+we need only consider decidable predicates
+
+d-predicate-on-I : 𝓤 ⁺
+d-predicate-on-I p i l u
+ = Σ p : (ℤ × ℤ → 𝓤 ̇ ) , Σ (i , l , u : ℤ) ̇
+ , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , i)))
+
+"Beneath" each special predicate on 𝕂, is a decidable predicate on ℤ.
+
+construct-sp : d-predicate-on-I
+             → Σ p* : (𝕂 → 𝓤 ̇) , special-predicate p 
+construct-sp (p , i , l , u , d)
+ = (λ (α , _) → p (α(i) , i))
+ , (λ (α , _) → d (α(i) , i))
+ , (i , λ (α , _) (β , _) αi≡βi →
+      (transport (λ - → p (- , i)) (αi≡βi ⁻¹))
+    , (transport (λ - → p (- , i))  αi≡βi    ))
+
+destruct-sp : (p* : 𝕂 → 𝓤 ̇ ) → special-predicate p*
+            → Σ p : (ℤ × ℤ) → 𝓤 ̇ , 
+
+## Subsets of ℤ are searchable
