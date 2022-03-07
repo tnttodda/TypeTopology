@@ -451,11 +451,11 @@ special-predicate-𝕂-to-Ic {𝓤} δ l u (p* , d* , ϕ) = p , d
    d : (k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)) 
    d  k _    = d* {!!} -- (build-via (k , δ))
 
-special-predicate-Ic-to-𝕂 : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
-                          → special-predicate-on-Ic {𝓤} δ
-                              (lower (k , i) δ) (upper (k , i) δ)
-                          → special-predicate-on-𝕂c {𝓤} (k , i) δ
-special-predicate-Ic-to-𝕂 {𝓤} (k , i) δ (p , d) = p* , d* , ϕ
+special-predicate-Ic-to-𝕂c : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+                           → special-predicate-on-Ic {𝓤} δ
+                               (lower (k , i) δ) (upper (k , i) δ)
+                           → special-predicate-on-𝕂c {𝓤} (k , i) δ
+special-predicate-Ic-to-𝕂c {𝓤} (k , i) δ (p , d) = p* , d* , ϕ
  where
    p* : CompactInterval (k , i) → 𝓤 ̇
    p* x = p (⟨ ι x ⟩ δ , δ)
@@ -465,14 +465,20 @@ special-predicate-Ic-to-𝕂 {𝓤} (k , i) δ (p , d) = p* , d* , ϕ
                  → p (⟨ ι α ⟩ δ , δ) ⇔ p (⟨ ι β ⟩ δ , δ)
    ϕ α β αδ≡βδ = transport (p ∘ (_, δ))  αδ≡βδ
                , transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
-```
 
-special-predicate-𝕂c-to-Ic : ((k , i) : ℤ × ℤ) (δ : ℕ)
-                          → special-predicate-on-𝕂c (k , i) δ 
-                          → special-predicate-on-Ic δ
+_∈_ : ℤ × ℤ → ℤ × ℤ → 𝓤₀ ̇ 
+(c , j) ∈ (k , i) = lower (k , i) j ≤ℤ c ≤ℤ upper (k , i) j
+
+ℤ* : ℤ × ℤ → 𝓤₀ ̇
+ℤ* (k , i) = Σ (c , j) ꞉ ℤ × ℤ , (c , j) ∈ (k , i)
+
+special-predicate-𝕂c-to-Ic : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+                          → special-predicate-on-𝕂c {𝓤} (k , i) δ 
+                          → special-predicate-on-Ic {𝓤} δ
                               (lower (k , i) δ) (upper (k , i) δ)
-special-predicate-𝕂c-to-Ic (k , i) δ
- = ?
+special-predicate-𝕂c-to-Ic (k , i) δ (p , d , ϕ)
+ = (λ (c , j) → p {!!}) , {!!}
+```
 
 The Ic predicates are searchable, and are logically equivalent to the 𝕂c
 predicates.
@@ -562,26 +568,49 @@ Ic-predicates-are-searchable2 = {!!}
 
 logically-equivalent
  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (px : X → 𝓦 ̇  ) (py : Y → 𝓦 ̇ )
- → (f : X ≃ Y)
- → 𝓤 ⊔ 𝓦 ̇ 
-logically-equivalent {𝓤} {𝓥} {𝓦} {X} {Y} px py (f , _)
- = (x : X) → px x ⇔ py (f x)
+ → (px : X → 𝓦 ̇ ) (py : Y → 𝓦 ̇ )
+ → (f : X → Y)
+ → (g : Y → X)
+ → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇ 
+logically-equivalent {𝓤} {𝓥} {𝓦} {X} {Y} px py f g
+ = ((x : X) → px x ⇔ py (f x))
+ × ((y : Y) → py y ⇔ px (g y))
+
+logically-equivalent2
+ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+ → (A : (X → 𝓦 ̇ ) → 𝓤' ̇ )
+ → (B : (Y → 𝓦 ̇ ) → 𝓣 ̇ )
+ → (f : Σ A → Σ B)
+ → (g : Σ B → Σ A)
+ → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ⊔ 𝓤' ⊔ 𝓣 ̇ 
+logically-equivalent2 {𝓤} {𝓥} {𝓦} {𝓢} {𝓣} {X} {Y} A B f g
+ = (Π p ꞉ Σ A , (Σ (pr₁ p) → Σ (pr₁ (f p))))
+ × (Π p ꞉ Σ B , (Σ (pr₁ p) → Σ (pr₁ (g p))))
+
+𝕂c-and-Ic-logically-equivalent
+ : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+ → logically-equivalent2
+     {_} {_} {𝓤} {_} {_} _ _
+     (special-predicate-𝕂c-to-Ic (k , i) δ)
+     (special-predicate-Ic-to-𝕂c (k , i) δ)
+𝕂c-and-Ic-logically-equivalent (k , i) δ
+ = (λ (p , _) (x , px) → (⟨ ι x ⟩ i , i) , {!!})
+ , (λ (p , _) (x , px) → {!!})
 
 logically-equivalent-properties
  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (px : X → 𝓦 ̇  ) (py : Y → 𝓦 ̇ )
- → (f : X ≃ Y)
- → logically-equivalent px py f
- → (Σ x ꞉ X , (Σ px → px x))
- → (Σ y ꞉ Y , (Σ py → py y))
-logically-equivalent-properties px py (f , (g , fg) , _) l (x , γx)
- = (f x) , γ
- where
-   γ : Σ py → py (f x)
-   γ (y , pyy) = pr₁ (l x) (γx (g y , pr₂ (l (g y)) (transport py (fg y ⁻¹) pyy)))
-
+ → (A : (X → 𝓦 ̇ ) → 𝓣 ̇ )
+ → (B : (Y → 𝓦 ̇ ) → 𝓣 ̇ )
+ → (px : Σ A) (py : Σ B)
+ → (f : Σ A → Σ B)
+ → (g : Σ B → Σ A)
+ → logically-equivalent (pr₁ px) (pr₁ py) {!!} {!!}
+ → (Σ x ꞉ X , (Σ (pr₁ px) → (pr₁ px) x))
+ → (Σ y ꞉ Y , (Σ (pr₁ py) → (pr₁ py) y))
+logically-equivalent-properties A B (px , _) (py , _) f g (e₁ , e₂) (x , γx)
+ = {!!} , {!!}
 ```
+
 
 ## Predicates to test
 
