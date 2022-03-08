@@ -396,6 +396,7 @@ special-predicate-on-Ic : (δ l u : ℤ) → 𝓤 ⁺ ̇
 special-predicate-on-Ic {𝓤} δ l u
  = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
  , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+
 ```
 
 These are searchable.
@@ -436,58 +437,72 @@ ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
 ci-lower-upper (k , i) x δ with (i −ℤ δ)
 ... | pos n = {!!}
 ... | negsucc n = {!!}
+
+ci-low-up : ((k , i) : ℤ × ℤ) (δ : ℤ)
+          → lower (k , i) δ ≤ℤ upper (k , i) δ
+ci-low-up   (k , i) δ = {!!}
+
+ci-lu-left : ((k , i) : ℤ × ℤ) (δ : ℤ)
+           → lower (k , i) δ ≤ℤ lower (k , i) δ ≤ℤ upper (k , i) δ
+ci-lu-left  (k , i) δ = (ℤ≤-refl _) , (ci-low-up (k , i) δ)
+
+ci-lu-right : ((k , i) : ℤ × ℤ) (δ : ℤ)
+           → lower (k , i) δ ≤ℤ upper (k , i) δ ≤ℤ upper (k , i) δ
+ci-lu-right (k , i) δ = (ci-low-up (k , i) δ) , (ℤ≤-refl _)
+
+
+
 ```
 
 TODO
 
 ```
-special-predicate-𝕂-to-Ic : {𝓤 : Universe} (δ l u : ℤ)
-                          → special-predicate-on-𝕂 {𝓤} δ 
-                          → special-predicate-on-Ic {𝓤} δ l u
-special-predicate-𝕂-to-Ic {𝓤} δ l u (p* , d* , ϕ) = p , d
- where
-   p : ℤ × ℤ → 𝓤 ̇ 
-   p (k , i) = p* {!!} -- (build-via (k , i))
-   d : (k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)) 
-   d  k _    = d* {!!} -- (build-via (k , δ))
-
-special-predicate-Ic-to-𝕂c : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
-                           → special-predicate-on-Ic {𝓤} δ
-                               (lower (k , i) δ) (upper (k , i) δ)
-                           → special-predicate-on-𝕂c {𝓤} (k , i) δ
-special-predicate-Ic-to-𝕂c {𝓤} (k , i) δ (p , d) = p* , d* , ϕ
- where
-   p* : CompactInterval (k , i) → 𝓤 ̇
-   p* x = p (⟨ ι x ⟩ δ , δ)
-   d* : (x : CompactInterval (k , i)) → decidable (p* x)
-   d* x = d (⟨ ι x ⟩ δ) (ci-lower-upper (k , i) x δ)
-   ϕ : (α β : CompactInterval (k , i)) → ⟨ ι α ⟩ δ ≡ ⟨ ι β ⟩ δ
-                 → p (⟨ ι α ⟩ δ , δ) ⇔ p (⟨ ι β ⟩ δ , δ)
-   ϕ α β αδ≡βδ = transport (p ∘ (_, δ))  αδ≡βδ
-               , transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
-
 _∈_ : ℤ × ℤ → ℤ × ℤ → 𝓤₀ ̇ 
 (c , j) ∈ (k , i) = lower (k , i) j ≤ℤ c ≤ℤ upper (k , i) j
 
-ℤ* : ℤ × ℤ → 𝓤₀ ̇
-ℤ* (k , i) = Σ (c , j) ꞉ ℤ × ℤ , (c , j) ∈ (k , i)
+ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
+ℤ[ l , u ] = Σ c ꞉ ℤ , l ≤ℤ c ≤ℤ u
 
-special-predicate-𝕂c-to-Ic : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
-                          → special-predicate-on-𝕂c {𝓤} (k , i) δ 
-                          → special-predicate-on-Ic {𝓤} δ
-                              (lower (k , i) δ) (upper (k , i) δ)
-special-predicate-𝕂c-to-Ic (k , i) δ (p , d , ϕ)
- = (λ (c , j) → p {!!}) , {!!}
+ℤ* : ℤ × ℤ → 𝓤₀ ̇
+ℤ* (k , i) = Σ (_∈ (k , i))
+
+ℤ*≡ : {(k , i) : ℤ × ℤ} → {(a , ζ₁) (b , ζ₂) : ℤ* (k , i)}
+    → a ≡ b
+    → (a , ζ₁) ≡ (b , ζ₂)
+ℤ*≡ = {!!}
 ```
 
 The Ic predicates are searchable, and are logically equivalent to the 𝕂c
 predicates.
 
 ```
-special-predicate-Ic : (δ l u : ℤ) → 𝓤 ⁺ ̇
-special-predicate-Ic {𝓤} δ l u
- = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
- , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+special-predicate-Ic' : {𝓤 : Universe} → (l u : ℤ) → 𝓤 ⁺ ̇
+special-predicate-Ic' {𝓤} l u
+ = Σ p ꞉ (ℤ[ l , u ] → 𝓤 ̇ )
+ , ((x : ℤ[ l , u ]) → decidable (p x))
+
+special-predicate-Ic : {𝓤 : Universe} → ((k , i) : ℤ × ℤ) (δ : ℤ) → 𝓤 ⁺ ̇
+special-predicate-Ic {𝓤} (k , i) δ
+ = Σ p ꞉ (ℤ* (k , i) → 𝓤 ̇ )
+ , ((x : ℤ* (k , i)) → decidable (p x))
+
+special-predicate-𝕂c-Ic : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+                        → special-predicate-on-𝕂c {𝓤} (k , i) δ 
+                        → special-predicate-Ic    {𝓤} (k , i) δ
+special-predicate-𝕂c-Ic (k , i) δ (p , d , ϕ)
+ = (λ ((c , j) , ζ) → p {!!}) -- build-via )
+ , (λ ((c , j) , ζ) → d {!!}) -- build-via )
+
+special-predicate-Ic-𝕂c : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+                        → special-predicate-Ic    {𝓤} (k , i) δ 
+                        → special-predicate-on-𝕂c {𝓤} (k , i) δ
+special-predicate-Ic-𝕂c (k , i) δ (p , d)
+ = (λ α → p ((⟨ ι α ⟩ δ , δ) , ci-lower-upper (k , i) α δ))
+ , (λ α → d ((⟨ ι α ⟩ δ , δ) , ci-lower-upper (k , i) α δ))
+ , λ α β αδ≡βδ
+ → (transport p (ℤ*≡ (ap (_, δ)  αδ≡βδ    )))
+ , (transport p (ℤ*≡ (ap (_, δ) (αδ≡βδ ⁻¹))))
+
 ```
 
 ```
@@ -509,7 +524,7 @@ special-predicate-Ic {𝓤} δ l u
 
 Ic-predicates-are-searchable'
  : {𝓤 : Universe} (δ l u : ℤ) → (n : ℕ) → l +pos n ≡ u
- → ((p , _) : special-predicate-Ic {𝓤} δ l u)
+ → ((p , _) : special-predicate-on-Ic {𝓤} δ l u)
  →  Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
 Ic-predicates-are-searchable' δ .u u 0 refl (p , d)
  = u , γ
@@ -540,7 +555,7 @@ Ic-predicates-are-searchable' δ l u (succ n) l+n≡u (p , d)
 
 Ic-predicates-are-searchable
  : {𝓤 : Universe} (δ l u : ℤ)
- → ((p , _) : special-predicate-Ic {𝓤} δ l u)
+ → ((p , _) : special-predicate-on-Ic {𝓤} δ l u)
  → Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
 Ic-predicates-are-searchable δ l u (p , d)
  = Cases (ℤ-dichotomous l u)
@@ -550,22 +565,34 @@ Ic-predicates-are-searchable δ l u (p , d)
                   → transport (λ - → p (- , δ))
                       (≤ℤ-antisym k₀ l ((ℤ≤-trans k₀ u l k₀≤u u≤l) , l≤k₀))
                       pk₀)
+
+
+Ic'-search
+ : {𝓤 : Universe} (l u : ℤ)
+ → ((p , _) : special-predicate-Ic' {𝓤} l u)
+ → Σ k ꞉ ℤ[ l , u ] , (Σ p → p k)
+Ic'-search = {!!}
+
+Ic-predicates-are-searchable2'
+ : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+ → ((p , _) : special-predicate-Ic {𝓤} (k , i) δ)
+ → let l = lower (k , i) δ in
+   let u = upper (k , i) δ in
+   Σ (c , ζ) ꞉ ℤ[ l , u ]
+ , ((Σ (c₀ , ζ₀) ꞉ ℤ[ l , u ] , p ((c₀ , δ) , ζ₀))
+ → p ((c , δ) , ζ))
+Ic-predicates-are-searchable2' (k , i) δ (p , d)
+ = Ic'-search l u ((λ (x , l≤x≤u) → p ((x , δ) , l≤x≤u))
+                 , (λ (x , l≤x≤u) → d ((x , δ) , l≤x≤u)))
+ where
+   l = lower (k , i) δ
+   u = upper (k , i) δ
 ```
 
 Therefore, 𝕂c predicates are searchable in two ways: directly, or
 via the isomorphism.
 
 ```
-ℤ[_] : ℤ × ℤ → Type
-ℤ[ l , u ] = Σ k ꞉ ℤ , l ≤ℤ k ≤ℤ u
-
-Ic-predicates-are-searchable2
- : {𝓤 : Universe} (δ l u : ℤ)
- → (p : ℤ[ l , u ] × ℤ → 𝓤 ̇ )
- → (d : (k : ℤ[ l , u ]) → decidable (p (k , δ)))
- → Σ k ꞉ ℤ[ l , u ] , ((Σ k₀ ꞉ ℤ[ l , u ] , p (k₀ , δ)) → p (k , δ))
-Ic-predicates-are-searchable2 = {!!}
-
 logically-equivalent
  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
  → (px : X → 𝓦 ̇ ) (py : Y → 𝓦 ̇ )
@@ -584,31 +611,31 @@ logically-equivalent2
  → (g : Σ B → Σ A)
  → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ⊔ 𝓤' ⊔ 𝓣 ̇ 
 logically-equivalent2 {𝓤} {𝓥} {𝓦} {𝓢} {𝓣} {X} {Y} A B f g
- = (Π p ꞉ Σ A , (Σ (pr₁ p) → Σ (pr₁ (f p))))
- × (Π p ꞉ Σ B , (Σ (pr₁ p) → Σ (pr₁ (g p))))
+ = (Π p ꞉ Σ A , ((x : X) → pr₁ p x → Σ (pr₁ (f p))))
+ × (Π p ꞉ Σ B , ((y : Y) → pr₁ p y → Σ (pr₁ (g p))))
 
-𝕂c-and-Ic-logically-equivalent
- : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
+this-logically-equiv : ((k , i) : ℤ × ℤ) (δ : ℤ)
  → logically-equivalent2
-     {_} {_} {𝓤} {_} {_} _ _
-     (special-predicate-𝕂c-to-Ic (k , i) δ)
-     (special-predicate-Ic-to-𝕂c (k , i) δ)
-𝕂c-and-Ic-logically-equivalent (k , i) δ
- = (λ (p , _) (x , px) → (⟨ ι x ⟩ i , i) , {!!})
- , (λ (p , _) (x , px) → {!!})
+     {!!} {!!}
+     (special-predicate-𝕂c-Ic (k , i) δ)
+     (special-predicate-Ic-𝕂c (k , i) δ)
+this-logically-equiv (k , i) δ
+ = (λ (p , d , ϕ) x → {!!})
+ , (λ (p , d)     x → {!!})
 
 logically-equivalent-properties
  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
  → (A : (X → 𝓦 ̇ ) → 𝓣 ̇ )
  → (B : (Y → 𝓦 ̇ ) → 𝓣 ̇ )
- → (px : Σ A) (py : Σ B)
+ → ((px , _) : Σ A) ((py , _) : Σ B)
  → (f : Σ A → Σ B)
  → (g : Σ B → Σ A)
- → logically-equivalent (pr₁ px) (pr₁ py) {!!} {!!}
- → (Σ x ꞉ X , (Σ (pr₁ px) → (pr₁ px) x))
- → (Σ y ꞉ Y , (Σ (pr₁ py) → (pr₁ py) y))
-logically-equivalent-properties A B (px , _) (py , _) f g (e₁ , e₂) (x , γx)
- = {!!} , {!!}
+ → logically-equivalent2 A B f g
+ → (Σ x ꞉ X , (Σ px → px x))
+ → (Σ y ꞉ Y , (Σ py → py y))
+logically-equivalent-properties A B (px , dϕx) (py , dϕy) f g (e₁ , e₂) (x , γx)
+ = pr₁ (e₁ (px , dϕx) x (γx {!!}))
+ , {!!}
 ```
 
 
