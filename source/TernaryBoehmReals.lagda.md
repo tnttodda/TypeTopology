@@ -614,6 +614,81 @@ logically-equivalent2 {𝓤} {𝓥} {𝓦} {𝓢} {𝓣} {X} {Y} A B f g
  = (Π p ꞉ Σ A , ((x : X) → pr₁ p x → Σ (pr₁ (f p))))
  × (Π p ꞉ Σ B , ((y : Y) → pr₁ p y → Σ (pr₁ (g p))))
 
+A : ((k , i) : ℤ × ℤ) → CompactInterval (k , i) → CompactInterval (k , i) → 𝓤₀ ̇
+A (k , i) α β = Σ δ ꞉ ℤ , ⟨ ι α ⟩ δ ≡ ⟨ ι β ⟩ δ
+
+preds-that-satisfy : {𝓦 : Universe} {X : 𝓤 ̇ } → (A : X → X → 𝓥 ̇ ) → 𝓤 ⊔ 𝓥 ⁺ ̇ 
+preds-that-satisfy {𝓤} {𝓥} {𝓦} {X} A
+ = Σ p ꞉ (X → 𝓥 ̇ )
+ , ((x : X) → decidable (p x))
+ × ((x y : X) → A x y → p x ⇔ p y)
+
+F : ((k , i) : ℤ × ℤ) (δ : ℤ) → CompactInterval (k , i) → ℤ* (k , i)
+F (k , i) δ α = (⟨ ι α ⟩ δ , δ) , ci-lower-upper (k , i) α δ
+
+G : ((k , i) : ℤ × ℤ) (δ : ℤ) → ℤ* (k , i) → CompactInterval (k , i)
+G (k , i) δ ((c , j) , l≤c≤u) = {!!} -- build-via
+
+natural-conversion-process-no-ϕ -- universes are messed up here
+ : {𝓣 : Universe}
+ → {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+ → (A : X → X → 𝓦 ̇  )
+ → (B : Y → Y → 𝓦 ̇ )
+ → (g : Y → X)
+ → (px : preds-that-satisfy {_} {_} {𝓣} A)
+ → Σ p ꞉ (Y → 𝓦 ̇ ) , ((y : Y) → decidable (p y))
+natural-conversion-process-no-ϕ A B g (p , d , ϕ)
+ = (λ y → p (g y)) , (λ y → d (g y))
+
+
+natural-conversion-process-ϕ
+ : {𝓣 : Universe}
+ → {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+ → (A : X → X → 𝓦 ̇  )
+ → (B : Y → Y → 𝓦 ̇ )
+ → (g : Y → X)
+ → ((y₁ y₂ : Y) → B y₁ y₂ → A (g y₁) (g y₂))
+ → (px : preds-that-satisfy {_} {_} {𝓣} A)
+ → preds-that-satisfy {_} {_} {𝓣} B
+natural-conversion-process-ϕ A B g lift (p , d , ϕ)
+ = (λ y → p (g y))
+ , (λ y → d (g y))
+ , λ y₁ y₂ By₁y₂ → ϕ (g y₁) (g y₂) (lift y₁ y₂ By₁y₂) 
+
+something
+ : {𝓣 𝓣' : Universe}
+ → {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
+ → (A : X → X → 𝓦 ̇  )
+ → (B : Y → Y → 𝓦' ̇ )
+ → (f : X → Y)
+ → (g : Y → X)
+ → ((x : X) → A x (g (f x)))
+ → ((y : Y) → B y (f (g y)))
+ → ((x : X) (y : Y) → A x (g y) → B (f x) y)
+ → ((px , _) : preds-that-satisfy {_} {_} {𝓣} A)
+ → (Σ x ꞉ X , (Σ px → px x))
+ → {!!} -- (Σ y ꞉ Y , (Σ py → py y))
+something = {!!} {- A B f g gf fg ABfg (px , dx , ϕx) (py , dy , ϕy) (x , γx)
+ = (f x) , (λ (y , pyy) → {!!})
+ where
+   B-sym : ∀ a b → B a b → B b a
+   B-sym = {!!}
+   A-trans : ∀ a b c → A a b → A b c → A a c
+   A-trans = {!!}
+   liftA : ∀ x₁ x₂ → A x₁ x₂ → B (f x₁) (f x₂)
+   liftA = {!!}
+   liftB : ∀ y₁ y₂ → B y₁ y₂ → A (g y₁) (g y₂)
+   liftB = {!!}
+   Byfx : ∀ y → py y → B y (f x)
+   Byfx y pyy = B-sym _ _ (ABfg _ _ (A-trans _ _ _ (gf _) (liftB _ _ {!!})))
+   Byfgy : ∀ y → B y (f (g y))
+   Byfgy = fg
+   Bbbb : ∀ x y → B (f (g y)) (f x)
+   Bbbb x y = liftA (g y) x {!!}
+   Bcccc : ∀ x y → A (g y) (g (f x))
+   Bcccc x y = liftB y (f x) {!!}
+-}
+
 this-logically-equiv : ((k , i) : ℤ × ℤ) (δ : ℤ)
  → logically-equivalent2
      {!!} {!!}
