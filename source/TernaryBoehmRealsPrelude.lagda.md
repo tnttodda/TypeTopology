@@ -19,6 +19,9 @@ open import NaturalsOrder public
 _≤ℤ_≤ℤ_ : ℤ → ℤ → ℤ → 𝓤₀ ̇ 
 x ≤ℤ y ≤ℤ z = (x ≤ℤ y) × (y ≤ℤ z)
 
+≤ℤ²-is-prop : {l u : ℤ} (x : ℤ) → is-prop (l ≤ℤ x ≤ℤ u)
+≤ℤ²-is-prop {l} {u} x = ×-is-prop (ℤ≤-is-prop l x) (ℤ≤-is-prop x u)
+
 data 𝟛 : 𝓤₀ ̇ where
   −1 O +1 : 𝟛
 

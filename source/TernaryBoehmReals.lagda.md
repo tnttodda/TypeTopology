@@ -450,62 +450,48 @@ ci-lu-right : ((k , i) : ℤ × ℤ) (δ : ℤ)
            → lower (k , i) δ ≤ℤ upper (k , i) δ ≤ℤ upper (k , i) δ
 ci-lu-right (k , i) δ = (ci-low-up (k , i) δ) , (ℤ≤-refl _)
 
-
-
 ```
 
 TODO
 
 ```
-_∈_ : ℤ × ℤ → ℤ × ℤ → 𝓤₀ ̇ 
-(c , j) ∈ (k , i) = lower (k , i) j ≤ℤ c ≤ℤ upper (k , i) j
-
 ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
 ℤ[ l , u ] = Σ c ꞉ ℤ , l ≤ℤ c ≤ℤ u
 
-ℤ* : ℤ × ℤ → 𝓤₀ ̇
-ℤ* (k , i) = Σ (_∈ (k , i))
+record predicate-verifier (X : 𝓤 ̇ ) : 𝓤 ⊔ 𝓥 ⁺ ̇  where
+  field
+    _≣_ : X → X → 𝓥 ̇
+    ≣-refl  : (x     : X) → x ≣ x
+    ≣-sym   : (x y   : X) → x ≣ y → y ≣ x
+    ≣-trans : (x y z : X) → x ≣ y → y ≣ z → x ≣ z
 
-ℤ*≡ : {(k , i) : ℤ × ℤ} → {(a , ζ₁) (b , ζ₂) : ℤ* (k , i)}
-    → a ≡ b
-    → (a , ζ₁) ≡ (b , ζ₂)
-ℤ*≡ = {!!}
-```
+preds-that-satisfy : {𝓤 𝓥 𝓦 : Universe} {X : 𝓤 ̇ }
+                   → predicate-verifier {𝓤} {𝓥} X
+                   → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ⁺ ̇ 
+preds-that-satisfy {𝓤} {𝓥} {𝓦} {X} A
+ = Σ p ꞉ (X → 𝓦 ̇  )
+ , ((x : X) → decidable (p x))
+ × ((x y : X) → x ≣ y → p x ⇔ p y)
+ where open predicate-verifier A
 
-The Ic predicates are searchable, and are logically equivalent to the 𝕂c
-predicates.
+searchable : {𝓤 𝓥 𝓦 : Universe} (X : 𝓤 ̇ )
+           → predicate-verifier {𝓤} {𝓥} X
+           → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ̇
+searchable {𝓤} {𝓥} {𝓦} X A
+ = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓤} {𝓥} {𝓦} A
+ , (Σ x ꞉ X , (Σ p → p x))
 
-```
-special-predicate-Ic' : {𝓤 : Universe} → (l u : ℤ) → 𝓤 ⁺ ̇
-special-predicate-Ic' {𝓤} l u
- = Σ p ꞉ (ℤ[ l , u ] → 𝓤 ̇ )
- , ((x : ℤ[ l , u ]) → decidable (p x))
+all-predicates : (X : 𝓤 ̇ ) → predicate-verifier {𝓤} {𝓤} X
+predicate-verifier._≣_     (all-predicates X) = _≡_
+predicate-verifier.≣-refl  (all-predicates X) x     = refl
+predicate-verifier.≣-sym   (all-predicates X) x y   = _⁻¹
+predicate-verifier.≣-trans (all-predicates X) x y z = _∙_
 
-special-predicate-Ic : {𝓤 : Universe} → ((k , i) : ℤ × ℤ) (δ : ℤ) → 𝓤 ⁺ ̇
-special-predicate-Ic {𝓤} (k , i) δ
- = Σ p ꞉ (ℤ* (k , i) → 𝓤 ̇ )
- , ((x : ℤ* (k , i)) → decidable (p x))
+all-satisfy-all : {X : 𝓤 ̇ } → (p : X → 𝓥 ̇ ) → ((x : X) → decidable (p x))
+                → preds-that-satisfy (all-predicates X)
+all-satisfy-all p d
+ = p , d , λ x y x≡y → transport p x≡y , transport p (x≡y ⁻¹)
 
-special-predicate-𝕂c-Ic : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
-                        → special-predicate-on-𝕂c {𝓤} (k , i) δ 
-                        → special-predicate-Ic    {𝓤} (k , i) δ
-special-predicate-𝕂c-Ic (k , i) δ (p , d , ϕ)
- = (λ ((c , j) , ζ) → p {!!}) -- build-via )
- , (λ ((c , j) , ζ) → d {!!}) -- build-via )
-
-special-predicate-Ic-𝕂c : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
-                        → special-predicate-Ic    {𝓤} (k , i) δ 
-                        → special-predicate-on-𝕂c {𝓤} (k , i) δ
-special-predicate-Ic-𝕂c (k , i) δ (p , d)
- = (λ α → p ((⟨ ι α ⟩ δ , δ) , ci-lower-upper (k , i) α δ))
- , (λ α → d ((⟨ ι α ⟩ δ , δ) , ci-lower-upper (k , i) α δ))
- , λ α β αδ≡βδ
- → (transport p (ℤ*≡ (ap (_, δ)  αδ≡βδ    )))
- , (transport p (ℤ*≡ (ap (_, δ) (αδ≡βδ ⁻¹))))
-
-```
-
-```
 ≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ≡ y
 ≤ℤ-antisym x y (x≤y , y≤x) with ℤ≤-split x y x≤y | ℤ≤-split y x y≤x
 ... | inl (n , γ) | inl (m , δ)
@@ -522,203 +508,124 @@ special-predicate-Ic-𝕂c (k , i) δ (p , d)
        ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
        (ℤ≤-refl (x +pos n)))
 
-Ic-predicates-are-searchable'
- : {𝓤 : Universe} (δ l u : ℤ) → (n : ℕ) → l +pos n ≡ u
- → ((p , _) : special-predicate-on-Ic {𝓤} δ l u)
- →  Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
-Ic-predicates-are-searchable' δ .u u 0 refl (p , d)
- = u , γ
+ℤ[_,_]-unpred : (l u : ℤ) → ℤ[ l , predℤ u ] → ℤ[ l , u ]
+ℤ[_,_]-unpred l u (x , l≤x , n , x≤pu)
+ = x , l≤x , succ n , (ap succℤ x≤pu ∙ succpredℤ u)
+
+ℤ[_,_]-pred : (l u : ℤ) → ((x , _) : ℤ[ l , u ]) → x <ℤ u → ℤ[ l , predℤ u ]
+ℤ[ l , u ]-pred (x , l≤x , _) x<u = x , l≤x , (≤ℤ-back x u x<u)
+
+```
+
+The Ic predicates are searchable, and are logically equivalent to the 𝕂c
+predicates.
+
+```
+
+ℤ[_,_]-searchable' : {𝓦 : Universe} → (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
+                   → searchable {_} {_} {𝓦} (ℤ[ l , u ]) (all-predicates _)
+ℤ[ u , u ]-searchable' zero refl (p , d , ϕ)
+ = (u , ℤ≤-refl u , ℤ≤-refl u)
+ , λ (x , pu) → transport p
+     (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym u (pr₁ x) (pr₂ x) ⁻¹)) pu
+ℤ[ l , u ]-searchable' (succ n) l+n≡u (p , d , ϕ)
+ = Cases (d (u , ((succ n , l+n≡u) , ℤ≤-refl u)))
+     (λ  pu → _ , (λ _ → pu))
+     (λ ¬pu → ℤ[ l , u ]-unpred k , λ ((k₀ , (l≤k₀ , k₀≤u)) , pk₀)
+      → Cases (ℤ≤-split k₀ u k₀≤u)
+          (λ k<u → γ (ℤ[ l , u ]-pred (k₀ , (l≤k₀ , k₀≤u)) k<u
+                 , transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pk₀))
+          (λ k≡u → 𝟘-elim (¬pu (transport p (to-subtype-≡ ≤ℤ²-is-prop k≡u) pk₀))))
  where
-   γ : Σ k₀ ꞉ ℤ , u ≤ℤ k₀ ≤ℤ u × p (k₀ , δ) → p (u , δ)
-   γ (u₀ , e , pu₀) = transport (p ∘ (_, δ)) (u≡u₀ ⁻¹) pu₀
-    where
-      u≡u₀ : u ≡ u₀
-      u≡u₀ = ≤ℤ-antisym u u₀ e 
-Ic-predicates-are-searchable' δ l u (succ n) l+n≡u (p , d)
- = Cases (d u ((succ n , l+n≡u) , ℤ≤-refl u))
-     (λ  pu → u , λ _                    → pu)
-     (λ ¬pu → k , λ (k₀ , (l≤k₀ , k₀≤u) , pk₀) →
-       Cases (ℤ≤-split k₀ u k₀≤u)
-         (λ k₀<u → γ (k₀ , (l≤k₀
-                         , transport (k₀ ≤ℤ_)
-                             (succℤ-lc (succpredℤ u ∙ l+n≡u ⁻¹))
-                             (≤ℤ-back k₀ u k₀<u))
-                         , pk₀))
-         (λ k₀≡u → 𝟘-elim (¬pu (transport p (ap (_, δ) k₀≡u) pk₀))))
- where
-  IH : Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ (l +pos n) × p (k₀ , δ)) → p (k , δ))
-  IH = Ic-predicates-are-searchable' δ l (l +pos n) n refl
-        (p , λ k (l≤k , (i , k+i≡pu))
-           → d k (l≤k , succ i , (ap succℤ k+i≡pu ∙ l+n≡u)))
-  k = pr₁ IH
-  γ = pr₂ IH
+   IH = ℤ[ l , predℤ u ]-searchable' n (succℤ-lc (l+n≡u ∙ succpredℤ u ⁻¹))
+          (all-satisfy-all (p ∘ ℤ[ l , u ]-unpred) (d ∘ ℤ[ l , u ]-unpred))
+   k = pr₁ IH
+   γ = pr₂ IH
 
-Ic-predicates-are-searchable
- : {𝓤 : Universe} (δ l u : ℤ)
- → ((p , _) : special-predicate-on-Ic {𝓤} δ l u)
- → Σ k ꞉ ℤ , ((Σ k₀ ꞉ ℤ , l ≤ℤ k₀ ≤ℤ u × p (k₀ , δ)) → p (k , δ))
-Ic-predicates-are-searchable δ l u (p , d)
- = Cases (ℤ-dichotomous l u)
-     (λ (n , l≤u) → Ic-predicates-are-searchable' δ l u n l≤u (p , d))
-     (λ      u≤l  → l
-                  , λ (k₀ , (l≤k₀ , k₀≤u) , pk₀)
-                  → transport (λ - → p (- , δ))
-                      (≤ℤ-antisym k₀ l ((ℤ≤-trans k₀ u l k₀≤u u≤l) , l≤k₀))
-                      pk₀)
-
-
-Ic'-search
- : {𝓤 : Universe} (l u : ℤ)
- → ((p , _) : special-predicate-Ic' {𝓤} l u)
- → Σ k ꞉ ℤ[ l , u ] , (Σ p → p k)
-Ic'-search = {!!}
-
-Ic-predicates-are-searchable2'
- : {𝓤 : Universe} ((k , i) : ℤ × ℤ) (δ : ℤ)
- → ((p , _) : special-predicate-Ic {𝓤} (k , i) δ)
- → let l = lower (k , i) δ in
-   let u = upper (k , i) δ in
-   Σ (c , ζ) ꞉ ℤ[ l , u ]
- , ((Σ (c₀ , ζ₀) ꞉ ℤ[ l , u ] , p ((c₀ , δ) , ζ₀))
- → p ((c , δ) , ζ))
-Ic-predicates-are-searchable2' (k , i) δ (p , d)
- = Ic'-search l u ((λ (x , l≤x≤u) → p ((x , δ) , l≤x≤u))
-                 , (λ (x , l≤x≤u) → d ((x , δ) , l≤x≤u)))
- where
-   l = lower (k , i) δ
-   u = upper (k , i) δ
 ```
 
 Therefore, 𝕂c predicates are searchable in two ways: directly, or
 via the isomorphism.
 
 ```
-logically-equivalent
- : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (px : X → 𝓦 ̇ ) (py : Y → 𝓦 ̇ )
- → (f : X → Y)
- → (g : Y → X)
- → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ̇ 
-logically-equivalent {𝓤} {𝓥} {𝓦} {X} {Y} px py f g
- = ((x : X) → px x ⇔ py (f x))
- × ((y : Y) → py y ⇔ px (g y))
+record predicate-verifiers {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+  (A : predicate-verifier {𝓤 } {𝓥 } X)
+  (B : predicate-verifier {𝓤'} {𝓥'} Y)  : 𝓤 ⊔ 𝓤' ⊔ 𝓥 ⊔ 𝓥' ⁺  ̇ where
+  field
+    f : X → Y
+    g : Y → X
+    trans-A : (x : X) → predicate-verifier._≣_ A x ((g ∘ f) x)
+    trans-B : (y : Y) → predicate-verifier._≣_ B y ((f ∘ g) y)
+    lift-AB : (x₁ x₂ : X) → predicate-verifier._≣_ A    x₁     x₂
+                          → predicate-verifier._≣_ B (f x₁) (f x₂)
+    lift-BA : (y₁ y₂ : Y) → predicate-verifier._≣_ B    y₁     y₂
+                          → predicate-verifier._≣_ A (g y₁) (g y₂)
 
-logically-equivalent2
- : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (A : (X → 𝓦 ̇ ) → 𝓤' ̇ )
- → (B : (Y → 𝓦 ̇ ) → 𝓣 ̇ )
- → (f : Σ A → Σ B)
- → (g : Σ B → Σ A)
- → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ⊔ 𝓤' ⊔ 𝓣 ̇ 
-logically-equivalent2 {𝓤} {𝓥} {𝓦} {𝓢} {𝓣} {X} {Y} A B f g
- = (Π p ꞉ Σ A , ((x : X) → pr₁ p x → Σ (pr₁ (f p))))
- × (Π p ꞉ Σ B , ((y : Y) → pr₁ p y → Σ (pr₁ (g p))))
+compact-predicates : ((k , i) : ℤ × ℤ) (δ : ℤ) → predicate-verifier {𝓤₀} {𝓤₀} (CompactInterval (k , i))
+predicate-verifier._≣_     (compact-predicates (k , i) δ) x y   = ⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ
+predicate-verifier.≣-refl  (compact-predicates (k , i) δ) x     = refl
+predicate-verifier.≣-sym   (compact-predicates (k , i) δ) x y   = _⁻¹
+predicate-verifier.≣-trans (compact-predicates (k , i) δ) x y z = _∙_
 
-A : ((k , i) : ℤ × ℤ) → CompactInterval (k , i) → CompactInterval (k , i) → 𝓤₀ ̇
-A (k , i) α β = Σ δ ꞉ ℤ , ⟨ ι α ⟩ δ ≡ ⟨ ι β ⟩ δ
-
-preds-that-satisfy : {𝓦 : Universe} {X : 𝓤 ̇ } → (A : X → X → 𝓥 ̇ ) → 𝓤 ⊔ 𝓥 ⁺ ̇ 
-preds-that-satisfy {𝓤} {𝓥} {𝓦} {X} A
- = Σ p ꞉ (X → 𝓥 ̇ )
- , ((x : X) → decidable (p x))
- × ((x y : X) → A x y → p x ⇔ p y)
-
-F : ((k , i) : ℤ × ℤ) (δ : ℤ) → CompactInterval (k , i) → ℤ* (k , i)
-F (k , i) δ α = (⟨ ι α ⟩ δ , δ) , ci-lower-upper (k , i) α δ
-
-G : ((k , i) : ℤ × ℤ) (δ : ℤ) → ℤ* (k , i) → CompactInterval (k , i)
-G (k , i) δ ((c , j) , l≤c≤u) = {!!} -- build-via
-
-natural-conversion-process-no-ϕ -- universes are messed up here
- : {𝓣 : Universe}
- → {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (A : X → X → 𝓦 ̇  )
- → (B : Y → Y → 𝓦 ̇ )
- → (g : Y → X)
- → (px : preds-that-satisfy {_} {_} {𝓣} A)
- → Σ p ꞉ (Y → 𝓦 ̇ ) , ((y : Y) → decidable (p y))
-natural-conversion-process-no-ϕ A B g (p , d , ϕ)
- = (λ y → p (g y)) , (λ y → d (g y))
-
+compact→ℤ : ((k , i) : ℤ × ℤ) (δ : ℤ)
+          → let l = lower (k , i) δ in
+            let u = upper (k , i) δ in
+            predicate-verifiers
+              (all-predicates ℤ[ l , u ])
+              (compact-predicates (k , i) δ)
+predicate-verifiers.f       (compact→ℤ (k , i) δ)
+ = {!!} -- build-via
+predicate-verifiers.g       (compact→ℤ (k , i) δ) x
+ = ⟨ ι x ⟩ δ , (ci-lower-upper (k , i) x δ)
+predicate-verifiers.trans-A (compact→ℤ (k , i) δ) (c , ζ)
+ = {!!}
+predicate-verifiers.trans-B (compact→ℤ (k , i) δ)
+ = {!!}
+predicate-verifiers.lift-AB (compact→ℤ (k , i) δ)
+ = {!!}
+predicate-verifiers.lift-BA (compact→ℤ (k , i) δ) x y xδ≡yδ
+ = to-subtype-≡ ≤ℤ²-is-prop xδ≡yδ
 
 natural-conversion-process-ϕ
- : {𝓣 : Universe}
- → {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (A : X → X → 𝓦 ̇  )
- → (B : Y → Y → 𝓦 ̇ )
- → (g : Y → X)
- → ((y₁ y₂ : Y) → B y₁ y₂ → A (g y₁) (g y₂))
- → (px : preds-that-satisfy {_} {_} {𝓣} A)
- → preds-that-satisfy {_} {_} {𝓣} B
-natural-conversion-process-ϕ A B g lift (p , d , ϕ)
- = (λ y → p (g y))
- , (λ y → d (g y))
- , λ y₁ y₂ By₁y₂ → ϕ (g y₁) (g y₂) (lift y₁ y₂ By₁y₂) 
+ : {𝓤 𝓤' 𝓥 𝓥' 𝓦 : Universe}
+ → {X : 𝓤 ̇ } {Y : 𝓤' ̇  }
+ → (A  : predicate-verifier  {𝓤 } {𝓥 } X)
+ → (B  : predicate-verifier  {𝓤'} {𝓥'} Y)
+ → (FG : predicate-verifiers A B)
+ → let f = predicate-verifiers.f FG in
+   let g = predicate-verifiers.g FG in
+   (Π (px , _) ꞉ preds-that-satisfy {𝓤 } {𝓥 } {𝓦} A
+ ,  Σ (py , _) ꞉ preds-that-satisfy {𝓤'} {𝓥'} {𝓦} B
+ , ((x : X) → px x ⇔ py (f x)))
+natural-conversion-process-ϕ A B FG
+ = (λ (px , dx , ϕx) → (px ∘ g  , dx ∘ g
+ , (λ y₁ y₂ By₁y₂ → ϕx (g y₁) (g y₂) (lift-BA y₁ y₂ By₁y₂)))
+ , (λ x → ϕx x ((g ∘ f) x) (trans-A x)))
+ where open predicate-verifiers FG
 
 something
- : {𝓣 𝓣' : Universe}
- → {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (A : X → X → 𝓦 ̇  )
- → (B : Y → Y → 𝓦' ̇ )
- → (f : X → Y)
- → (g : Y → X)
- → ((x : X) → A x (g (f x)))
- → ((y : Y) → B y (f (g y)))
- → ((x : X) (y : Y) → A x (g y) → B (f x) y)
- → ((px , _) : preds-that-satisfy {_} {_} {𝓣} A)
- → (Σ x ꞉ X , (Σ px → px x))
- → {!!} -- (Σ y ꞉ Y , (Σ py → py y))
-something = {!!} {- A B f g gf fg ABfg (px , dx , ϕx) (py , dy , ϕy) (x , γx)
- = (f x) , (λ (y , pyy) → {!!})
- where
-   B-sym : ∀ a b → B a b → B b a
-   B-sym = {!!}
-   A-trans : ∀ a b c → A a b → A b c → A a c
-   A-trans = {!!}
-   liftA : ∀ x₁ x₂ → A x₁ x₂ → B (f x₁) (f x₂)
-   liftA = {!!}
-   liftB : ∀ y₁ y₂ → B y₁ y₂ → A (g y₁) (g y₂)
-   liftB = {!!}
-   Byfx : ∀ y → py y → B y (f x)
-   Byfx y pyy = B-sym _ _ (ABfg _ _ (A-trans _ _ _ (gf _) (liftB _ _ {!!})))
-   Byfgy : ∀ y → B y (f (g y))
-   Byfgy = fg
-   Bbbb : ∀ x y → B (f (g y)) (f x)
-   Bbbb x y = liftA (g y) x {!!}
-   Bcccc : ∀ x y → A (g y) (g (f x))
-   Bcccc x y = liftB y (f x) {!!}
--}
-
-this-logically-equiv : ((k , i) : ℤ × ℤ) (δ : ℤ)
- → logically-equivalent2
-     {!!} {!!}
-     (special-predicate-𝕂c-Ic (k , i) δ)
-     (special-predicate-Ic-𝕂c (k , i) δ)
-this-logically-equiv (k , i) δ
- = (λ (p , d , ϕ) x → {!!})
- , (λ (p , d)     x → {!!})
-
-logically-equivalent-properties
- : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
- → (A : (X → 𝓦 ̇ ) → 𝓣 ̇ )
- → (B : (Y → 𝓦 ̇ ) → 𝓣 ̇ )
- → ((px , _) : Σ A) ((py , _) : Σ B)
- → (f : Σ A → Σ B)
- → (g : Σ B → Σ A)
- → logically-equivalent2 A B f g
- → (Σ x ꞉ X , (Σ px → px x))
- → (Σ y ꞉ Y , (Σ py → py y))
-logically-equivalent-properties A B (px , dϕx) (py , dϕy) f g (e₁ , e₂) (x , γx)
- = pr₁ (e₁ (px , dϕx) x (γx {!!}))
- , {!!}
+ : {𝓤 𝓤' 𝓥 𝓥' 𝓦 : Universe}
+ → {X : 𝓤 ̇ } {Y : 𝓤' ̇  }
+ → (A  : predicate-verifier  {𝓤 } {𝓥 } X)
+ → (B  : predicate-verifier  {𝓤'} {𝓥'} Y)
+ → (FG : predicate-verifiers {𝓤 } {𝓤'} {𝓥 } {𝓥'} A B)
+ → (px : preds-that-satisfy {𝓤 } {𝓥 } {𝓦} A)
+ → (Σ x ꞉ X , (Σ (pr₁ px) → pr₁ px x))
+ → let ((py , _) , _) = natural-conversion-process-ϕ A B FG px in
+   (Σ y ꞉ Y , (Σ py → py y))
+something A B FG (px , dx , ϕx) (x , γx)
+ = f x
+ , λ (y , pyy) → pr₁ (γy x) (γx (g y , pr₂ (γy (g y))
+                   (pr₁ (ϕx (g y) (g (f (g y))) (trans-A (g y))) pyy)))
+ where open predicate-verifiers FG
+       open predicate-verifier B
+       γy = pr₂ (natural-conversion-process-ϕ A B FG (px , dx , ϕx))
 ```
 
 
 ## Predicates to test
 
 ## Fuel
-
-
 
 
 
