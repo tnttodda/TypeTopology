@@ -190,11 +190,63 @@ build-via-ci (k , i)
 TODO
 
 ```
-replace : ((k , i) (c , δ) : ℤ × ℤ) → {!!} ≤ℤ c ≤ℤ {!!}
-        → CompactInterval (k , i)
+rec-upLeft/downLeft  : ℤ → ℤ → ℤ
+rec-upLeft/downLeft x (pos n)     = rec x downLeft n
+rec-upLeft/downLeft x (negsucc n) = rec x upLeft   (succ n)
+
+rec-upRight/downRight  : ℤ → ℤ → ℤ
+rec-upRight/downRight x (pos n)     = rec x downRight n
+rec-upRight/downRight x (negsucc n) = rec x upRight   (succ n)
+
+lower upper : ℤ × ℤ → ℤ → ℤ
+lower (k , i) δ = rec-upLeft/downLeft   k (i −ℤ δ)
+upper (k , i) δ = rec-upRight/downRight k (i −ℤ δ)
+
+ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
+               → (δ : ℤ)
+               → lower (k , i) δ ≤ℤ ⟨ ι x ⟩ δ ≤ℤ upper (k , i) δ 
+ci-lower-upper (k , i) x δ with (i −ℤ δ)
+... | pos n = {!!}
+... | negsucc n = {!!}
+
+ci-low-up : ((k , i) : ℤ × ℤ) (δ : ℤ)
+          → lower (k , i) δ ≤ℤ upper (k , i) δ
+ci-low-up   (k , i) δ = {!!}
+
+ci-lu-left : ((k , i) : ℤ × ℤ) (δ : ℤ)
+           → lower (k , i) δ ≤ℤ lower (k , i) δ ≤ℤ upper (k , i) δ
+ci-lu-left  (k , i) δ = (ℤ≤-refl _) , (ci-low-up (k , i) δ)
+
+ci-lu-right : ((k , i) : ℤ × ℤ) (δ : ℤ)
+           → lower (k , i) δ ≤ℤ upper (k , i) δ ≤ℤ upper (k , i) δ
+ci-lu-right (k , i) δ = (ci-low-up (k , i) δ) , (ℤ≤-refl _)
+```
+
+TODO
+
+```
+replace'' : ((k , i) : ℤ × ℤ) (c δ : ℤ)
+         →  lower (k , i)        δ  ≤ℤ c         ≤ℤ upper (k , i)        δ
+         → (lower (k , i) (predℤ δ) ≤ℤ upLeft  c ≤ℤ upper (k , i) (predℤ δ))
+         + (lower (k , i) (predℤ δ) ≤ℤ upRight c ≤ℤ upper (k , i) (predℤ δ))
+replace'' (k , i) c δ l≤c≤u = {!!}
+
+replace' : ((k , i) : ℤ × ℤ)
+         → (c δ : ℤ)
+         → lower (k , i)        δ  ≤ℤ c  ≤ℤ upper (k , i)        δ
+         → Σ c' ꞉ ℤ
+         , lower (k , i) (predℤ δ) ≤ℤ c' ≤ℤ upper (k , i) (predℤ δ)
+         × c below c'
+replace' (k , i) c δ l≤c≤u with replace'' (k , i) c δ l≤c≤u
+... | inl x = upLeft  c , x , {!!} -- upLeft-below 
+... | inr x = upRight c , x , {!!} -- upRight-below
+
+replace : ((k , i) (c , δ) : ℤ × ℤ)
+        → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
         → Σ ((x , _) , _) ꞉ CompactInterval (k , i)
         , x δ ≡ c
-replace = {!!}
+replace (k , i) (c , δ) l≤c≤u
+ = {!!}
 ```
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
@@ -440,52 +492,6 @@ These are searchable.
 ```
 η : (n : ℤ) → (x : 𝕂) → CompactInterval (⟨ x ⟩ n , n)
 η n = _, refl
-
--- Not sure about this:
-special-predicate-𝕂c-to-𝕂
- : {𝓤 : Universe} (δ : ℤ)
- → (((k , i) : ℤ × ℤ) → special-predicate-on-𝕂c {𝓤} (k , i) δ)
- → special-predicate-on-𝕂 {𝓤} δ
-special-predicate-𝕂c-to-𝕂 δ ps
- = (λ α → pr₁      (ps (⟨ α ⟩ δ , δ)) (η δ α))
- , (λ α → pr₁ (pr₂ (ps (⟨ α ⟩ δ , δ))) (η δ α))
- , (λ α β αδ≡βδ → (λ psαα → {!!}) , {!!})
-```
-
-TODO
-
-```
-rec-upLeft/downLeft  : ℤ → ℤ → ℤ
-rec-upLeft/downLeft x (pos n)     = rec x downLeft n
-rec-upLeft/downLeft x (negsucc n) = rec x upLeft   (succ n)
-
-rec-upRight/downRight  : ℤ → ℤ → ℤ
-rec-upRight/downRight x (pos n)     = rec x downRight n
-rec-upRight/downRight x (negsucc n) = rec x upRight   (succ n)
-
-lower upper : ℤ × ℤ → ℤ → ℤ
-lower (k , i) δ = rec-upLeft/downLeft   k (i −ℤ δ)
-upper (k , i) δ = rec-upRight/downRight k (i −ℤ δ)
-
-ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
-               → (δ : ℤ)
-               → lower (k , i) δ ≤ℤ ⟨ ι x ⟩ δ ≤ℤ upper (k , i) δ 
-ci-lower-upper (k , i) x δ with (i −ℤ δ)
-... | pos n = {!!}
-... | negsucc n = {!!}
-
-ci-low-up : ((k , i) : ℤ × ℤ) (δ : ℤ)
-          → lower (k , i) δ ≤ℤ upper (k , i) δ
-ci-low-up   (k , i) δ = {!!}
-
-ci-lu-left : ((k , i) : ℤ × ℤ) (δ : ℤ)
-           → lower (k , i) δ ≤ℤ lower (k , i) δ ≤ℤ upper (k , i) δ
-ci-lu-left  (k , i) δ = (ℤ≤-refl _) , (ci-low-up (k , i) δ)
-
-ci-lu-right : ((k , i) : ℤ × ℤ) (δ : ℤ)
-           → lower (k , i) δ ≤ℤ upper (k , i) δ ≤ℤ upper (k , i) δ
-ci-lu-right (k , i) δ = (ci-low-up (k , i) δ) , (ℤ≤-refl _)
-
 ```
 
 TODO
@@ -597,8 +603,10 @@ record predicate-verifiers {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y 
     lift-BA : (y₁ y₂ : Y) → predicate-verifier._≣_ B    y₁     y₂
                           → predicate-verifier._≣_ A (g y₁) (g y₂)
 
-compact-predicates : ((k , i) : ℤ × ℤ) (δ : ℤ) → predicate-verifier {𝓤₀} {𝓤₀} (CompactInterval (k , i))
-predicate-verifier._≣_     (compact-predicates (k , i) δ) x y   = ⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ
+compact-predicates : ((k , i) : ℤ × ℤ) (δ : ℤ)
+                   → predicate-verifier {𝓤₀} {𝓤₀} (CompactInterval (k , i))
+predicate-verifier._≣_     (compact-predicates (k , i) δ) x y
+ = ⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ
 predicate-verifier.≣-refl  (compact-predicates (k , i) δ) x     = refl
 predicate-verifier.≣-sym   (compact-predicates (k , i) δ) x y   = _⁻¹
 predicate-verifier.≣-trans (compact-predicates (k , i) δ) x y z = _∙_
@@ -610,15 +618,15 @@ compact→ℤ : ((k , i) : ℤ × ℤ) (δ : ℤ)
               (all-predicates ℤ[ l , u ])
               (compact-predicates (k , i) δ)
 predicate-verifiers.f       (compact→ℤ (k , i) δ) (c , ζ)
- = {!!} -- build-via
+ = pr₁ (replace (k , i) (c , δ) ζ) -- build-via
 predicate-verifiers.g       (compact→ℤ (k , i) δ) x
  = ⟨ ι x ⟩ δ , (ci-lower-upper (k , i) x δ)
 predicate-verifiers.trans-A (compact→ℤ (k , i) δ) (c , ζ)
- = {!!}
-predicate-verifiers.trans-B (compact→ℤ (k , i) δ)
- = {!!}
-predicate-verifiers.lift-AB (compact→ℤ (k , i) δ)
- = {!!}
+ = to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (c , δ) ζ))
+predicate-verifiers.trans-B (compact→ℤ (k , i) δ) x
+ = pr₂ (replace (k , i) (⟨ ι x ⟩ δ , δ) (ci-lower-upper (k , i) x δ)) ⁻¹
+predicate-verifiers.lift-AB (compact→ℤ (k , i) δ) x x refl
+ = refl
 predicate-verifiers.lift-BA (compact→ℤ (k , i) δ) x y xδ≡yδ
  = to-subtype-≡ ≤ℤ²-is-prop xδ≡yδ
 
@@ -663,6 +671,52 @@ something A B FG (px , dx , ϕx) (x , γx)
 
 ## Fuel
 
+```
+searchable-fuel : {𝓤 𝓥 𝓦 : Universe} (X : 𝓤 ̇ )
+                → predicate-verifier {𝓤} {𝓥} X
+               → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ̇
+searchable-fuel {𝓤} {𝓥} {𝓦} X A
+ = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓤} {𝓥} {𝓦} A
+ , (Σ (x , n) ꞉ X × ℕ , (Σ p → p x))
+
+ℤ[_,_]-searchable'f : {𝓦 : Universe} → (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
+                    → searchable-fuel {_} {_} {𝓦} (ℤ[ l , u ])
+                        (all-predicates _)
+ℤ[ u , u ]-searchable'f zero refl (p , d , ϕ)
+ = ((u , ℤ≤-refl u , ℤ≤-refl u) , 0)
+ , λ (x , pu) → transport p
+     (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym u (pr₁ x) (pr₂ x) ⁻¹)) pu
+ℤ[ l , u ]-searchable'f (succ n) l+n≡u (p , d , ϕ)
+ = Cases (d (u , ((succ n , l+n≡u) , ℤ≤-refl u)))
+     (λ  pu → (_ , 1) , (λ _ → pu))
+     (λ ¬pu → (ℤ[ l , u ]-unpred k , succ m)
+            , λ ((k₀ , (l≤k₀ , k₀≤u)) , pk₀)
+            → Cases (ℤ≤-split k₀ u k₀≤u)
+                (λ k<u → γ (ℤ[ l , u ]-pred (k₀ , (l≤k₀ , k₀≤u)) k<u
+                   , transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pk₀))
+                (λ k≡u → 𝟘-elim (¬pu (transport p
+                  (to-subtype-≡ ≤ℤ²-is-prop k≡u) pk₀))))
+ where
+   IH = ℤ[ l , predℤ u ]-searchable'f n (succℤ-lc (l+n≡u ∙ succpredℤ u ⁻¹))
+          (all-satisfy-all (p ∘ ℤ[ l , u ]-unpred) (d ∘ ℤ[ l , u ]-unpred))
+   k = pr₁ (pr₁ IH)
+   m = pr₂ (pr₁ IH)
+   γ = pr₂ IH
+
+trivial-predicate
+ : (l u : ℤ) → preds-that-satisfy {_} {_} {𝓤₀} (all-predicates (ℤ[ l , u ]))
+trivial-predicate l u = (λ _ → 𝟙) , ((λ _ → inl ⋆) , (λ _ _ _ → id , id))
+
+empty-predicate
+ : (l u : ℤ) → preds-that-satisfy {_} {_} {𝓤₀} (all-predicates (ℤ[ l , u ]))
+empty-predicate l u = (λ _ → 𝟘) , ((λ _ → inr id) , (λ _ _ _ → id , id))
+
+test0 = ℤ[ (pos 0) , (pos 3) ]-searchable'f 3 refl
+          (empty-predicate   (pos 0) (pos 3))
+
+test1 = ℤ[ (pos 0) , (pos 3) ]-searchable'f 3 refl
+          (trivial-predicate (pos 0) (pos 3))
+```
 
 
 ---------------------------------------------------------------------

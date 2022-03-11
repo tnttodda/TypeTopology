@@ -14,7 +14,38 @@ open import IntegersAddition public renaming (_+_ to _+ℤ_)
 open import IntegersNegation public renaming (-_  to  −ℤ_)
 open import UF-Subsingletons public
 open import NaturalsOrder public
+open import DecidableAndDetachable
 -- open import Infi
+
+succ-lc : (x y : ℕ) → succ x ≡ succ y → x ≡ y
+succ-lc x x refl = refl
+
+ℕ-is-discrete : (x y : ℕ) → decidable (x ≡ y)
+ℕ-is-discrete zero zero = inl refl
+ℕ-is-discrete zero (succ y) = inr (λ ())
+ℕ-is-discrete (succ x) zero = inr (λ ())
+ℕ-is-discrete (succ x) (succ y)
+ = Cases (ℕ-is-discrete x y)
+     (inl ∘ ap succ)
+     (inr ∘ λ f g → f (succ-lc x y g))
+
+pos-lc : (x y : ℕ) → pos x ≡ pos y → x ≡ y
+pos-lc x x refl = refl
+
+negsucc-lc : (x y : ℕ) → negsucc x ≡ negsucc y → x ≡ y
+negsucc-lc x x refl = refl
+
+ℤ-is-discrete : (x y : ℤ) → decidable (x ≡ y)
+ℤ-is-discrete (pos     x) (pos     y)
+ = Cases (ℕ-is-discrete x y)
+     (inl ∘ ap pos)
+     (inr ∘ (λ f g → f (pos-lc x y g)))
+ℤ-is-discrete (negsucc x) (negsucc y)
+ = Cases (ℕ-is-discrete x y)
+     (inl ∘ ap negsucc)
+     (inr ∘ (λ f g → f (negsucc-lc x y g)))
+ℤ-is-discrete (pos     _) (negsucc _) = inr (λ ())
+ℤ-is-discrete (negsucc _) (pos     _) = inr (λ ())
 
 _≤ℤ_≤ℤ_ : ℤ → ℤ → ℤ → 𝓤₀ ̇ 
 x ≤ℤ y ≤ℤ z = (x ≤ℤ y) × (y ≤ℤ z)
