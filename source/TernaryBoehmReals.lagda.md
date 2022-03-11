@@ -129,15 +129,29 @@ build (x , γx) i = λ n → if   n <ℤ i
 
 We can also build a 𝕂 that goes 'via' some given interval encoding.
 
+```
+build-via' : ((k , i) : ℤ × ℤ) (n : ℤ) → (n <ℤ i) + (n ≡ i) + (i <ℤ n) → ℤ
+build-via' (k , i) n (inl      (j , sn+j≡i))
+ = rec k upRight (succ j)
+build-via' (k , i) n (inr (inl         n≡i))
+ = k
+build-via' (k , i) n (inr (inr (j , sn+j≡n)))
+ = rec k downLeft (succ j)
+
+build-via'-below
+ : ((k , i) : ℤ × ℤ) (n : ℤ)
+ → (η₁ : (succℤ n <ℤ i) + (succℤ n ≡ i) + (i <ℤ succℤ n))
+ → (η₂ : (      n <ℤ i) + (      n ≡ i) + (i <ℤ       n))
+ → build-via' (k , i) (succℤ n) η₁ below build-via' (k , i) n η₂
+build-via'-below (k , i) n = {!!}
+
 build-via : ℤ × ℤ → 𝕂
-build-via (k , i) = λ n → if   n <ℤ i
-                          then rec upRight (i - n) k
-                          if   n ≡  i
-                          then k
-                          else rec downLeft (n - i) k
-                  , λ n → if   n ≤ℤ i
-                          then rec upRight-is-below (i - n) i
-                          else rec downLeft-is-above (n - i) i
+build-via (k , i) = (λ n → build-via' (k , i) n (η₁ n))
+                  , λ n → build-via'-below (k , i) n (η₂ n) (η₁ n)
+ where
+   η₁ = λ (n : ℤ) → ℤ-trichotomous        n  i
+   η₂ = λ (n : ℤ) → ℤ-trichotomous (succℤ n) i
+```
 
 -------------------------------------------------------------------
 
@@ -160,6 +174,28 @@ You can also build an element of a closed interval in a similar way
 build-ci : (Σ x ꞉ (ℕ → ℤ) , (n : ℕ) → (x (succ n)) below (x n))
          → (i : ℤ) → CompactInterval (x(0) , i)
 build-ci x = build x i , {!!}
+
+```
+ℤ-trichotomous-is-prop
+ : (n i : ℤ) → is-prop ((n <ℤ i) + (n ≡ i) + (i <ℤ n))
+ℤ-trichotomous-is-prop = {!!}
+
+build-via-ci : ((k , i) : ℤ × ℤ) → CompactInterval (k , i)
+build-via-ci (k , i)
+ = build-via (k , i)
+ , ap (build-via' (k , i) i)
+     (ℤ-trichotomous-is-prop i i (ℤ-trichotomous i i) (inr (inl refl)))
+```
+
+TODO
+
+```
+replace : ((k , i) (c , δ) : ℤ × ℤ) → {!!} ≤ℤ c ≤ℤ {!!}
+        → CompactInterval (k , i)
+        → Σ ((x , _) , _) ꞉ CompactInterval (k , i)
+        , x δ ≡ c
+replace = {!!}
+```
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
 
@@ -573,7 +609,7 @@ compact→ℤ : ((k , i) : ℤ × ℤ) (δ : ℤ)
             predicate-verifiers
               (all-predicates ℤ[ l , u ])
               (compact-predicates (k , i) δ)
-predicate-verifiers.f       (compact→ℤ (k , i) δ)
+predicate-verifiers.f       (compact→ℤ (k , i) δ) (c , ζ)
  = {!!} -- build-via
 predicate-verifiers.g       (compact→ℤ (k , i) δ) x
  = ⟨ ι x ⟩ δ , (ci-lower-upper (k , i) x δ)
