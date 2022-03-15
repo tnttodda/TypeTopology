@@ -500,34 +500,34 @@ TODO
 ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
 ℤ[ l , u ] = Σ c ꞉ ℤ , l ≤ℤ c ≤ℤ u
 
-record predicate-verifier (X : 𝓤 ̇ ) : 𝓤 ⊔ 𝓥 ⁺ ̇  where
+record equivalence-relation (X : 𝓤 ̇ ) : 𝓤 ⊔ 𝓥 ⁺ ̇  where
   field
     _≣_ : X → X → 𝓥 ̇
     ≣-refl  : (x     : X) → x ≣ x
     ≣-sym   : (x y   : X) → x ≣ y → y ≣ x
     ≣-trans : (x y z : X) → x ≣ y → y ≣ z → x ≣ z
 
-preds-that-satisfy : {𝓤 𝓥 𝓦 : Universe} {X : 𝓤 ̇ }
-                   → predicate-verifier {𝓤} {𝓥} X
+preds-that-satisfy : {𝓦 𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
+                   → equivalence-relation {𝓤} {𝓥} X
                    → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ⁺ ̇ 
-preds-that-satisfy {𝓤} {𝓥} {𝓦} {X} A
+preds-that-satisfy {𝓦} {𝓤} {𝓥} {X} A
  = Σ p ꞉ (X → 𝓦 ̇  )
  , ((x : X) → decidable (p x))
  × ((x y : X) → x ≣ y → p x ⇔ p y)
- where open predicate-verifier A
+ where open equivalence-relation A
 
 searchable : {𝓤 𝓥 𝓦 : Universe} (X : 𝓤 ̇ )
-           → predicate-verifier {𝓤} {𝓥} X
+           → equivalence-relation {𝓤} {𝓥} X
            → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ̇
 searchable {𝓤} {𝓥} {𝓦} X A
- = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓤} {𝓥} {𝓦} A
+ = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓦} A
  , (Σ x ꞉ X , (Σ p → p x))
 
-all-predicates : (X : 𝓤 ̇ ) → predicate-verifier {𝓤} {𝓤} X
-predicate-verifier._≣_     (all-predicates X) = _≡_
-predicate-verifier.≣-refl  (all-predicates X) x     = refl
-predicate-verifier.≣-sym   (all-predicates X) x y   = _⁻¹
-predicate-verifier.≣-trans (all-predicates X) x y z = _∙_
+all-predicates : (X : 𝓤 ̇ ) → equivalence-relation {𝓤} {𝓤} X
+equivalence-relation._≣_     (all-predicates X) = _≡_
+equivalence-relation.≣-refl  (all-predicates X) x     = refl
+equivalence-relation.≣-sym   (all-predicates X) x y   = _⁻¹
+equivalence-relation.≣-trans (all-predicates X) x y z = _∙_
 
 all-satisfy-all : {X : 𝓤 ̇ } → (p : X → 𝓥 ̇ ) → ((x : X) → decidable (p x))
                 → preds-that-satisfy (all-predicates X)
@@ -591,25 +591,25 @@ via the isomorphism.
 
 ```
 record predicate-verifiers {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
-  (A : predicate-verifier {𝓤 } {𝓥 } X)
-  (B : predicate-verifier {𝓤'} {𝓥'} Y)  : 𝓤 ⊔ 𝓤' ⊔ 𝓥 ⊔ 𝓥' ⁺  ̇ where
+  (A : equivalence-relation {𝓤 } {𝓥 } X)
+  (B : equivalence-relation {𝓤'} {𝓥'} Y)  : 𝓤 ⊔ 𝓤' ⊔ 𝓥 ⊔ 𝓥' ⁺  ̇ where
   field
     f : X → Y
     g : Y → X
-    trans-A : (x : X) → predicate-verifier._≣_ A x ((g ∘ f) x)
-    trans-B : (y : Y) → predicate-verifier._≣_ B y ((f ∘ g) y)
-    lift-AB : (x₁ x₂ : X) → predicate-verifier._≣_ A    x₁     x₂
-                          → predicate-verifier._≣_ B (f x₁) (f x₂)
-    lift-BA : (y₁ y₂ : Y) → predicate-verifier._≣_ B    y₁     y₂
-                          → predicate-verifier._≣_ A (g y₁) (g y₂)
+    trans-A : (x : X) → equivalence-relation._≣_ A x ((g ∘ f) x)
+    trans-B : (y : Y) → equivalence-relation._≣_ B y ((f ∘ g) y)
+    lift-AB : (x₁ x₂ : X) → equivalence-relation._≣_ A    x₁     x₂
+                          → equivalence-relation._≣_ B (f x₁) (f x₂)
+    lift-BA : (y₁ y₂ : Y) → equivalence-relation._≣_ B    y₁     y₂
+                          → equivalence-relation._≣_ A (g y₁) (g y₂)
 
 compact-predicates : ((k , i) : ℤ × ℤ) (δ : ℤ)
-                   → predicate-verifier {𝓤₀} {𝓤₀} (CompactInterval (k , i))
-predicate-verifier._≣_     (compact-predicates (k , i) δ) x y
+                   → equivalence-relation {𝓤₀} {𝓤₀} (CompactInterval (k , i))
+equivalence-relation._≣_     (compact-predicates (k , i) δ) x y
  = ⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ
-predicate-verifier.≣-refl  (compact-predicates (k , i) δ) x     = refl
-predicate-verifier.≣-sym   (compact-predicates (k , i) δ) x y   = _⁻¹
-predicate-verifier.≣-trans (compact-predicates (k , i) δ) x y z = _∙_
+equivalence-relation.≣-refl  (compact-predicates (k , i) δ) x     = refl
+equivalence-relation.≣-sym   (compact-predicates (k , i) δ) x y   = _⁻¹
+equivalence-relation.≣-trans (compact-predicates (k , i) δ) x y z = _∙_
 
 compact→ℤ : ((k , i) : ℤ × ℤ) (δ : ℤ)
           → let l = lower (k , i) δ in
@@ -633,13 +633,13 @@ predicate-verifiers.lift-BA (compact→ℤ (k , i) δ) x y xδ≡yδ
 natural-conversion-process-ϕ
  : {𝓤 𝓤' 𝓥 𝓥' 𝓦 : Universe}
  → {X : 𝓤 ̇ } {Y : 𝓤' ̇  }
- → (A  : predicate-verifier  {𝓤 } {𝓥 } X)
- → (B  : predicate-verifier  {𝓤'} {𝓥'} Y)
+ → (A  : equivalence-relation  {𝓤 } {𝓥 } X)
+ → (B  : equivalence-relation  {𝓤'} {𝓥'} Y)
  → (FG : predicate-verifiers A B)
  → let f = predicate-verifiers.f FG in
    let g = predicate-verifiers.g FG in
-   (Π (px , _) ꞉ preds-that-satisfy {𝓤 } {𝓥 } {𝓦} A
- ,  Σ (py , _) ꞉ preds-that-satisfy {𝓤'} {𝓥'} {𝓦} B
+   (Π (px , _) ꞉ preds-that-satisfy {𝓦} A
+ ,  Σ (py , _) ꞉ preds-that-satisfy {𝓦} B
  , ((x : X) → px x ⇔ py (f x)))
 natural-conversion-process-ϕ A B FG
  = (λ (px , dx , ϕx) → (px ∘ g  , dx ∘ g
@@ -650,10 +650,10 @@ natural-conversion-process-ϕ A B FG
 something
  : {𝓤 𝓤' 𝓥 𝓥' 𝓦 : Universe}
  → {X : 𝓤 ̇ } {Y : 𝓤' ̇  }
- → (A  : predicate-verifier  {𝓤 } {𝓥 } X)
- → (B  : predicate-verifier  {𝓤'} {𝓥'} Y)
+ → (A  : equivalence-relation  {𝓤 } {𝓥 } X)
+ → (B  : equivalence-relation  {𝓤'} {𝓥'} Y)
  → (FG : predicate-verifiers {𝓤 } {𝓤'} {𝓥 } {𝓥'} A B)
- → (px : preds-that-satisfy {𝓤 } {𝓥 } {𝓦} A)
+ → (px : preds-that-satisfy  {𝓦} A)
  → (Σ x ꞉ X , (Σ (pr₁ px) → pr₁ px x))
  → let ((py , _) , _) = natural-conversion-process-ϕ A B FG px in
    (Σ y ꞉ Y , (Σ py → py y))
@@ -662,7 +662,7 @@ something A B FG (px , dx , ϕx) (x , γx)
  , λ (y , pyy) → pr₁ (γy x) (γx (g y , pr₂ (γy (g y))
                    (pr₁ (ϕx (g y) (g (f (g y))) (trans-A (g y))) pyy)))
  where open predicate-verifiers FG
-       open predicate-verifier B
+       open equivalence-relation B
        γy = pr₂ (natural-conversion-process-ϕ A B FG (px , dx , ϕx))
 ```
 
@@ -673,10 +673,10 @@ something A B FG (px , dx , ϕx) (x , γx)
 
 ```
 searchable-fuel : {𝓤 𝓥 𝓦 : Universe} (X : 𝓤 ̇ )
-                → predicate-verifier {𝓤} {𝓥} X
+                → equivalence-relation {𝓤} {𝓥} X
                → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ̇
 searchable-fuel {𝓤} {𝓥} {𝓦} X A
- = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓤} {𝓥} {𝓦} A
+ = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓦} A
  , (Σ (x , n) ꞉ X × ℕ , (Σ p → p x))
 
 ℤ[_,_]-searchable'f : {𝓦 : Universe} → (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
@@ -704,12 +704,12 @@ searchable-fuel {𝓤} {𝓥} {𝓦} X A
    γ = pr₂ IH
 
 trivial-predicate
- : (l u : ℤ) → preds-that-satisfy {_} {_} {𝓤₀} (all-predicates (ℤ[ l , u ]))
+ : (l u : ℤ) → preds-that-satisfy {𝓤₀} (all-predicates (ℤ[ l , u ]))
 trivial-predicate l u = (λ _ → 𝟙) , ((λ _ → inl ⋆) , (λ _ _ _ → id , id))
 
 empty-predicate
- : (l u : ℤ) → preds-that-satisfy {_} {_} {𝓤₀} (all-predicates (ℤ[ l , u ]))
-empty-predicate l u = (λ _ → 𝟘) , ((λ _ → inr id) , (λ _ _ _ → id , id))
+ : (l u : ℤ) → preds-that-satisfy {𝓤₀} (all-predicates (ℤ[ l , u ]))
+empty-predicate l u = (λ _ → 𝟘) , ((λ _ → inr λ ()) , (λ _ _ _ → id , id))
 
 test0 = ℤ[ (pos 0) , (pos 3) ]-searchable'f 3 refl
           (empty-predicate   (pos 0) (pos 3))
