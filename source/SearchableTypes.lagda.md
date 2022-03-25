@@ -369,6 +369,9 @@ min-preserves-min' (succ a) (succ b) (succ i)
 min-preserves-min : (a b : ℕ) → minℕ a b ↑ ≡ min (a ↑) (b ↑)
 min-preserves-min a b = ℕ∞-equals (min-preserves-min' a b)
 
+-- not sure about this. maybe we shouldnt have the sigma type in there
+
+{-
 Continuous-via : {X : 𝓤 ̇ } → closeness-function X
                → equivalence-relation X
 _≣_     (Continuous-via C) x y
@@ -389,7 +392,7 @@ _≣_     (Continuous-via C) x y
                           (≼-min2 (δ₁ ↑) (δ₂ ↑) (c (x , y)) (c (y , z))
                             δ≼cxy δ≼cyz))
                         (ult x y z)
- where open closeness-function C
+ where open closeness-function C -}
 ```
 
 0 information literally gives us zero information -- equiv to trivial
@@ -522,17 +525,105 @@ Searchable : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
 Searchable {𝓦} {𝓥} {𝓤} {X} _≣_
  = Π ((p , _) , _) ꞉ decidable-predicate-informed-by {𝓦} _≣_
  , Σ x₀ ꞉ X , (Σ p → p x₀)
+```
 
-All-Searchable : {𝓦 𝓤 : Universe} (X : 𝓤 ̇ )
+For some types, all of their predicates (those quotiented by the
+Identity equivalence relation) are searchable.
+
+These types are called Escardó-searchable.
+
+```agda
+Escardó-Searchable : {𝓦 𝓤 : Universe} (X : 𝓤 ̇ )
                → (𝓦 ⁺) ⊔ 𝓤 ̇
-All-Searchable {𝓦} {𝓤} X = Searchable {𝓦} (Identity X) 
+Escardó-Searchable {𝓦} {𝓤} X = Searchable {𝓦} (Identity X) 
 
-𝟙-is-searchable : {𝓦 𝓥 𝓤 : Universe} → All-Searchable {𝓦} {𝓤} 𝟙
+𝟙-is-searchable : {𝓦 𝓥 𝓤 : Universe} → Escardó-Searchable {𝓦} {𝓤} 𝟙
 𝟙-is-searchable ((p , _) , _) = ⋆ , γ
  where
    γ : Σ p → p ⋆
    γ (⋆ , px) = px
 
++-equivalence-relation : {𝓥 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+                       → equivalence-relation {𝓥}  X
+                       → equivalence-relation {𝓥}      Y
+                       → equivalence-relation {𝓥} (X + Y)
+_≣_     (+-equivalence-relation A B) (inl x) (inl y)         = _≣_ A x y
+_≣_     (+-equivalence-relation A B) (inl x) (inr y)         = 𝟘
+_≣_     (+-equivalence-relation A B) (inr x) (inl y)         = 𝟘
+_≣_     (+-equivalence-relation A B) (inr x) (inr y)         = _≣_ B x y
+≣-refl  (+-equivalence-relation A B) (inl x)                 = ≣-refl A x
+≣-refl  (+-equivalence-relation A B) (inr x)                 = ≣-refl B x
+≣-sym   (+-equivalence-relation A B) (inl x) (inl y)         = ≣-sym A x y
+≣-sym   (+-equivalence-relation A B) (inr x) (inr y)         = ≣-sym B x y
+≣-trans (+-equivalence-relation A B) (inl x) (inl y) (inl z) = ≣-trans A x y z
+≣-trans (+-equivalence-relation A B) (inr x) (inr y) (inr z) = ≣-trans B x y z
+
++-equivalence-relation-≡-id
+ : {X Y : 𝓤 ̇ }
+ → +-equivalence-relation (Identity X) (Identity Y)
+ ≡ Identity (X + Y)
++-equivalence-relation-≡-id
+  = {!refl!}
+
++-is-searchable : {𝓦 𝓥 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+                → (A : equivalence-relation {𝓥 } X)
+                → (B : equivalence-relation {𝓥} Y)
+                → (𝓔x : Searchable {𝓦} A)
+                → (𝓔y : Searchable {𝓦} B)
+                → Searchable {𝓦} (+-equivalence-relation A B)
++-is-searchable = {!!}
+```
+
+The type Fin n is the type with n-many constructors.
+All nonempty Fin types are Escardó-searchable.
+
+```agda
+
+Fin : ℕ → 𝓤 ̇
+Fin 0 = 𝟘
+Fin 1 = 𝟙
+Fin {𝓤} (succ (succ n)) = Fin {𝓤} (succ n) + 𝟙 {𝓤}
+
+Fin-nonempty : {𝓤 : Universe} → (n : ℕ) → nonempty (Fin {𝓤} (succ n))
+Fin-nonempty 0        =     ⋆
+Fin-nonempty (succ n) = inr ⋆
+
+Fin-is-searchable : {𝓦 𝓤 : Universe}
+                  → (n : ℕ) → nonempty (Fin {𝓤} n)
+                  → Escardó-Searchable {𝓦} (Fin {𝓤} n)
+Fin-is-searchable  {𝓦} {𝓤} 1               _
+ = 𝟙-is-searchable {𝓦} {𝓤}
+Fin-is-searchable  {𝓦} {𝓤} (succ (succ n)) _
+ = transport Searchable (+-equivalence-relation-≡-id {𝓤})
+     (+-is-searchable (Identity (Fin (succ n))) (Identity 𝟙)
+       (Fin-is-searchable (succ n) (Fin-nonempty n))
+       (𝟙-is-searchable {𝓦} {𝓤}))
+
+≃-is-E-searchable : {𝓦 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+                  → X ≃ Y
+                  → Escardó-Searchable {𝓦} X
+                  → Escardó-Searchable {𝓦} Y
+≃-is-E-searchable (f , (g , fg) , _) 𝓔x ((p' , d' , i') , ϕ')
+ = f (pr₁ (𝓔x p*))
+ , λ (y , py) → pr₂ (𝓔x p*) (g y , (transport p' (fg y ⁻¹) py))
+ where
+   p = p' ∘ f
+   d = d' ∘ f
+   i = i' ∘ f
+   ϕ = λ x y → ϕ' (f x) (f y) ∘ ap f
+   p* = ((p , d , i) , ϕ)
+
+all-finite-types-are-Escardó-searchable
+ : {𝓦 : Universe} → {X : 𝓤 ̇ } → (Σ n ꞉ ℕ , Fin {𝓤} n ≃ X) → nonempty X 
+ → Escardó-Searchable {𝓦} X
+all-finite-types-are-Escardó-searchable (n , X≃Fin) x
+ = ≃-is-E-searchable X≃Fin (Fin-is-searchable n (pr₁ (pr₁ (pr₂ X≃Fin)) x))
+
+```
+
+All nonempty finite types are Escardó-searchable.
+
+```agda
 ×-equivalence-relation : {𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
                        → equivalence-relation {𝓥     }  X
                        → equivalence-relation {    𝓥'}      Y
@@ -744,7 +835,7 @@ record pred-equivalence {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : �
     lift-BA : (y₁ y₂ : Y) → y₁ ≣B y₂ → (g y₁) ≣A (g y₂)
 
 _≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
-(α ≈ β) n = (i : ℕ) → i <ℕ n → α n ≡ β n
+(α ≈ β) n = (i : ℕ) → i <ℕ n → α i ≡ β i
 
 sequence-relation-≈' : (X : 𝓤 ̇ ) → (δ : ℕ)
                      → equivalence-relation {𝓤} (ℕ → X)
@@ -757,18 +848,23 @@ _≣_     (sequence-relation-≈' X δ)
 ≣-trans (sequence-relation-≈' X δ)
  α β ζ α≈β β≈ζ = λ i i<δ → α≈β i i<δ ∙ β≈ζ i i<δ
 
+{-
 sequence-relation-≈ : (X : 𝓤 ̇ ) → equivalence-relation {𝓤} (ℕ → X)
 _≣_ (sequence-relation-≈ X)
  α β = Σ δ ꞉ ℕ , (α ≈ β) (succ δ)
 ≣-refl (sequence-relation-≈ X)
- α = {!!}
+ α                         = 0 , (λ i x → refl)
 ≣-sym (sequence-relation-≈ X)
- = {!!}
+ α β   (n , α≈β)           = n , (λ i x → α≈β i x ⁻¹) 
 ≣-trans (sequence-relation-≈ X)
- = {!!}
+ α β ζ (n , α≈β) (m , βαζ) = {!!} , {!!}
+-}
 
-sequence-relation-c : (X : 𝓤 ̇ ) → equivalence-relation {{!!}} (ℕ → X)
-sequence-relation-c X = Continuous-via {!!}
+sequence-relation-c : (X : 𝓤 ̇ ) (δ : ℕ)
+                    → equivalence-relation {𝓤₀} (ℕ → X)
+sequence-relation-c X δ = δ -Close-via {!!}
+
+
 
 
 ```
