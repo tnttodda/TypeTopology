@@ -49,6 +49,7 @@ decidable-predicate : {𝓦 𝓤 : Universe} → 𝓤 ̇ → (𝓦 ⁺) ⊔ 𝓤
 decidable-predicate {𝓦} {𝓤} X
  = Σ p ꞉ (X → 𝓦 ̇ )
  , everywhere-decidable p × everywhere-prop-valued p
+
 ```
 
 Some predicates use equivalence relations to determine
@@ -76,6 +77,28 @@ _informs_ : {𝓦 𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
           → decidable-predicate {𝓦} X → 𝓦 ⊔ 𝓤 ⊔ 𝓥 ̇
 A informs (p , _) = ∀ x y → x ≣A y → p x → p y
  where _≣A_ = _≣_ A
+
+
+p⟨_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+     → (A : equivalence-relation {𝓥} X) → Σ (A informs_)
+     → (X → 𝓦 ̇ )
+p⟨ _ - ((p , _ , _) , _) ⟩ = p
+
+d⟨_-_⟩ : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
+     → (A : equivalence-relation {𝓥} X) → (pdiϕ : Σ (A informs_))
+     → everywhere-decidable p⟨ A - pdiϕ ⟩
+d⟨ _ - ((_ , d , _) , _) ⟩ = d
+
+i⟨_-_⟩ : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
+     → (A : equivalence-relation {𝓥} X) → (pdiϕ : Σ (A informs_))
+     → everywhere-prop-valued p⟨ A - pdiϕ ⟩
+i⟨ _ - ((_ , _ , i) , _) ⟩ = i
+
+ϕ⟨_-_⟩ : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
+       → (A : equivalence-relation {𝓥} X) → (pdiϕ : Σ (A informs_))
+       → (x y : X) → _≣_ A x y → p⟨ A - pdiϕ ⟩ x → p⟨ A - pdiϕ ⟩ y
+                 
+ϕ⟨ _ - ((_ , _ , _) , ϕ) ⟩ = ϕ
 
 decidable-predicate-informed-by
  : {𝓦 𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
@@ -524,7 +547,7 @@ Searchable : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
            → (𝓦 ⁺) ⊔ 𝓥 ⊔ 𝓤 ̇ 
 Searchable {𝓦} {𝓥} {𝓤} {X} _≣_
  = Π ((p , _) , _) ꞉ decidable-predicate-informed-by {𝓦} _≣_
- , Σ x₀ ꞉ X , (Σ p → p x₀)
+ , Σ (x₀ , n) ꞉ (X × ℕ) , (Σ p → p x₀)
 ```
 
 For some types, all of their predicates (those quotiented by the
@@ -538,7 +561,7 @@ Escardó-Searchable : {𝓦 𝓤 : Universe} (X : 𝓤 ̇ )
 Escardó-Searchable {𝓦} {𝓤} X = Searchable {𝓦} (Identity X) 
 
 𝟙-is-searchable : {𝓦 𝓥 𝓤 : Universe} → Escardó-Searchable {𝓦} {𝓤} 𝟙
-𝟙-is-searchable ((p , _) , _) = ⋆ , γ
+𝟙-is-searchable ((p , _) , _) = (⋆ , 0) , γ
  where
    γ : Σ p → p ⋆
    γ (⋆ , px) = px
@@ -604,7 +627,7 @@ Fin-is-searchable  {𝓦} {𝓤} (succ (succ n)) _
                   → Escardó-Searchable {𝓦} X
                   → Escardó-Searchable {𝓦} Y
 ≃-is-E-searchable (f , (g , fg) , _) 𝓔x ((p' , d' , i') , ϕ')
- = f (pr₁ (𝓔x p*))
+ = (f (pr₁ (pr₁ (𝓔x p*))) , {!!})
  , λ (y , py) → pr₂ (𝓔x p*) (g y , (transport p' (fg y ⁻¹) py))
  where
    p = p' ∘ f
@@ -709,7 +732,7 @@ Searcher-preserves-equivalence-relation
  → 𝓥 ⊔ 𝓥' ⊔ 𝓤 ̇ 
 Searcher-preserves-equivalence-relation
  {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B ps 𝓔y
- = (x₁ x₂ : X) → x₁ ≣x x₂ → pr₁ (𝓔y (ps x₁)) ≣y pr₁ (𝓔y (ps x₂))
+ = (x₁ x₂ : X) → x₁ ≣x x₂ → pr₁ (pr₁ (𝓔y (ps x₁))) ≣y pr₁ (pr₁ (𝓔y (ps x₂)))
  where
    _≣x_ = _≣_ A
    _≣y_ = _≣_ B   
@@ -727,7 +750,7 @@ snd-predicate A B ((p' , d' , i') , ϕ') 𝓔x preserves = (p , d , i) , ϕ
  where
    open equivalence-relation A
    P : _ → _
-   P y = pr₁ (𝓔x (fst-predicate A B ((p' , d' , i') , ϕ') y))
+   P y = pr₁ (pr₁ (𝓔x (fst-predicate A B ((p' , d' , i') , ϕ') y)))
    p : _ → _ ̇
    p y = p' (P y , y)
    d : everywhere-decidable p
@@ -747,7 +770,7 @@ snd-predicate A B ((p' , d' , i') , ϕ') 𝓔x preserves = (p , d , i) , ϕ
                            B A (fst-predicate A B p) 𝓔x)
                   → Searchable {𝓦} (×-equivalence-relation A B)
 ×-is-searchable-l {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B 𝓔x 𝓔y preserves p
- = (x₀→ y₀ , y₀)
+ = ((x₀→ y₀ , y₀) , {!!})
  , λ ((x , y) , pxy) → γy (y , (γx y (x , pxy)))
  where
    px : Y → Σ (A informs_)
@@ -755,12 +778,12 @@ snd-predicate A B ((p' , d' , i') , ϕ') 𝓔x preserves = (p , d , i) , ϕ
    py : Σ (B informs_)
    py = snd-predicate A B p 𝓔x (preserves p)
    x₀→ : Y → X
-   x₀→ y = pr₁ (𝓔x (px y))
+   x₀→ y = pr₁ (pr₁ (𝓔x (px y)))
    y₀ : Y
-   y₀ = pr₁ (𝓔y py)
-   γx : (y : Y) → Σ (pr₁ (pr₁ (px y))) → (pr₁ (pr₁ (px y))) (x₀→ y)
+   y₀ = pr₁ (pr₁ (𝓔y py))
+   γx : (y : Y) → Σ p⟨ A - px y ⟩ → p⟨ A - px y ⟩ (x₀→ y)
    γx y = pr₂ (𝓔x (px y))
-   γy : Σ (pr₁ (pr₁ py)) → (pr₁ (pr₁ py)) y₀
+   γy : Σ p⟨ B - py ⟩ → p⟨ B - py ⟩ y₀
    γy = pr₂ (𝓔y py)
 
 swap : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → X × Y → Y × X
@@ -776,7 +799,7 @@ swap (x , y) = y , x
                   → Searchable {𝓦} (×-equivalence-relation A B)
 ×-is-searchable-r {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B 𝓔x 𝓔y
  preserves ((p' , d' , i') , ϕ')
- = swap yx₀ , λ ((x , y) , p'xy) → pr₂ (γ p) ((y , x) , p'xy)
+ = (swap yx₀ , {!!}) , λ ((x , y) , p'xy) → pr₂ (γ p) ((y , x) , p'xy)
  where
    -- ≣-sym = ≣-sym (×-equivalence-relation A B)
    p : decidable-predicate-informed-by {𝓦}
@@ -786,7 +809,7 @@ swap (x , y) = y , x
      → ϕ' (y₁ , x₁) (y₂ , x₂) (y≣ , x≣)
    γ = ×-is-searchable-l B A 𝓔y 𝓔x preserves
    yx₀ : Y × X
-   yx₀ = pr₁ (γ p)
+   yx₀ = pr₁ (pr₁ (γ p))
 
 ×-is-searchable : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
                 → (A : equivalence-relation {𝓥 } X)
@@ -809,7 +832,7 @@ Identity-always-preserves
  → (𝓔y : Searchable {𝓦} B)
  → (p : (x : X) → decidable-predicate-informed-by {𝓦} B)
  → Searcher-preserves-equivalence-relation {𝓦} (Identity X) B p 𝓔y
-Identity-always-preserves B 𝓔y p x x refl = ≣-refl B (pr₁ (𝓔y (p x)))
+Identity-always-preserves B 𝓔y p x x refl = ≣-refl B (pr₁ (pr₁ (𝓔y (p x))))
 
 {-
 splittable : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
