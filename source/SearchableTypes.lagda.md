@@ -974,18 +974,35 @@ lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ 
 ≤ℤ-antisym : (z l : ℤ) → l ≤ℤ z ≤ℤ l → z ≡ l
 ≤ℤ-antisym z l ((n , l≤z) , (k , z≤l)) = {!!}
 
+≤ℤ-back : ∀ x y → x <ℤ y → x ≤ℤ predℤ y
+≤ℤ-back x .(succℤ x +ℤ pos n) (n , refl)
+ = ℤ≤-trans x (x +pos n) (predℤ (succℤ x +pos n))
+     (n , refl)
+     (transport ((x +pos n) ≤ℤ_)
+       (predsuccℤ (x +pos n) ⁻¹
+       ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
+       (ℤ≤-refl (x +pos n)))
+
 ℤ[_,_]-searchable : (l u : ℤ) → (n : ℕ) → l +pos n ≡ u → Searchable {𝓦} (Identity ℤ[ l , u ])
 ℤ[ l , l ]-searchable 0 refl ((p , d , i) , ϕ)
  = ((l , ℤ≤-refl l , ℤ≤-refl l) , 0)
  , λ ((z , l≤z≤u) , pz) → transport p (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym z l l≤z≤u)) pz
-ℤ[ l , u ]-searchable (succ n) l+n≡u ((p , d , i) , ϕ)
+ℤ[ l , .(succℤ (l +pos n)) ]-searchable (succ n) refl ((p , d , i) , ϕ)
  = Cases (d u*)
       (λ  pu → (u* , 1) , (λ _ → pu))
-      (λ ¬pu → (ans , k) , λ ((z , l≤z , z≤u) , pz) → sol ((z , l≤z , {!!}) , {!pz!}))
+      (λ ¬pu → (ans , k)
+             , λ ((z , l≤z , z≤u) , pz)
+               → Cases (ℤ≤-split z u z≤u)
+                 (λ z<u → sol ((z , l≤z
+                        , transport (z ≤ℤ_) (predsuccℤ _) (≤ℤ-back z u z<u))
+                        , (transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pz)))
+                 (λ z≡u → 𝟘-elim (¬pu
+                          (transport p (to-subtype-≡ ≤ℤ²-is-prop z≡u) pz))))
  where
-   u* = u , (succ n , l+n≡u) , ℤ≤-refl u
+   u = succℤ (l +pos n)
+   u* = u , (succ n , refl) , ℤ≤-refl u
    ι : ℤ[ l , l +pos n ] → ℤ[ l , u ]
-   ι = transport ℤ[ l ,_] l+n≡u ∘ ℤ[ l , l +pos n ]-succ
+   ι = ℤ[ l , l +pos n ]-succ
    IH = ℤ[ l , l +pos n ]-searchable n refl
           ((p ∘ ι , d ∘ ι , i ∘ ι) , λ x y x≡y → ϕ (ι x) (ι y) (ap ι x≡y))
    ans = ι (pr₁ (pr₁ IH))
