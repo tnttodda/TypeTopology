@@ -20,6 +20,7 @@ open import NaturalsOrder public
 open import DecidableAndDetachable
 open import UF-Equiv
 open import UF-Subsingletons-FunExt
+open import TernaryBoehmRealsPrelude
 open import InfiniteSearch1 (dfunext (fe _ _))
   hiding (predicate;everywhere-decidable;decidable;trivial-predicate)
 
@@ -964,12 +965,34 @@ lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ 
          (ℕ→D-Searchable 𝓔x δ)
          (fst-predicate (sequence-relation-≈' X δ) (Identity X) p)))
 
--- (fst-predicate (sequence-relation-≈' X δ) (Identity X) p)
+ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
+ℤ[ l , u ] = Σ z ꞉ ℤ , (l ≤ℤ z ≤ℤ u)
 
-{- (λ p → Identity-always-preserves
-                     (sequence-relation-≈' X δ)
-                     (ℕ→D-Searchable 𝓔x δ)
-                     (λ x → {!!})))) -}
+ℤ[_,_]-succ : (l u : ℤ) → ℤ[ l , u ] → ℤ[ l , succℤ u ]
+ℤ[ l , u ]-succ (z , l≤z , z≤u) = z , l≤z , ℤ≤-trans z u (succℤ u) z≤u (1 , refl) 
+
+≤ℤ-antisym : (z l : ℤ) → l ≤ℤ z ≤ℤ l → z ≡ l
+≤ℤ-antisym z l ((n , l≤z) , (k , z≤l)) = {!!}
+
+ℤ[_,_]-searchable : (l u : ℤ) → (n : ℕ) → l +pos n ≡ u → Searchable {𝓦} (Identity ℤ[ l , u ])
+ℤ[ l , l ]-searchable 0 refl ((p , d , i) , ϕ)
+ = ((l , ℤ≤-refl l , ℤ≤-refl l) , 0)
+ , λ ((z , l≤z≤u) , pz) → transport p (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym z l l≤z≤u)) pz
+ℤ[ l , u ]-searchable (succ n) l+n≡u ((p , d , i) , ϕ)
+ = Cases (d u*)
+      (λ  pu → (u* , 1) , (λ _ → pu))
+      (λ ¬pu → (ans , k) , λ ((z , l≤z , z≤u) , pz) → sol ((z , l≤z , {!!}) , {!pz!}))
+ where
+   u* = u , (succ n , l+n≡u) , ℤ≤-refl u
+   ι : ℤ[ l , l +pos n ] → ℤ[ l , u ]
+   ι = transport ℤ[ l ,_] l+n≡u ∘ ℤ[ l , l +pos n ]-succ
+   IH = ℤ[ l , l +pos n ]-searchable n refl
+          ((p ∘ ι , d ∘ ι , i ∘ ι) , λ x y x≡y → ϕ (ι x) (ι y) (ap ι x≡y))
+   ans = ι (pr₁ (pr₁ IH))
+   k = pr₂ (pr₁ IH)
+   sol = pr₂ IH
+
+-- ℕ→Z[_,_]-
 
 ```
 
