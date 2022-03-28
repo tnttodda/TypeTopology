@@ -66,13 +66,25 @@ record equivalence-relation {𝓥 𝓤 : Universe} (X : 𝓤 ̇ ) : 𝓤 ⊔ �
     ≣-trans : (x y z : X) → x ≣ y → y ≣ z → x ≣ z
 
 open equivalence-relation
+
+_≣⟨_⟩_ : {𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+       → X → equivalence-relation {𝓥} X → X → 𝓥 ̇
+x ≣⟨ A ⟩ y = _≣_ A x y
+
+{-
+refl⟨_⟩ : {𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+        → equivalence-relation {𝓥} X
+        → (x : X) → x ≣⟨ A ⟩ y
+refl⟨_⟩ = ≣-refl
+-}
+
 ```
 
 The class of predicates quotiented (?) by a particular
 equivalence relation is defined as follows.
 
 ```agda
-_informs_ : {𝓦 𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
+_informs_ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
           → equivalence-relation {𝓥} X
           → decidable-predicate {𝓦} X → 𝓦 ⊔ 𝓤 ⊔ 𝓥 ̇
 A informs (p , _) = ∀ x y → x ≣A y → p x → p y
@@ -80,24 +92,26 @@ A informs (p , _) = ∀ x y → x ≣A y → p x → p y
 
 
 p⟨_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
-     → (A : equivalence-relation {𝓥} X) → Σ (A informs_)
-     → (X → 𝓦 ̇ )
+       → (A : equivalence-relation {𝓥} X) → Σ (A informs_)
+       → (X → 𝓦 ̇ )
 p⟨ _ - ((p , _ , _) , _) ⟩ = p
 
-d⟨_-_⟩ : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
-     → (A : equivalence-relation {𝓥} X) → (pdiϕ : Σ (A informs_))
-     → everywhere-decidable p⟨ A - pdiϕ ⟩
+d⟨_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+       → (A : equivalence-relation {𝓥} X)
+       → (pdiϕ : Σ (_informs_ {𝓦} A))
+       → everywhere-decidable p⟨ A - pdiϕ ⟩
 d⟨ _ - ((_ , d , _) , _) ⟩ = d
 
-i⟨_-_⟩ : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
-     → (A : equivalence-relation {𝓥} X) → (pdiϕ : Σ (A informs_))
-     → everywhere-prop-valued p⟨ A - pdiϕ ⟩
+i⟨_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+       → (A : equivalence-relation {𝓥} X)
+       → (pdiϕ : Σ (_informs_ {𝓦} A))
+       → everywhere-prop-valued p⟨ A - pdiϕ ⟩
 i⟨ _ - ((_ , _ , i) , _) ⟩ = i
 
-ϕ⟨_-_⟩ : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
-       → (A : equivalence-relation {𝓥} X) → (pdiϕ : Σ (A informs_))
+ϕ⟨_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+       → (A : equivalence-relation {𝓥} X)
+       → (pdiϕ : Σ (_informs_ {𝓦} A))
        → (x y : X) → _≣_ A x y → p⟨ A - pdiϕ ⟩ x → p⟨ A - pdiϕ ⟩ y
-                 
 ϕ⟨ _ - ((_ , _ , _) , ϕ) ⟩ = ϕ
 
 decidable-predicate-informed-by
@@ -335,6 +349,9 @@ record closeness-function (X : 𝓤 ̇ ) : 𝓤 ̇ where
     sym : (x y   : X) → c (x , y) ≡ c (y , x)
     ult : (x y z : X) → min (c (x , y)) (c (y , z)) ≼ c (x , z)
 
+open closeness-function
+open is-clofun
+
 ≼-min : ∀ x y z → x ≼ y → x ≼ z → x ≼ min y z
 ≼-min x y z x≼y x≼z n r = Lemma[a≡₁→b≡₁→min𝟚ab≡₁] (x≼y n r) (x≼z n r)
 
@@ -349,19 +366,15 @@ record closeness-function (X : 𝓤 ̇ ) : 𝓤 ̇ where
 _-Close-via_ : {X : 𝓤 ̇ } (δ : ℕ) → closeness-function X
              → equivalence-relation X
 _≣_     (δ -Close-via C) x y
- = (δ ↑) ≼ c (x , y)
- where open closeness-function C
+ = (δ ↑) ≼ c C (x , y)
 ≣-refl  (δ -Close-via C) x
- = transport ((δ ↑) ≼_) (eic x ⁻¹) (∞-maximal (δ ↑))
- where open closeness-function C
+ = transport ((δ ↑) ≼_) (eic C x ⁻¹) (∞-maximal (δ ↑))
 ≣-sym   (δ -Close-via C) x y
- = transport ((δ ↑) ≼_) (sym x y)
- where open closeness-function C
+ = transport ((δ ↑) ≼_) (sym C x y)
 ≣-trans (δ -Close-via C) x y z δ≼cxy δ≼cyz
- = ≼-trans (δ ↑) (min (c (x , y)) (c (y , z))) (c (x , z))
-     (≼-min (δ ↑) (c (x , y)) (c (y , z)) δ≼cxy δ≼cyz)
-     (ult x y z)
- where open closeness-function C
+ = ≼-trans (δ ↑) (min (c C (x , y)) (c C (y , z))) (c C (x , z))
+     (≼-min (δ ↑) (c C (x , y)) (c C (y , z)) δ≼cxy δ≼cyz)
+     (ult C x y z)
 ```
 
 Continuous predicates are those for which there is some δ : ℕ
@@ -426,16 +439,12 @@ equivalence relation.
 0-info' : {𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
         → (C : closeness-function X)
         → (x y : X)
-        → let _≣₁_ = _≣_ (0 -Close-via C) in
-          let _≣₂_ = _≣_ (Trivial {𝓥} X) in
-          (x ≣₁ y) ⇔ (x ≣₂ y)
+        → (x ≣⟨ 0 -Close-via C ⟩ y) ⇔ (x ≣⟨ Trivial {𝓥} X ⟩ y)
 0-info' C x y = (λ _ → ⋆) , (λ _ x ())
 
 eq-close : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
         → (A B : equivalence-relation {𝓥} X)
-        → let _≣₁_ = _≣_ A in
-          let _≣₂_ = _≣_ B in
-          ((x y : X) → x ≣₁ y ⇔ x ≣₂ y)
+        → ((x y : X) → x ≣⟨ A ⟩ y ⇔ x ≣⟨ B ⟩ y)
         → (p : decidable-predicate {𝓦} X)
         → (A informs p)
         ⇔ (B informs p)
@@ -444,8 +453,7 @@ eq-close A B γ p = (λ Ap x y Bxy → Ap x y (pr₂ (γ x y) Bxy))
                  
 eq-sim : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
        → (A B : equivalence-relation {𝓥} X)
-       → ((x y : X) → _≣_ A x y
-                    ⇔ _≣_ B x y)
+       → ((x y : X) → x ≣⟨ A ⟩ y ⇔ x ≣⟨ B ⟩ y)
        → (p : decidable-predicate {𝓦} X)
        → (A informs p)
        ≃ (B informs p)
@@ -474,8 +482,7 @@ succ-info : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
        → ((succ n -Close-via C) informs p)
 succ-info {𝓦} {𝓤} {X} C (p , d , i) n ι x y sn≼cxy = ι x y n≼cxy
  where
-   open closeness-function C
-   n≼cxy : (n ↑) ≼ c (x , y)
+   n≼cxy : (n ↑) ≼ c C (x , y)
    n≼cxy 0 r = sn≼cxy 0 refl
    n≼cxy (succ k) r = sn≼cxy (succ k) (pr₂ (n ↑) k r)
    
@@ -487,15 +494,11 @@ sequence closeness function.
 
 ```agda
 d-closeness : {X : 𝓤 ̇ } → is-discrete X → closeness-function X
-closeness-function.c   (d-closeness ds) = discrete-clofun ds
-closeness-function.eic (d-closeness ds) = equal→inf-close
- where open is-clofun (discrete-is-clofun ds)
-closeness-function.ice (d-closeness ds) = inf-close→equal
- where open is-clofun (discrete-is-clofun ds)
-closeness-function.sym (d-closeness ds) = symmetricity
- where open is-clofun (discrete-is-clofun ds)
-closeness-function.ult (d-closeness ds) = ultrametric
- where open is-clofun (discrete-is-clofun ds)
+c   (d-closeness ds) = discrete-clofun ds
+eic (d-closeness ds) = equal→inf-close (discrete-is-clofun ds)
+ice (d-closeness ds) = inf-close→equal (discrete-is-clofun ds)
+sym (d-closeness ds) = symmetricity    (discrete-is-clofun ds)
+ult (d-closeness ds) = ultrametric     (discrete-is-clofun ds)
 
 1-close-informs-discrete : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
                          → (ds : is-discrete X)
@@ -504,7 +507,6 @@ closeness-function.ult (d-closeness ds) = ultrametric
 1-close-informs-discrete ds (p , _) x y 1≼cxy
  = transport p (γ (ds x y) 1≼cxy)
  where
-   open closeness-function (d-closeness ds)
    γ : (q : decidable (x ≡ y)) → (1 ↑) ≼ discrete-c' (x , y) q → x ≡ y
    γ (inl  x≡y) _ = x≡y
    γ (inr ¬x≡y) r = 𝟘-elim (zero-is-not-one (r 0 refl))
@@ -548,6 +550,45 @@ Searchable : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
 Searchable {𝓦} {𝓥} {𝓤} {X} _≣_
  = Π ((p , _) , _) ꞉ decidable-predicate-informed-by {𝓦} _≣_
  , Σ (x₀ , n) ꞉ (X × ℕ) , (Σ p → p x₀)
+
+ans⟨_-_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+           → (A : equivalence-relation {𝓥} X)
+           → (𝓔 : Searchable {𝓦} A)
+           → decidable-predicate-informed-by {𝓦} A
+           → X
+ans⟨ _ - 𝓔 - p ⟩ = pr₁ (pr₁ (𝓔 p))
+
+n⟨_-_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+         → (A : equivalence-relation {𝓥} X)
+         → (𝓔 : Searchable {𝓦} A)
+         → decidable-predicate-informed-by {𝓦} A
+         → ℕ
+n⟨ _ - 𝓔 - p ⟩ = pr₂ (pr₁ (𝓔 p))
+
+sol⟨_-_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
+           → (A : equivalence-relation {𝓥} X)
+           → (𝓔 : Searchable {𝓦} A)
+           → (pdiϕ : decidable-predicate-informed-by {𝓦} A)
+           → let p = p⟨ A - pdiϕ ⟩ in
+             Σ p → p ans⟨ A - 𝓔 - pdiϕ ⟩
+sol⟨ _ - 𝓔 - p ⟩ = pr₂ (𝓔 p)
+```
+
+If a quotient of predicates is searchable, every quotient isomorphic
+to that is of course equal.
+
+```agda
+≃-searchable : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+             → (A : equivalence-relation {𝓥 } X)
+             → (B : equivalence-relation {𝓥'} Y)
+             → Searchable {𝓦} A
+             → decidable-predicate-informed-by {𝓦} A
+             ≃ decidable-predicate-informed-by {𝓦} B
+             → Searchable {𝓦} B
+≃-searchable A B 𝓔x (f , (g , fg) , (h , hf)) pdiϕ
+ = {!!} , {!!}
+ where
+   p* = g pdiϕ
 ```
 
 For some types, all of their predicates (those quotiented by the
@@ -570,10 +611,10 @@ Escardó-Searchable {𝓦} {𝓤} X = Searchable {𝓦} (Identity X)
                        → equivalence-relation {𝓥}  X
                        → equivalence-relation {𝓥}      Y
                        → equivalence-relation {𝓥} (X + Y)
-_≣_     (+-equivalence-relation A B) (inl x) (inl y)         = _≣_ A x y
+_≣_     (+-equivalence-relation A B) (inl x) (inl y)         = x ≣⟨ A ⟩ y
 _≣_     (+-equivalence-relation A B) (inl x) (inr y)         = 𝟘
 _≣_     (+-equivalence-relation A B) (inr x) (inl y)         = 𝟘
-_≣_     (+-equivalence-relation A B) (inr x) (inr y)         = _≣_ B x y
+_≣_     (+-equivalence-relation A B) (inr x) (inr y)         = x ≣⟨ B ⟩ y
 ≣-refl  (+-equivalence-relation A B) (inl x)                 = ≣-refl A x
 ≣-refl  (+-equivalence-relation A B) (inr x)                 = ≣-refl B x
 ≣-sym   (+-equivalence-relation A B) (inl x) (inl y)         = ≣-sym A x y
@@ -626,21 +667,24 @@ Fin-is-searchable  {𝓦} {𝓤} (succ (succ n)) _
                   → X ≃ Y
                   → Escardó-Searchable {𝓦} X
                   → Escardó-Searchable {𝓦} Y
-≃-is-E-searchable (f , (g , fg) , _) 𝓔x ((p' , d' , i') , ϕ')
- = (f (pr₁ (pr₁ (𝓔x p*))) , {!!})
- , λ (y , py) → pr₂ (𝓔x p*) (g y , (transport p' (fg y ⁻¹) py))
- where
+≃-is-E-searchable {_} {_} {_} {X} (f , (g , fg) , _) 𝓔x ((p' , d' , i') , ϕ')
+ = (f ans , n) , λ (y , py) → sol (g y , (transport p' (fg y ⁻¹) py))
+ where   
    p = p' ∘ f
    d = d' ∘ f
    i = i' ∘ f
    ϕ = λ x y → ϕ' (f x) (f y) ∘ ap f
    p* = ((p , d , i) , ϕ)
+   ans = ans⟨ Identity X - 𝓔x - p* ⟩
+   n   =   n⟨ Identity X - 𝓔x - p* ⟩
+   sol = sol⟨ Identity X - 𝓔x - p* ⟩
 
 all-finite-types-are-Escardó-searchable
  : {𝓦 : Universe} → {X : 𝓤 ̇ } → (Σ n ꞉ ℕ , Fin {𝓤} n ≃ X) → nonempty X 
  → Escardó-Searchable {𝓦} X
 all-finite-types-are-Escardó-searchable (n , X≃Fin) x
- = ≃-is-E-searchable X≃Fin (Fin-is-searchable n (pr₁ (pr₁ (pr₂ X≃Fin)) x))
+ = ≃-is-E-searchable X≃Fin
+     (Fin-is-searchable n (pr₁ (pr₁ (pr₂ X≃Fin)) x))
 
 ```
 
@@ -652,34 +696,21 @@ All nonempty finite types are Escardó-searchable.
                        → equivalence-relation {    𝓥'}      Y
                        → equivalence-relation {𝓥 ⊔ 𝓥'} (X × Y)
 _≣_     (×-equivalence-relation A B)
- (x₁ , y₁) (x₂ , y₂) = (x₁ ≣x x₂) × (y₁ ≣y y₂)
- where
-   _≣x_ = _≣_ A
-   _≣y_ = _≣_ B
+ (x₁ , y₁) (x₂ , y₂) = (x₁ ≣⟨ A ⟩ x₂) × (y₁ ≣⟨ B ⟩ y₂)
 ≣-refl  (×-equivalence-relation A B)
- (x₁ , y₁) = ≣x-refl x₁ , ≣y-refl y₁
- where
-   ≣x-refl = ≣-refl A
-   ≣y-refl = ≣-refl B
+ (x₁ , y₁) = ≣-refl A x₁ , ≣-refl B y₁
 ≣-sym   (×-equivalence-relation A B)
- (x₁ , y₁) (x₂ , y₂) (ex , ey) = ≣x-sym x₁ x₂ ex , ≣y-sym y₁ y₂ ey
- where
-   ≣x-sym = ≣-sym A
-   ≣y-sym = ≣-sym B
+ (x₁ , y₁) (x₂ , y₂) (ex , ey) = ≣-sym A x₁ x₂ ex , ≣-sym B y₁ y₂ ey
 ≣-trans (×-equivalence-relation A B)
  (x₁ , y₁) (x₂ , y₂) (x₃ , y₃) (ex₁ , ey₁) (ex₂ , ey₂)
-  = ≣x-trans x₁ x₂ x₃ ex₁ ex₂ , ≣y-trans y₁ y₂ y₃ ey₁ ey₂
-  where
-   ≣x-trans = ≣-trans A
-   ≣y-trans = ≣-trans B
+ = ≣-trans A x₁ x₂ x₃ ex₁ ex₂ , ≣-trans B y₁ y₂ y₃ ey₁ ey₂
 
 ×-equivalence-relation-elim-l
  : {𝓥 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
  → equivalence-relation {𝓥} (X × Y)
  → equivalence-relation {𝓥 ⊔ 𝓤'}  X
 _≣_     (×-equivalence-relation-elim-l AB)
- x₁ x₂ = ∀ y → (x₁ , y) ≣AB (x₂ , y)
- where _≣AB_ = _≣_ AB
+ x₁ x₂ = ∀ y → (x₁ , y) ≣⟨ AB ⟩ (x₂ , y)
 ≣-refl  (×-equivalence-relation-elim-l AB)
  x₁ y = ≣-refl AB (x₁ , y)
 ≣-sym   (×-equivalence-relation-elim-l AB)
@@ -695,12 +726,9 @@ head-predicate* : {𝓦 𝓥 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇
                     (×-equivalence-relation-elim-l AB)
 head-predicate* AB ((p' , d' , i') , ϕ') y = (p , d , i) , ϕ
  where
-   p : _ → _ ̇
-   p x = p' (x , y)
-   d : everywhere-decidable p
-   d x = d' (x , y)
-   i : everywhere-prop-valued p
-   i x = i' (x , y)
+   p = p' ∘ (_, y)
+   d = d' ∘ (_, y)
+   i = i' ∘ (_, y)
    ϕ : ×-equivalence-relation-elim-l AB informs (p , d , i)
    ϕ x₁ x₂ x≣y = ϕ' (x₁ , y) (x₂ , y) (x≣y y)
                            
@@ -713,13 +741,9 @@ fst-predicate : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤
               → decidable-predicate-informed-by {𝓦} A
 fst-predicate A B ((p' , d' , i') , ϕ') y = (p , d , i) , ϕ
  where
-   open equivalence-relation B
-   p : _ → _ ̇
-   p x = p' (x , y)
-   d : everywhere-decidable p
-   d x = d' (x , y)
-   i : everywhere-prop-valued p
-   i x = i' (x , y)
+   p = p' ∘ (_, y)
+   d = d' ∘ (_, y)
+   i = i' ∘ (_, y)
    ϕ : A informs (p , d , i)
    ϕ x₁ x₂ x₁≈x₂ = ϕ' (x₁ , y) (x₂ , y) (x₁≈x₂ , ≣-refl B y)
 
@@ -727,15 +751,13 @@ Searcher-preserves-equivalence-relation
  : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
  → (A : equivalence-relation {𝓥 } X)
  → (B : equivalence-relation {𝓥'} Y)
- → ((a : X) → decidable-predicate-informed-by {𝓦} B)
+ → ((x : X) → decidable-predicate-informed-by {𝓦} B)
  → Searchable {𝓦} B
  → 𝓥 ⊔ 𝓥' ⊔ 𝓤 ̇ 
 Searcher-preserves-equivalence-relation
  {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B ps 𝓔y
- = (x₁ x₂ : X) → x₁ ≣x x₂ → pr₁ (pr₁ (𝓔y (ps x₁))) ≣y pr₁ (pr₁ (𝓔y (ps x₂)))
- where
-   _≣x_ = _≣_ A
-   _≣y_ = _≣_ B   
+ = (x₁ x₂ : X) → x₁ ≣⟨ A ⟩ x₂ → ans⟨ ps x₁ ⟩ ≣⟨ B ⟩ ans⟨ ps x₂ ⟩
+ where ans⟨_⟩ = ans⟨ B - 𝓔y -_⟩
 
 snd-predicate : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
               → (A : equivalence-relation {𝓥 } X)
@@ -746,19 +768,17 @@ snd-predicate : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤
               → Searcher-preserves-equivalence-relation {𝓦} B A
                   (fst-predicate A B p) 𝓔x
               → decidable-predicate-informed-by {𝓦} B
-snd-predicate A B ((p' , d' , i') , ϕ') 𝓔x preserves = (p , d , i) , ϕ
+snd-predicate {_} {_} {_} {_} {_} {X} {Y}
+ A B ((p' , d' , i') , ϕ') 𝓔x preserves = (p , d , i) , ϕ
  where
-   open equivalence-relation A
-   P : _ → _
-   P y = pr₁ (pr₁ (𝓔x (fst-predicate A B ((p' , d' , i') , ϕ') y)))
-   p : _ → _ ̇
-   p y = p' (P y , y)
-   d : everywhere-decidable p
-   d y = d' (P y , y)
-   i : everywhere-prop-valued p
-   i y = i' (P y , y)
+   ans-× : Y → X × Y
+   ans-× y = ans⟨ A - 𝓔x - fst-predicate A B ((p' , d' , i') , ϕ') y ⟩
+           , y
+   p = p' ∘ ans-×
+   d = d' ∘ ans-×
+   i = i' ∘ ans-×
    ϕ : B informs (p , d , i)
-   ϕ y₁ y₂ y₁≈y₂ = ϕ' (P y₁ , y₁) (P y₂ , y₂)
+   ϕ y₁ y₂ y₁≈y₂ = ϕ' (ans-× y₁) (ans-× y₂)
                       (preserves y₁ y₂ y₁≈y₂ , y₁≈y₂)
    
 ×-is-searchable-l : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
@@ -770,21 +790,17 @@ snd-predicate A B ((p' , d' , i') , ϕ') 𝓔x preserves = (p , d , i) , ϕ
                            B A (fst-predicate A B p) 𝓔x)
                   → Searchable {𝓦} (×-equivalence-relation A B)
 ×-is-searchable-l {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B 𝓔x 𝓔y preserves p
- = ((x₀→ y₀ , y₀) , {!!})
- , λ ((x , y) , pxy) → γy (y , (γx y (x , pxy)))
+ = ((x₀→ y₀ , y₀) , nx→ y₀ +ℕ ny)
+ , λ ((x , y) , pxy) → γy (y , (γx→ y (x , pxy)))
  where
-   px : Y → Σ (A informs_)
-   px y = fst-predicate A B p y
-   py : Σ (B informs_)
+   px = fst-predicate A B p
    py = snd-predicate A B p 𝓔x (preserves p)
-   x₀→ : Y → X
-   x₀→ y = pr₁ (pr₁ (𝓔x (px y)))
-   y₀ : Y
-   y₀ = pr₁ (pr₁ (𝓔y py))
-   γx : (y : Y) → Σ p⟨ A - px y ⟩ → p⟨ A - px y ⟩ (x₀→ y)
-   γx y = pr₂ (𝓔x (px y))
-   γy : Σ p⟨ B - py ⟩ → p⟨ B - py ⟩ y₀
-   γy = pr₂ (𝓔y py)
+   x₀→ = λ y → ans⟨ A - 𝓔x - px y ⟩
+   nx→ = λ y →   n⟨ A - 𝓔x - px y ⟩
+   γx→ = λ y → sol⟨ A - 𝓔x - px y ⟩
+   y₀ = ans⟨ B - 𝓔y - py ⟩
+   ny =   n⟨ B - 𝓔y - py ⟩
+   γy = sol⟨ B - 𝓔y - py ⟩
 
 swap : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → X × Y → Y × X
 swap (x , y) = y , x
@@ -799,7 +815,7 @@ swap (x , y) = y , x
                   → Searchable {𝓦} (×-equivalence-relation A B)
 ×-is-searchable-r {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B 𝓔x 𝓔y
  preserves ((p' , d' , i') , ϕ')
- = (swap yx₀ , {!!}) , λ ((x , y) , p'xy) → pr₂ (γ p) ((y , x) , p'xy)
+ = (swap ans , {!!}) , λ ((x , y) , p'xy) → sol ((y , x) , p'xy)
  where
    -- ≣-sym = ≣-sym (×-equivalence-relation A B)
    p : decidable-predicate-informed-by {𝓦}
@@ -807,9 +823,10 @@ swap (x , y) = y , x
    p = (p' ∘ swap , d' ∘ swap , i' ∘ swap)
      , λ (x₁ , y₁) (x₂ , y₂) (x≣ , y≣)
      → ϕ' (y₁ , x₁) (y₂ , x₂) (y≣ , x≣)
-   γ = ×-is-searchable-l B A 𝓔y 𝓔x preserves
-   yx₀ : Y × X
-   yx₀ = pr₁ (pr₁ (γ p))
+   𝓔yx = ×-is-searchable-l B A 𝓔y 𝓔x preserves
+   ans = ans⟨ ×-equivalence-relation B A - 𝓔yx - p ⟩
+   n   =   n⟨ ×-equivalence-relation B A - 𝓔yx - p ⟩ 
+   sol = sol⟨ ×-equivalence-relation B A - 𝓔yx - p ⟩
 
 ×-is-searchable : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
                 → (A : equivalence-relation {𝓥 } X)
@@ -832,7 +849,8 @@ Identity-always-preserves
  → (𝓔y : Searchable {𝓦} B)
  → (p : (x : X) → decidable-predicate-informed-by {𝓦} B)
  → Searcher-preserves-equivalence-relation {𝓦} (Identity X) B p 𝓔y
-Identity-always-preserves B 𝓔y p x x refl = ≣-refl B (pr₁ (pr₁ (𝓔y (p x))))
+Identity-always-preserves B 𝓔y p x x refl
+ = ≣-refl B (ans⟨ B - 𝓔y - p x ⟩)
 
 {-
 splittable : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
@@ -847,16 +865,46 @@ splittable {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} C
 record pred-equivalence {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
   (A : equivalence-relation {𝓥 } X)
   (B : equivalence-relation {𝓥'} Y)  : 𝓤 ⊔ 𝓤' ⊔ 𝓥 ⊔ 𝓥' ⁺  ̇ where
-  _≣A_ = _≣_ A
-  _≣B_ = _≣_ B
   field
     f : X → Y
     g : Y → X
-    trans-A : (x : X) → x ≣A ((g ∘ f) x)
-    trans-B : (y : Y) → y ≣B ((f ∘ g) y)
-    lift-AB : (x₁ x₂ : X) → x₁ ≣A x₂ → (f x₁) ≣B (f x₂)
-    lift-BA : (y₁ y₂ : Y) → y₁ ≣B y₂ → (g y₁) ≣A (g y₂)
+    trans-A : (x : X) → x ≣⟨ A ⟩ g (f x)
+    trans-B : (y : Y) → y ≣⟨ B ⟩ f (g y)
+    lift-AB : (x₁ x₂ : X) → x₁ ≣⟨ A ⟩ x₂ → (f x₁) ≣⟨ B ⟩ (f x₂)
+    lift-BA : (y₁ y₂ : Y) → y₁ ≣⟨ B ⟩ y₂ → (g y₁) ≣⟨ A ⟩ (g y₂)
 
+open pred-equivalence
+
+convert-predicates
+ : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+ → (A : equivalence-relation {𝓥 } X)
+ → (B : equivalence-relation {𝓥'} Y)
+ → (FG : pred-equivalence A B)
+ → (pdiϕA  : decidable-predicate-informed-by {𝓦} A)
+ → Σ pdiϕB ꞉ decidable-predicate-informed-by {𝓦} B
+ , ((x : X) → p⟨ A - pdiϕA ⟩ x → p⟨ B - pdiϕB ⟩ (f FG x))
+convert-predicates A B FG ((p' , d' , i') , ϕ')
+ = ((p' ∘ g FG , d' ∘ g FG , i' ∘ g FG)
+ , (λ y₁ y₂ y₁≣y₂ → ϕ' (g FG y₁) (g FG y₂) (lift-BA FG y₁ y₂ y₁≣y₂)))
+ , (λ y → ϕ' y (g FG (f FG y)) (trans-A FG y))
+
+convert-searchable
+ : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+ → (A : equivalence-relation {𝓥 } X)
+ → (B : equivalence-relation {𝓥'} Y)
+ → (FG : pred-equivalence A B)
+ → Searchable {𝓦} B
+ → Searchable {𝓦} A
+convert-searchable {𝓦} A B FG 𝓔y pdiϕ
+ = (g FG ans⟨ B - 𝓔y - p* ⟩ , n⟨ B - 𝓔y - p* ⟩)
+ , λ (x , px) → sol⟨ B - 𝓔y - p* ⟩ (f FG x , pγ x px)
+ where
+   conv-preds = convert-predicates {𝓦} A B FG pdiϕ
+   p* = pr₁ conv-preds
+   pγ = pr₂ conv-preds
+```
+
+```agda
 _≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
 (α ≈ β) n = (i : ℕ) → i <ℕ n → α i ≡ β i
 
@@ -871,24 +919,57 @@ _≣_     (sequence-relation-≈' X δ)
 ≣-trans (sequence-relation-≈' X δ)
  α β ζ α≈β β≈ζ = λ i i<δ → α≈β i i<δ ∙ β≈ζ i i<δ
 
-{-
-sequence-relation-≈ : (X : 𝓤 ̇ ) → equivalence-relation {𝓤} (ℕ → X)
-_≣_ (sequence-relation-≈ X)
- α β = Σ δ ꞉ ℕ , (α ≈ β) (succ δ)
-≣-refl (sequence-relation-≈ X)
- α                         = 0 , (λ i x → refl)
-≣-sym (sequence-relation-≈ X)
- α β   (n , α≈β)           = n , (λ i x → α≈β i x ⁻¹) 
-≣-trans (sequence-relation-≈ X)
- α β ζ (n , α≈β) (m , βαζ) = {!!} , {!!}
--}
-
+-- sequence-relation-≈ should be countable union of sequence-relation-≈'
 sequence-relation-c : (X : 𝓤 ̇ ) (δ : ℕ)
                     → equivalence-relation {𝓤₀} (ℕ → X)
 sequence-relation-c X δ = δ -Close-via {!!}
 
+split-ℕ→ : {X : 𝓤 ̇ } → (δ : ℕ)
+                     → pred-equivalence
+                         (sequence-relation-≈' X (succ δ))
+                         (×-equivalence-relation
+                           (Identity X)
+                           (sequence-relation-≈' X δ))
+f (split-ℕ→ δ) α         = head α , tail α
+g (split-ℕ→ δ) (hα , tα) = hα :: tα
+trans-A (split-ℕ→ δ) α 0        _ = refl
+trans-A (split-ℕ→ δ) α (succ i) _ = refl
+trans-B (split-ℕ→ δ) (hα , tα)    = refl , (λ i _ → refl)
+lift-AB (split-ℕ→ δ) α β α≈β
+ = α≈β 0 ⋆ , λ i → α≈β (succ i)
+lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) 0 _
+ = hα≡hβ
+lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ i)
+ = tα≡tβ i
 
 
+ℕ→D-Searchable : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
+               → Escardó-Searchable {𝓦} X
+               → (δ : ℕ)
+               → Searchable {𝓦} (sequence-relation-≈' X δ)
+ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔x 0 ((p , d , i) , ϕ)
+ = ((λ i → ans⟨ Identity X - 𝓔x - tp , Id-informs-everything tp ⟩) , 0)
+ , (λ (α , pα) → ϕ α _ (λ _ ()) pα)
+ where
+   tp = trivial-predicate X
+ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔x (succ δ)
+ = convert-searchable
+     (sequence-relation-≈' X (succ δ))
+     (×-equivalence-relation (Identity X) (sequence-relation-≈' X δ))
+     (split-ℕ→ δ)
+     (×-is-searchable (Identity X) (sequence-relation-≈' X δ)
+       𝓔x (ℕ→D-Searchable 𝓔x δ)
+       (inr λ p → Identity-always-preserves {𝓦} {𝓤}
+         (sequence-relation-≈' X δ)
+         (ℕ→D-Searchable 𝓔x δ)
+         (fst-predicate (sequence-relation-≈' X δ) (Identity X) p)))
+
+-- (fst-predicate (sequence-relation-≈' X δ) (Identity X) p)
+
+{- (λ p → Identity-always-preserves
+                     (sequence-relation-≈' X δ)
+                     (ℕ→D-Searchable 𝓔x δ)
+                     (λ x → {!!})))) -}
 
 ```
 
