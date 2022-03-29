@@ -88,3 +88,25 @@ even-or-odd? (negsucc (succ (succ x))) = even-or-odd? (negsucc x)
 
 _−ℤ_ : ℤ → ℤ → ℤ
 x −ℤ y = x +ℤ (−ℤ y)
+
+ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
+ℤ[ l , u ] = Σ z ꞉ ℤ , (l ≤ℤ z ≤ℤ u)
+
+ℤ[_,_]-succ : (l u : ℤ) → ℤ[ l , u ] → ℤ[ l , succℤ u ]
+ℤ[ l , u ]-succ (z , l≤z , z≤u) = z , l≤z , ℤ≤-trans z u (succℤ u) z≤u (1 , refl) 
+
+≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ≡ y
+≤ℤ-antisym x y (x≤y , y≤x) with ℤ≤-split x y x≤y | ℤ≤-split y x y≤x
+... | inl (n , γ) | inl (m , δ)
+ = 𝟘-elim (ℤ-equal-not-less-than x (ℤ<-trans x y x (n , γ) (m , δ)))
+... | inl  _  | inr y≡x = y≡x ⁻¹
+... | inr x≡y | _       = x≡y
+
+≤ℤ-back : ∀ x y → x <ℤ y → x ≤ℤ predℤ y
+≤ℤ-back x .(succℤ x +ℤ pos n) (n , refl)
+ = ℤ≤-trans x (x +pos n) (predℤ (succℤ x +pos n))
+     (n , refl)
+     (transport ((x +pos n) ≤ℤ_)
+       (predsuccℤ (x +pos n) ⁻¹
+       ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
+       (ℤ≤-refl (x +pos n)))
