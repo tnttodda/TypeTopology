@@ -3,8 +3,12 @@
 
 open import TernaryBoehmRealsPrelude
 open import UF-Equiv
+open import UF-FunExt
+open import UF-Subsingletons
 
-module TernaryBoehmReals where
+module TernaryBoehmReals (fe : FunExt) (pe : PropExt) where
+
+open import SearchableTypes fe pe
 
 ```
 
@@ -368,8 +372,8 @@ where c(x , y) : ℕ∞ is the value of the discrete-sequence closeness
 function for x and y.
 
 ```
-_≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
-(α ≈ β) n = (i : ℕ) → i <ℕ n → α n ≡ β n
+_≈'_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
+(α ≈' β) n = (i : ℕ) → i <ℕ n → α n ≡ β n
 ```
 
 From the canonical closeness function on (ℕ → ℤ), we can define one
@@ -405,10 +409,10 @@ When defining uniformly continuous predicates on signed-digits,
 we utilised the discrete-sequence closeness function.
 
 ```
-uc-d-predicate-on-seqs : {X : 𝓤 ̇ } → (p : (ℕ → X) → 𝓥 ̇ ) → (𝓤 ⊔ 𝓥) ̇ 
-uc-d-predicate-on-seqs {𝓤} {𝓥} {X} p
- = ((α : ℕ → X) → decidable (p α))
- × (Σ δ ꞉ ℕ , ((α β : ℕ → X) → (α ≈ β) δ → p α ⇔ p β))
+uc-d-predicates-on-seqs : {𝓦 𝓤 : Universe} → {X : 𝓤 ̇ } → (δ : ℕ) → (𝓦 ⁺) ⊔ 𝓤 ̇
+uc-d-predicates-on-seqs {𝓦} {𝓤} {X} δ
+ = decidable-predicate-informed-by {𝓦}
+     (sequence-relation-≈' (λ _ → X) δ)
 ```
 
 We call the δ : ℕ of such a predicate its 'modulus of continuity'.
@@ -424,11 +428,32 @@ code. So an "equivalent" predicate should only need to satisfy the
 following.
 
 ```
-special-predicate-on-𝕂 : (δ : ℤ) → 𝓤 ⁺ ̇
-special-predicate-on-𝕂 {𝓤} δ
- = Σ p ꞉ (𝕂 → 𝓤 ̇ )
- , ((x : 𝕂) → decidable (p x))
- × ((α β : 𝕂) → ⟨ α ⟩ δ ≡ ⟨ β ⟩ δ → p α ⇔ p β)
+open equivalence-relation
+
+ℤ→ℤ-equivalence-relation : (δ : ℤ) → equivalence-relation {𝓤₀} (ℤ → ℤ)
+_≣_     (ℤ→ℤ-equivalence-relation δ) x y   = x δ ≡ y δ
+≣-refl  (ℤ→ℤ-equivalence-relation δ) x     = refl
+≣-sym   (ℤ→ℤ-equivalence-relation δ) x y   = _⁻¹
+≣-trans (ℤ→ℤ-equivalence-relation δ) x y z = _∙_
+
+pr₁-equivalence-relation : {X : 𝓤 ̇ } {Y : X → 𝓤' ̇ }
+                         → equivalence-relation {𝓥} X
+                         → equivalence-relation {𝓥} (Σ Y)
+_≣_     (pr₁-equivalence-relation A) x y   = pr₁ x ≣⟨ A ⟩ pr₁ y
+≣-refl  (pr₁-equivalence-relation A) x     = ≣-refl  A (pr₁ x)
+≣-sym   (pr₁-equivalence-relation A) x y   = ≣-sym   A (pr₁ x) (pr₁ y)
+≣-trans (pr₁-equivalence-relation A) x y z = ≣-trans A (pr₁ x) (pr₁ y) (pr₁ z)
+
+𝕂-equivalence-relation : (δ : ℤ) → equivalence-relation {𝓤₀} 𝕂
+𝕂-equivalence-relation δ = pr₁-equivalence-relation (ℤ→ℤ-equivalence-relation δ)
+
+𝕂c-equivalence-relation : ((k , i) : ℤ × ℤ) (δ : ℤ)
+                        → equivalence-relation {𝓤₀} (CompactInterval (k , i))
+𝕂c-equivalence-relation (k , i) δ = pr₁-equivalence-relation (𝕂-equivalence-relation δ)
+
+special-predicate-on-𝕂 : {𝓦 : Universe} → (δ : ℤ) → (𝓦 ⁺) ̇ 
+special-predicate-on-𝕂 {𝓦} δ
+ = decidable-predicate-informed-by {𝓦} (𝕂-equivalence-relation δ)
 ```
 
 Relationships:
@@ -436,127 +461,81 @@ Relationships:
  * c (α , β) ≼ (succ δ)          → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
  * ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → pc (α , β) ≼ δ ?
 
-## Special predicates on K relate to predicates on I
+## Special predicates on K relate to predicates on ℤ × ℤ
 
 ```
-special-predicate-on-I : (δ : ℤ) → 𝓤 ⁺ ̇
-special-predicate-on-I {𝓤} δ
- = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
- , ((k : ℤ) → decidable (p (k , δ)))
+special-predicate-on-I : {𝓦 : Universe} → (δ : ℤ) → (𝓦 ⁺) ̇
+special-predicate-on-I {𝓦} δ
+ = decidable-predicate-informed-by {𝓦} (Identity (ℤ × ℤ))
 
-special-predicate-I-to-𝕂 : {𝓤 : Universe} → (δ : ℤ)
-                         → special-predicate-on-I {𝓤} δ
-                         → special-predicate-on-𝕂 {𝓤} δ
-special-predicate-I-to-𝕂 {𝓤} δ (p , d) = p* , d* , ϕ
+special-predicate-I-to-𝕂 : {𝓦 : Universe} → (δ : ℤ)
+                         → special-predicate-on-I {𝓦} δ
+                         → special-predicate-on-𝕂 {𝓦} δ
+special-predicate-I-to-𝕂 {𝓦} δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
  where
-   p* : 𝕂 → 𝓤 ̇
-   p* x = p (⟨ x ⟩ δ , δ) 
-   d* : (x : 𝕂) → decidable (p* x)
-   d* x = d (⟨ x ⟩ δ) 
-   ϕ : (α β : 𝕂) → ⟨ α ⟩ δ ≡ ⟨ β ⟩ δ
-                 → p (⟨ α ⟩ δ , δ) ⇔ p (⟨ β ⟩ δ , δ)
-   ϕ α β αδ≡βδ = transport (p ∘ (_, δ))  αδ≡βδ
-               , transport (p ∘ (_, δ)) (αδ≡βδ ⁻¹)
+   f = (_, δ) ∘ (λ - → - δ) ∘ ⟨_⟩
+   p = p' ∘ f
+   d = d' ∘ f
+   i = i' ∘ f
+   ϕ = λ x y x≣y → ϕ' (f x) (f y) (ap (_, δ) x≣y)
+
+special-predicate-𝕂-to-I : (δ : ℤ)
+                         → special-predicate-on-𝕂 {𝓦} δ
+                         → special-predicate-on-I {𝓦} δ
+special-predicate-𝕂-to-I δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
+ where
+   p = p' ∘ build-via
+   d = d' ∘ build-via
+   i = i' ∘ build-via
+   ϕ = λ x y → transport p
 ```
-
-special-predicate-𝕂-to-I : (δ : ℕ)
-                         → special-predicate-on-𝕂 δ → special-predicate-on-I δ
-special-predicate-𝕂-to-I δ (p* , d* , ϕ) = p , d
- where
-   p : ℤ × ℤ → 𝓤 ̇ 
-   p (k , i) = p* (build-via (k , i))
-   d : (k : ℤ) → decidable (p* (build-via (k , δ))) 
-   d  k      = d* (build-via (k , δ))
 
 But these are not searchable!
 
 ## Special predicates on CompactIntervals relate to searchable predicates on I
 
 ```
-special-predicate-on-𝕂c : ((k , i) : ℤ × ℤ) (δ : ℤ) → 𝓤 ⁺ ̇ 
-special-predicate-on-𝕂c {𝓤} (k , i) δ
- = Σ p ꞉ (CompactInterval (k , i) → 𝓤 ̇ )
- , ((x : CompactInterval (k , i)) → decidable (p x))
- × ((α β : CompactInterval (k , i))
-   → ⟨ ι α ⟩ δ ≡ ⟨ ι β ⟩ δ → p α ⇔ p β)
 
-special-predicate-on-Ic : (δ l u : ℤ) → 𝓤 ⁺ ̇ 
-special-predicate-on-Ic {𝓤} δ l u
- = Σ p ꞉ (ℤ × ℤ → 𝓤 ̇ )
- , ((k : ℤ) → l ≤ℤ k ≤ℤ u → decidable (p (k , δ)))
+special-predicate-on-𝕂c : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ) → (𝓦 ⁺) ̇ 
+special-predicate-on-𝕂c {𝓦} (k , i) δ
+ = decidable-predicate-informed-by {𝓦} (𝕂c-equivalence-relation (k , i) δ)
 
+special-predicate-on-Ic : {𝓦 : Universe} → (δ l u : ℤ) → (𝓦 ⁺) ̇ 
+special-predicate-on-Ic {𝓦} δ l u
+ = decidable-predicate-informed-by {𝓦} (Identity (ℤ[ l , u ]))
+
+special-predicate-Ic-to-𝕂c : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
+                            → special-predicate-on-Ic {𝓦} δ
+                                (lower (k , i) δ) (upper (k , i) δ)
+                            → special-predicate-on-𝕂c {𝓦} (k , i) δ
+special-predicate-Ic-to-𝕂c {𝓦} (k , q) δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
+ where
+   f = λ α → ⟨ ι α ⟩ δ , ci-lower-upper (k , q) α δ
+   p = p' ∘ f
+   d = d' ∘ f
+   i = i' ∘ f
+   ϕ = λ x y x≣y → ϕ' (f x) (f y) (to-subtype-≡ ≤ℤ²-is-prop x≣y)
+
+special-predicate-𝕂c-to-Ic : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
+                            → special-predicate-on-𝕂c {𝓦} (k , i) δ
+                            → special-predicate-on-Ic {𝓦} δ
+                                (lower (k , i) δ) (upper (k , i) δ)
+special-predicate-𝕂c-to-Ic {𝓦} (k , q) δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
+ where
+   f = {!!} -- build-via-via
+   p = p' ∘ f
+   d = d' ∘ f
+   i = i' ∘ f
+   ϕ = λ x y → {!!}
 ```
 
 These are searchable.
 
 ```
+{-
 η : (n : ℤ) → (x : 𝕂) → CompactInterval (⟨ x ⟩ n , n)
 η n = _, refl
-```
-
-TODO
-
-```
-ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
-ℤ[ l , u ] = Σ c ꞉ ℤ , l ≤ℤ c ≤ℤ u
-
-record equivalence-relation (X : 𝓤 ̇ ) : 𝓤 ⊔ 𝓥 ⁺ ̇  where
-  field
-    _≣_ : X → X → 𝓥 ̇
-    ≣-refl  : (x     : X) → x ≣ x
-    ≣-sym   : (x y   : X) → x ≣ y → y ≣ x
-    ≣-trans : (x y z : X) → x ≣ y → y ≣ z → x ≣ z
-
-preds-that-satisfy : {𝓦 𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
-                   → equivalence-relation {𝓤} {𝓥} X
-                   → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ⁺ ̇ 
-preds-that-satisfy {𝓦} {𝓤} {𝓥} {X} A
- = Σ p ꞉ (X → 𝓦 ̇  )
- , ((x : X) → decidable (p x))
- × ((x y : X) → x ≣ y → p x ⇔ p y)
- where open equivalence-relation A
-
-searchable : {𝓤 𝓥 𝓦 : Universe} (X : 𝓤 ̇ )
-           → equivalence-relation {𝓤} {𝓥} X
-           → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ̇
-searchable {𝓤} {𝓥} {𝓦} X A
- = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓦} A
- , (Σ x ꞉ X , (Σ p → p x))
-
-all-predicates : (X : 𝓤 ̇ ) → equivalence-relation {𝓤} {𝓤} X
-equivalence-relation._≣_     (all-predicates X) = _≡_
-equivalence-relation.≣-refl  (all-predicates X) x     = refl
-equivalence-relation.≣-sym   (all-predicates X) x y   = _⁻¹
-equivalence-relation.≣-trans (all-predicates X) x y z = _∙_
-
-all-satisfy-all : {X : 𝓤 ̇ } → (p : X → 𝓥 ̇ ) → ((x : X) → decidable (p x))
-                → preds-that-satisfy (all-predicates X)
-all-satisfy-all p d
- = p , d , λ x y x≡y → transport p x≡y , transport p (x≡y ⁻¹)
-
-≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ≡ y
-≤ℤ-antisym x y (x≤y , y≤x) with ℤ≤-split x y x≤y | ℤ≤-split y x y≤x
-... | inl (n , γ) | inl (m , δ)
- = 𝟘-elim (ℤ-equal-not-less-than x (ℤ<-trans x y x (n , γ) (m , δ)))
-... | inl  _  | inr y≡x = y≡x ⁻¹
-... | inr x≡y | _       = x≡y
-
-≤ℤ-back : ∀ x y → x <ℤ y → x ≤ℤ predℤ y
-≤ℤ-back x .(succℤ x +ℤ pos n) (n , refl)
- = ℤ≤-trans x (x +pos n) (predℤ (succℤ x +pos n))
-     (n , refl)
-     (transport ((x +pos n) ≤ℤ_)
-       (predsuccℤ (x +pos n) ⁻¹
-       ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
-       (ℤ≤-refl (x +pos n)))
-
-ℤ[_,_]-unpred : (l u : ℤ) → ℤ[ l , predℤ u ] → ℤ[ l , u ]
-ℤ[_,_]-unpred l u (x , l≤x , n , x≤pu)
- = x , l≤x , succ n , (ap succℤ x≤pu ∙ succpredℤ u)
-
-ℤ[_,_]-pred : (l u : ℤ) → ((x , _) : ℤ[ l , u ]) → x <ℤ u → ℤ[ l , predℤ u ]
-ℤ[ l , u ]-pred (x , l≤x , _) x<u = x , l≤x , (≤ℤ-back x u x<u)
-
+-}
 ```
 
 The Ic predicates are searchable, and are logically equivalent to the 𝕂c
@@ -564,106 +543,16 @@ predicates.
 
 ```
 
-ℤ[_,_]-searchable' : {𝓦 : Universe} → (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
-                   → searchable {_} {_} {𝓦} (ℤ[ l , u ]) (all-predicates _)
-ℤ[ u , u ]-searchable' zero refl (p , d , ϕ)
- = (u , ℤ≤-refl u , ℤ≤-refl u)
- , λ (x , pu) → transport p
-     (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym u (pr₁ x) (pr₂ x) ⁻¹)) pu
-ℤ[ l , u ]-searchable' (succ n) l+n≡u (p , d , ϕ)
- = Cases (d (u , ((succ n , l+n≡u) , ℤ≤-refl u)))
-     (λ  pu → _ , (λ _ → pu))
-     (λ ¬pu → ℤ[ l , u ]-unpred k , λ ((k₀ , (l≤k₀ , k₀≤u)) , pk₀)
-      → Cases (ℤ≤-split k₀ u k₀≤u)
-          (λ k<u → γ (ℤ[ l , u ]-pred (k₀ , (l≤k₀ , k₀≤u)) k<u
-                 , transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pk₀))
-          (λ k≡u → 𝟘-elim (¬pu (transport p (to-subtype-≡ ≤ℤ²-is-prop k≡u) pk₀))))
- where
-   IH = ℤ[ l , predℤ u ]-searchable' n (succℤ-lc (l+n≡u ∙ succpredℤ u ⁻¹))
-          (all-satisfy-all (p ∘ ℤ[ l , u ]-unpred) (d ∘ ℤ[ l , u ]-unpred))
-   k = pr₁ IH
-   γ = pr₂ IH
+SE : setoid-equiv ? ?
+SE = ?
 
 ```
 
 Therefore, 𝕂c predicates are searchable in two ways: directly, or
-via the isomorphism.
+via the setoid equivalence.
 
 ```
-record predicate-verifiers {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
-  (A : equivalence-relation {𝓤 } {𝓥 } X)
-  (B : equivalence-relation {𝓤'} {𝓥'} Y)  : 𝓤 ⊔ 𝓤' ⊔ 𝓥 ⊔ 𝓥' ⁺  ̇ where
-  field
-    f : X → Y
-    g : Y → X
-    trans-A : (x : X) → equivalence-relation._≣_ A x ((g ∘ f) x)
-    trans-B : (y : Y) → equivalence-relation._≣_ B y ((f ∘ g) y)
-    lift-AB : (x₁ x₂ : X) → equivalence-relation._≣_ A    x₁     x₂
-                          → equivalence-relation._≣_ B (f x₁) (f x₂)
-    lift-BA : (y₁ y₂ : Y) → equivalence-relation._≣_ B    y₁     y₂
-                          → equivalence-relation._≣_ A (g y₁) (g y₂)
 
-compact-predicates : ((k , i) : ℤ × ℤ) (δ : ℤ)
-                   → equivalence-relation {𝓤₀} {𝓤₀} (CompactInterval (k , i))
-equivalence-relation._≣_     (compact-predicates (k , i) δ) x y
- = ⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ
-equivalence-relation.≣-refl  (compact-predicates (k , i) δ) x     = refl
-equivalence-relation.≣-sym   (compact-predicates (k , i) δ) x y   = _⁻¹
-equivalence-relation.≣-trans (compact-predicates (k , i) δ) x y z = _∙_
-
-compact→ℤ : ((k , i) : ℤ × ℤ) (δ : ℤ)
-          → let l = lower (k , i) δ in
-            let u = upper (k , i) δ in
-            predicate-verifiers
-              (all-predicates ℤ[ l , u ])
-              (compact-predicates (k , i) δ)
-predicate-verifiers.f       (compact→ℤ (k , i) δ) (c , ζ)
- = pr₁ (replace (k , i) (c , δ) ζ) -- build-via
-predicate-verifiers.g       (compact→ℤ (k , i) δ) x
- = ⟨ ι x ⟩ δ , (ci-lower-upper (k , i) x δ)
-predicate-verifiers.trans-A (compact→ℤ (k , i) δ) (c , ζ)
- = to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (c , δ) ζ))
-predicate-verifiers.trans-B (compact→ℤ (k , i) δ) x
- = pr₂ (replace (k , i) (⟨ ι x ⟩ δ , δ) (ci-lower-upper (k , i) x δ)) ⁻¹
-predicate-verifiers.lift-AB (compact→ℤ (k , i) δ) x x refl
- = refl
-predicate-verifiers.lift-BA (compact→ℤ (k , i) δ) x y xδ≡yδ
- = to-subtype-≡ ≤ℤ²-is-prop xδ≡yδ
-
-natural-conversion-process-ϕ
- : {𝓤 𝓤' 𝓥 𝓥' 𝓦 : Universe}
- → {X : 𝓤 ̇ } {Y : 𝓤' ̇  }
- → (A  : equivalence-relation  {𝓤 } {𝓥 } X)
- → (B  : equivalence-relation  {𝓤'} {𝓥'} Y)
- → (FG : predicate-verifiers A B)
- → let f = predicate-verifiers.f FG in
-   let g = predicate-verifiers.g FG in
-   (Π (px , _) ꞉ preds-that-satisfy {𝓦} A
- ,  Σ (py , _) ꞉ preds-that-satisfy {𝓦} B
- , ((x : X) → px x ⇔ py (f x)))
-natural-conversion-process-ϕ A B FG
- = (λ (px , dx , ϕx) → (px ∘ g  , dx ∘ g
- , (λ y₁ y₂ By₁y₂ → ϕx (g y₁) (g y₂) (lift-BA y₁ y₂ By₁y₂)))
- , (λ x → ϕx x ((g ∘ f) x) (trans-A x)))
- where open predicate-verifiers FG
-
-something
- : {𝓤 𝓤' 𝓥 𝓥' 𝓦 : Universe}
- → {X : 𝓤 ̇ } {Y : 𝓤' ̇  }
- → (A  : equivalence-relation  {𝓤 } {𝓥 } X)
- → (B  : equivalence-relation  {𝓤'} {𝓥'} Y)
- → (FG : predicate-verifiers {𝓤 } {𝓤'} {𝓥 } {𝓥'} A B)
- → (px : preds-that-satisfy  {𝓦} A)
- → (Σ x ꞉ X , (Σ (pr₁ px) → pr₁ px x))
- → let ((py , _) , _) = natural-conversion-process-ϕ A B FG px in
-   (Σ y ꞉ Y , (Σ py → py y))
-something A B FG (px , dx , ϕx) (x , γx)
- = f x
- , λ (y , pyy) → pr₁ (γy x) (γx (g y , pr₂ (γy (g y))
-                   (pr₁ (ϕx (g y) (g (f (g y))) (trans-A (g y))) pyy)))
- where open predicate-verifiers FG
-       open equivalence-relation B
-       γy = pr₂ (natural-conversion-process-ϕ A B FG (px , dx , ϕx))
 ```
 
 
@@ -672,50 +561,6 @@ something A B FG (px , dx , ϕx) (x , γx)
 ## Fuel
 
 ```
-searchable-fuel : {𝓤 𝓥 𝓦 : Universe} (X : 𝓤 ̇ )
-                → equivalence-relation {𝓤} {𝓥} X
-               → 𝓤 ⊔ 𝓥 ⊔ (𝓦 ⁺) ̇
-searchable-fuel {𝓤} {𝓥} {𝓦} X A
- = Π (p , d , ϕ) ꞉ preds-that-satisfy {𝓦} A
- , (Σ (x , n) ꞉ X × ℕ , (Σ p → p x))
-
-ℤ[_,_]-searchable'f : {𝓦 : Universe} → (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
-                    → searchable-fuel {_} {_} {𝓦} (ℤ[ l , u ])
-                        (all-predicates _)
-ℤ[ u , u ]-searchable'f zero refl (p , d , ϕ)
- = ((u , ℤ≤-refl u , ℤ≤-refl u) , 0)
- , λ (x , pu) → transport p
-     (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym u (pr₁ x) (pr₂ x) ⁻¹)) pu
-ℤ[ l , u ]-searchable'f (succ n) l+n≡u (p , d , ϕ)
- = Cases (d (u , ((succ n , l+n≡u) , ℤ≤-refl u)))
-     (λ  pu → (_ , 1) , (λ _ → pu))
-     (λ ¬pu → (ℤ[ l , u ]-unpred k , succ m)
-            , λ ((k₀ , (l≤k₀ , k₀≤u)) , pk₀)
-            → Cases (ℤ≤-split k₀ u k₀≤u)
-                (λ k<u → γ (ℤ[ l , u ]-pred (k₀ , (l≤k₀ , k₀≤u)) k<u
-                   , transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pk₀))
-                (λ k≡u → 𝟘-elim (¬pu (transport p
-                  (to-subtype-≡ ≤ℤ²-is-prop k≡u) pk₀))))
- where
-   IH = ℤ[ l , predℤ u ]-searchable'f n (succℤ-lc (l+n≡u ∙ succpredℤ u ⁻¹))
-          (all-satisfy-all (p ∘ ℤ[ l , u ]-unpred) (d ∘ ℤ[ l , u ]-unpred))
-   k = pr₁ (pr₁ IH)
-   m = pr₂ (pr₁ IH)
-   γ = pr₂ IH
-
-trivial-predicate
- : (l u : ℤ) → preds-that-satisfy {𝓤₀} (all-predicates (ℤ[ l , u ]))
-trivial-predicate l u = (λ _ → 𝟙) , ((λ _ → inl ⋆) , (λ _ _ _ → id , id))
-
-empty-predicate
- : (l u : ℤ) → preds-that-satisfy {𝓤₀} (all-predicates (ℤ[ l , u ]))
-empty-predicate l u = (λ _ → 𝟘) , ((λ _ → inr λ ()) , (λ _ _ _ → id , id))
-
-test0 = ℤ[ (pos 0) , (pos 3) ]-searchable'f 3 refl
-          (empty-predicate   (pos 0) (pos 3))
-
-test1 = ℤ[ (pos 0) , (pos 3) ]-searchable'f 3 refl
-          (trivial-predicate (pos 0) (pos 3))
 ```
 
 
