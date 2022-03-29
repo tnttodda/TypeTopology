@@ -906,11 +906,11 @@ convert-searchable {𝓦} A B FG 𝓔y pdiϕ
 ```
 
 ```agda
-_≈_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
+_≈_ : {X : ℕ → 𝓤 ̇ } → ((n : ℕ) → X n) → ((n : ℕ) → X n) → ℕ → 𝓤 ̇
 (α ≈ β) n = (i : ℕ) → i <ℕ n → α i ≡ β i
 
-sequence-relation-≈' : (X : 𝓤 ̇ ) → (δ : ℕ)
-                     → equivalence-relation {𝓤} (ℕ → X)
+sequence-relation-≈' : (X : ℕ → 𝓤 ̇ ) → (δ : ℕ)
+                     → equivalence-relation {𝓤} ((n : ℕ) → X n)
 _≣_     (sequence-relation-≈' X δ)
  α β = (α ≈ β) δ
 ≣-refl  (sequence-relation-≈' X δ)
@@ -925,14 +925,24 @@ sequence-relation-c : (X : 𝓤 ̇ ) (δ : ℕ)
                     → equivalence-relation {𝓤₀} (ℕ → X)
 sequence-relation-c X δ = δ -Close-via {!!}
 
-split-ℕ→ : {X : 𝓤 ̇ } → (δ : ℕ)
+hd : {X : ℕ → 𝓤 ̇ } → Π X → X 0
+hd α = α 0
+
+tl : {X : ℕ → 𝓤 ̇ } → Π X → Π (X ∘ succ)
+tl α = α ∘ succ
+
+_∷_ : {X : ℕ → 𝓤 ̇ } → X 0 → Π (X ∘ succ) → Π X
+(αₕ ∷ αₜ) 0 = αₕ
+(αₕ ∷ αₜ) (succ n) = αₜ n
+
+split-ℕ→ : {X : ℕ → 𝓤 ̇ } → (δ : ℕ)
                      → pred-equivalence
                          (sequence-relation-≈' X (succ δ))
                          (×-equivalence-relation
-                           (Identity X)
-                           (sequence-relation-≈' X δ))
-f (split-ℕ→ δ) α         = head α , tail α
-g (split-ℕ→ δ) (hα , tα) = hα :: tα
+                           (Identity (X 0))
+                           (sequence-relation-≈' (X ∘ succ) δ))
+f (split-ℕ→ δ) α         = hd α , tl α
+g (split-ℕ→ δ) (hα , tα) = hα ∷ tα
 trans-A (split-ℕ→ δ) α 0        _ = refl
 trans-A (split-ℕ→ δ) α (succ i) _ = refl
 trans-B (split-ℕ→ δ) (hα , tα)    = refl , (λ i _ → refl)
@@ -943,61 +953,50 @@ lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) 0 _
 lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ i)
  = tα≡tβ i
 
-
-ℕ→D-Searchable : {𝓦 𝓤 : Universe} {X : 𝓤 ̇ }
-               → Escardó-Searchable {𝓦} X
+ℕ→D-Searchable : {𝓦 𝓤 : Universe} {X : ℕ → 𝓤 ̇ }
+               → ((n : ℕ) → Escardó-Searchable {𝓦} (X n))
                → (δ : ℕ)
                → Searchable {𝓦} (sequence-relation-≈' X δ)
-ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔x 0 ((p , d , i) , ϕ)
- = ((λ i → ans⟨ Identity X - 𝓔x - tp , Id-informs-everything tp ⟩) , 0)
+ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔xs 0 ((p , d , i) , ϕ)
+ = ((λ i → ans⟨ Identity (X i) - 𝓔xs i - tp i , Id-informs-everything (tp i) ⟩) , 0)
  , (λ (α , pα) → ϕ α _ (λ _ ()) pα)
  where
-   tp = trivial-predicate X
-ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔x (succ δ)
- = convert-searchable
-     (sequence-relation-≈' X (succ δ))
-     (×-equivalence-relation (Identity X) (sequence-relation-≈' X δ))
-     (split-ℕ→ δ)
-     (×-is-searchable (Identity X) (sequence-relation-≈' X δ)
-       𝓔x (ℕ→D-Searchable 𝓔x δ)
-       (inr λ p → Identity-always-preserves {𝓦} {𝓤}
-         (sequence-relation-≈' X δ)
-         (ℕ→D-Searchable 𝓔x δ)
-         (fst-predicate (sequence-relation-≈' X δ) (Identity X) p)))
+   tp = trivial-predicate ∘ X
+ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔xs (succ δ)
+ = convert-searchable (sequence-relation-≈' X (succ δ))
+     (×-equivalence-relation
+       (Identity (X 0))
+       (sequence-relation-≈' (X ∘ succ) δ))
+       (split-ℕ→ δ)
+       (×-is-searchable
+         (Identity (X 0))
+         (sequence-relation-≈' (X ∘ succ) δ)
+         (𝓔xs 0)
+         (ℕ→D-Searchable (𝓔xs ∘ succ) δ)
+         (inr (λ p → Identity-always-preserves {𝓦} {𝓤}
+           (sequence-relation-≈' (X ∘ succ) δ)
+           (ℕ→D-Searchable (𝓔xs ∘ succ) δ)
+           (fst-predicate
+             (sequence-relation-≈' (X ∘ succ) δ)
+             (Identity (X 0)) p))))
 
-ℤ[_,_] : ℤ → ℤ → 𝓤₀ ̇
-ℤ[ l , u ] = Σ z ꞉ ℤ , (l ≤ℤ z ≤ℤ u)
-
-ℤ[_,_]-succ : (l u : ℤ) → ℤ[ l , u ] → ℤ[ l , succℤ u ]
-ℤ[ l , u ]-succ (z , l≤z , z≤u) = z , l≤z , ℤ≤-trans z u (succℤ u) z≤u (1 , refl) 
-
-≤ℤ-antisym : (z l : ℤ) → l ≤ℤ z ≤ℤ l → z ≡ l
-≤ℤ-antisym z l ((n , l≤z) , (k , z≤l)) = {!!}
-
-≤ℤ-back : ∀ x y → x <ℤ y → x ≤ℤ predℤ y
-≤ℤ-back x .(succℤ x +ℤ pos n) (n , refl)
- = ℤ≤-trans x (x +pos n) (predℤ (succℤ x +pos n))
-     (n , refl)
-     (transport ((x +pos n) ≤ℤ_)
-       (predsuccℤ (x +pos n) ⁻¹
-       ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
-       (ℤ≤-refl (x +pos n)))
-
-ℤ[_,_]-searchable : (l u : ℤ) → (n : ℕ) → l +pos n ≡ u → Searchable {𝓦} (Identity ℤ[ l , u ])
+ℤ[_,_]-searchable : (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
+                  → Searchable {𝓦} (Identity ℤ[ l , u ])
 ℤ[ l , l ]-searchable 0 refl ((p , d , i) , ϕ)
  = ((l , ℤ≤-refl l , ℤ≤-refl l) , 0)
- , λ ((z , l≤z≤u) , pz) → transport p (to-subtype-≡ ≤ℤ²-is-prop (≤ℤ-antisym z l l≤z≤u)) pz
+ , λ ((z , l≤z≤u) , pz)
+   → transport p (to-subtype-≡ ≤ℤ²-is-prop ((≤ℤ-antisym l z l≤z≤u) ⁻¹)) pz
 ℤ[ l , .(succℤ (l +pos n)) ]-searchable (succ n) refl ((p , d , i) , ϕ)
  = Cases (d u*)
-      (λ  pu → (u* , 1) , (λ _ → pu))
-      (λ ¬pu → (ans , k)
-             , λ ((z , l≤z , z≤u) , pz)
-               → Cases (ℤ≤-split z u z≤u)
-                 (λ z<u → sol ((z , l≤z
-                        , transport (z ≤ℤ_) (predsuccℤ _) (≤ℤ-back z u z<u))
-                        , (transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pz)))
-                 (λ z≡u → 𝟘-elim (¬pu
-                          (transport p (to-subtype-≡ ≤ℤ²-is-prop z≡u) pz))))
+     (λ  pu → (u* , 1) , (λ _ → pu))
+     (λ ¬pu → (ans , k)
+            , λ ((z , l≤z , z≤u) , pz)
+              → Cases (ℤ≤-split z u z≤u)
+                (λ z<u → sol ((z , l≤z
+                       , transport (z ≤ℤ_) (predsuccℤ _) (≤ℤ-back z u z<u))
+                       , (transport p (to-subtype-≡ ≤ℤ²-is-prop refl) pz)))
+                (λ z≡u → 𝟘-elim (¬pu
+                         (transport p (to-subtype-≡ ≤ℤ²-is-prop z≡u) pz))))
  where
    u = succℤ (l +pos n)
    u* = u , (succ n , refl) , ℤ≤-refl u
@@ -1009,7 +1008,13 @@ lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ 
    k = pr₂ (pr₁ IH)
    sol = pr₂ IH
 
--- ℕ→Z[_,_]-
+ℕ→ℤ[_,_]-searchable : (ls us : ℕ → ℤ) → ((n : ℕ) → ls n ≤ℤ us n) → (δ : ℕ)
+                    → Searchable {𝓦} (sequence-relation-≈' (λ n → ℤ[ ls n , us n ]) δ)
+ℕ→ℤ[ ls , us ]-searchable ls≤us
+ = ℕ→D-Searchable
+     (λ n → ℤ[ ls n , us n ]-searchable (pr₁ (ls≤us n)) (pr₂ (ls≤us n)))
+
+
 
 ```
 
