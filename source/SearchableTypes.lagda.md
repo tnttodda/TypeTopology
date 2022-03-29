@@ -1,5 +1,5 @@
 ```agda
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 
 open import SpartanMLTT
@@ -8,15 +8,15 @@ open import UF-Subsingletons
 
 module SearchableTypes (fe : FunExt) (pe : PropExt) where
 
-open import Two-Properties public hiding (zero-is-not-one)
-open import NaturalsOrder public
-open import NaturalsAddition public renaming (_+_ to _+ℕ_)
-open import IntegersB public
-open import IntegersOrder public
-open import IntegersAddition public renaming (_+_ to _+ℤ_)
-open import IntegersNegation public renaming (-_  to  −ℤ_)
-open import UF-Subsingletons public
-open import NaturalsOrder public
+open import Two-Properties hiding (zero-is-not-one)
+open import NaturalsOrder
+open import NaturalsAddition renaming (_+_ to _+ℕ_)
+open import IntegersB
+open import IntegersOrder
+open import IntegersAddition renaming (_+_ to _+ℤ_)
+open import IntegersNegation renaming (-_  to  −ℤ_)
+open import UF-Subsingletons
+open import NaturalsOrder
 open import DecidableAndDetachable
 open import UF-Equiv
 open import UF-Subsingletons-FunExt
@@ -50,7 +50,6 @@ decidable-predicate : {𝓦 𝓤 : Universe} → 𝓤 ̇ → (𝓦 ⁺) ⊔ 𝓤
 decidable-predicate {𝓦} {𝓤} X
  = Σ p ꞉ (X → 𝓦 ̇ )
  , everywhere-decidable p × everywhere-prop-valued p
-
 ```
 
 Some predicates use equivalence relations to determine
@@ -71,14 +70,6 @@ open equivalence-relation
 _≣⟨_⟩_ : {𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
        → X → equivalence-relation {𝓥} X → X → 𝓥 ̇
 x ≣⟨ A ⟩ y = _≣_ A x y
-
-{-
-refl⟨_⟩ : {𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
-        → equivalence-relation {𝓥} X
-        → (x : X) → x ≣⟨ A ⟩ y
-refl⟨_⟩ = ≣-refl
--}
-
 ```
 
 The class of predicates quotiented (?) by a particular
@@ -90,7 +81,6 @@ _informs_ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
           → decidable-predicate {𝓦} X → 𝓦 ⊔ 𝓤 ⊔ 𝓥 ̇
 A informs (p , _) = ∀ x y → x ≣A y → p x → p y
  where _≣A_ = _≣_ A
-
 
 p⟨_-_⟩ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
        → (A : equivalence-relation {𝓥} X) → Σ (A informs_)
@@ -116,12 +106,11 @@ i⟨ _ - ((_ , _ , i) , _) ⟩ = i
 ϕ⟨ _ - ((_ , _ , _) , ϕ) ⟩ = ϕ
 
 decidable-predicate-informed-by
- : {𝓦 𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
+ : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
  → equivalence-relation {𝓥} X
  → 𝓤 ⊔ 𝓥 ⊔ 𝓦 ⁺ ̇ 
 decidable-predicate-informed-by {𝓦} {𝓤} {𝓥} {X} A
- = Σ p ꞉ decidable-predicate {𝓦} X
- , A informs p
+ = Σ p ꞉ decidable-predicate {𝓦} X , A informs p
 ```
 
 Trivially, identity informs every predicate.
@@ -356,11 +345,6 @@ open is-clofun
 ≼-min : ∀ x y z → x ≼ y → x ≼ z → x ≼ min y z
 ≼-min x y z x≼y x≼z n r = Lemma[a≡₁→b≡₁→min𝟚ab≡₁] (x≼y n r) (x≼z n r)
 
-≼-min2 : ∀ x y z w → x ≼ z → y ≼ w → min x y ≼ min z w
-≼-min2 x y z w x≼z y≼w n r
- = Lemma[a≡₁→b≡₁→min𝟚ab≡₁] (x≼z n (Lemma[min𝟚ab≡₁→a≡₁] r))
-                           (y≼w n (Lemma[min𝟚ab≡₁→b≡₁] r))
-
 ≼-trans : ∀ x y z → x ≼ y → y ≼ z → x ≼ z
 ≼-trans x y z p q n = q n ∘ p n
 
@@ -436,7 +420,6 @@ _≣_     (Continuous-via C) x y
 equivalence relation.
 
 ```agda
-
 0-info' : {𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
         → (C : closeness-function X)
         → (x y : X)
@@ -485,8 +468,7 @@ succ-info {𝓦} {𝓤} {X} C (p , d , i) n ι x y sn≼cxy = ι x y n≼cxy
  where
    n≼cxy : (n ↑) ≼ c C (x , y)
    n≼cxy 0 r = sn≼cxy 0 refl
-   n≼cxy (succ k) r = sn≼cxy (succ k) (pr₂ (n ↑) k r)
-   
+   n≼cxy (succ k) r = sn≼cxy (succ k) (pr₂ (n ↑) k r)   
 ```
 
 If the underlying type X is discrete, every decidable predicate is
@@ -534,7 +516,6 @@ decidable-discrete-predicate-≃ n ds
  = to-subtype-≃ (λ p → (succ-close-informs-discrete n ds p)
                      , (informs-is-prop
                          (succ n -Close-via d-closeness ds) p))
-
 ```
 
 A searcher takes decidable predicates and returns something that,
@@ -544,7 +525,6 @@ It also returns a natural number denoting the number of times the
 predicate was queried.
 
 ```agda
-
 Searchable : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
            → equivalence-relation {𝓥} X
            → (𝓦 ⁺) ⊔ 𝓥 ⊔ 𝓤 ̇ 
@@ -643,7 +623,6 @@ The type Fin n is the type with n-many constructors.
 All nonempty Fin types are Escardó-searchable.
 
 ```agda
-
 Fin : ℕ → 𝓤 ̇
 Fin 0 = 𝟘
 Fin 1 = 𝟙
@@ -686,7 +665,6 @@ all-finite-types-are-Escardó-searchable
 all-finite-types-are-Escardó-searchable (n , X≃Fin) x
  = ≃-is-E-searchable X≃Fin
      (Fin-is-searchable n (pr₁ (pr₁ (pr₂ X≃Fin)) x))
-
 ```
 
 All nonempty finite types are Escardó-searchable.
@@ -816,9 +794,8 @@ swap (x , y) = y , x
                   → Searchable {𝓦} (×-equivalence-relation A B)
 ×-is-searchable-r {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} A B 𝓔x 𝓔y
  preserves ((p' , d' , i') , ϕ')
- = (swap ans , {!!}) , λ ((x , y) , p'xy) → sol ((y , x) , p'xy)
+ = (swap ans , n) , λ ((x , y) , p'xy) → sol ((y , x) , p'xy)
  where
-   -- ≣-sym = ≣-sym (×-equivalence-relation A B)
    p : decidable-predicate-informed-by {𝓦}
          (×-equivalence-relation B A)
    p = (p' ∘ swap , d' ∘ swap , i' ∘ swap)
@@ -852,8 +829,8 @@ Identity-always-preserves
  → Searcher-preserves-equivalence-relation {𝓦} (Identity X) B p 𝓔y
 Identity-always-preserves B 𝓔y p x x refl
  = ≣-refl B (ans⟨ B - 𝓔y - p x ⟩)
+```
 
-{-
 splittable : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
            → (C : closeness-function {𝓥 } X)
            → ?
@@ -861,9 +838,9 @@ splittable {𝓦} {𝓥} {𝓥'} {𝓤} {𝓤'} {X} {Y} C
  = (δ : ℕ)
  → (p : decidable-predicate-informed-by (δ -Close-via C))
  → 
--}
 
-record pred-equivalence {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+```agda
+record equiv-of-setoids {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
   (A : equivalence-relation {𝓥 } X)
   (B : equivalence-relation {𝓥'} Y)  : 𝓤 ⊔ 𝓤' ⊔ 𝓥 ⊔ 𝓥' ⁺  ̇ where
   field
@@ -874,13 +851,13 @@ record pred-equivalence {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : �
     lift-AB : (x₁ x₂ : X) → x₁ ≣⟨ A ⟩ x₂ → (f x₁) ≣⟨ B ⟩ (f x₂)
     lift-BA : (y₁ y₂ : Y) → y₁ ≣⟨ B ⟩ y₂ → (g y₁) ≣⟨ A ⟩ (g y₂)
 
-open pred-equivalence
+open equiv-of-setoids
 
 convert-predicates
  : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
  → (A : equivalence-relation {𝓥 } X)
  → (B : equivalence-relation {𝓥'} Y)
- → (FG : pred-equivalence A B)
+ → (FG : equiv-of-setoids A B)
  → (pdiϕA  : decidable-predicate-informed-by {𝓦} A)
  → Σ pdiϕB ꞉ decidable-predicate-informed-by {𝓦} B
  , ((x : X) → p⟨ A - pdiϕA ⟩ x → p⟨ B - pdiϕB ⟩ (f FG x))
@@ -893,7 +870,7 @@ convert-searchable
  : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
  → (A : equivalence-relation {𝓥 } X)
  → (B : equivalence-relation {𝓥'} Y)
- → (FG : pred-equivalence A B)
+ → (FG : equiv-of-setoids A B)
  → Searchable {𝓦} B
  → Searchable {𝓦} A
 convert-searchable {𝓦} A B FG 𝓔y pdiϕ
@@ -936,11 +913,11 @@ _∷_ : {X : ℕ → 𝓤 ̇ } → X 0 → Π (X ∘ succ) → Π X
 (αₕ ∷ αₜ) (succ n) = αₜ n
 
 split-ℕ→ : {X : ℕ → 𝓤 ̇ } → (δ : ℕ)
-                     → pred-equivalence
-                         (sequence-relation-≈' X (succ δ))
-                         (×-equivalence-relation
-                           (Identity (X 0))
-                           (sequence-relation-≈' (X ∘ succ) δ))
+         → equiv-of-setoids
+             (sequence-relation-≈' X (succ δ))
+             (×-equivalence-relation
+               (Identity (X 0))
+               (sequence-relation-≈' (X ∘ succ) δ))
 f (split-ℕ→ δ) α         = hd α , tl α
 g (split-ℕ→ δ) (hα , tα) = hα ∷ tα
 trans-A (split-ℕ→ δ) α 0        _ = refl
@@ -960,8 +937,7 @@ lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ 
 ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔xs 0 ((p , d , i) , ϕ)
  = ((λ i → ans⟨ Identity (X i) - 𝓔xs i - tp i , Id-informs-everything (tp i) ⟩) , 0)
  , (λ (α , pα) → ϕ α _ (λ _ ()) pα)
- where
-   tp = trivial-predicate ∘ X
+ where tp = trivial-predicate ∘ X
 ℕ→D-Searchable {𝓦} {𝓤} {X} 𝓔xs (succ δ)
  = convert-searchable (sequence-relation-≈' X (succ δ))
      (×-equivalence-relation
@@ -1013,9 +989,6 @@ lift-BA (split-ℕ→ δ) (hα , tα) (hβ , tβ) (hα≡hβ , tα≡tβ) (succ 
 ℕ→ℤ[ ls , us ]-searchable ls≤us
  = ℕ→D-Searchable
      (λ n → ℤ[ ls n , us n ]-searchable (pr₁ (ls≤us n)) (pr₂ (ls≤us n)))
-
-
-
 ```
 
 searcher : {𝓦 𝓥 𝓤 : Universe} {X : 𝓤 ̇ }
