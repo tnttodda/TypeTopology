@@ -46,11 +46,11 @@ defined below.
 
 ## Formal definition
 
-Therefore, an encoding of a real number is a sequence of encodings of real
+therefore, an encoding of a real number is a sequence of encodings of real
 intervals -- the restriction we add is that each brick x(n) is "below" the brick
 -- x(n+1); meaning ⟪ x(n+1) , n+1 ⟫ ⊂ ⟪ x(n) , n ⟫.
 
-Note that there are precisely three brick below each brick.
+note that there are precisely three brick below each brick.
 
 ```
 downLeft downMid downRight : ℤ → ℤ
@@ -189,7 +189,7 @@ You can also build an element of a closed interval in a similar way
 
 ```
 build-ci : (x : 𝕂) → (δ : ℤ) → CompactInterval (⟨ x ⟩ δ , δ)
-build-ci x = {!!}
+build-ci x δ = x , refl
 
 ℤ-trichotomous-is-prop
  : (n i : ℤ) → is-prop ((n <ℤ i) + (n ≡ i) + (i <ℤ n))
@@ -226,34 +226,82 @@ upper (k , i) δ with ℤ-trichotomous i δ
 _below'_ : (x y : ℤ) → 𝓤₀ ̇
 x below' y = (x ≡ downLeft y) + (x ≡ downMid y) + (x ≡ downRight y) 
 
+_above_ : ℤ → ℤ → 𝓤₀ ̇ 
+b above a = upLeft b ≤ℤ a ≤ℤ upRight b
+
+{-
 below-leadsto-above : (x y : ℤ)
-                    → downLeft y ≤ℤ x ≤ℤ downRight y
-                    →   upLeft y ≤ℤ x ≤ℤ   upRight y
+                    → downLeft y ≤ℤ x
+                    →   upLeft y ≤ℤ downLeft y 
 below-leadsto-above x y ((n , e) , (m , q)) = {!!} , {!!}
+-}
+downLeft-≤ : (a b : ℤ) → a ≤ℤ b → downLeft a ≤ℤ downLeft b
+downLeft-≤ a .(a +ℤ pos n) (n , refl) = n +ℕ n , {!dis!}
+
+downRight-≤ : (a b : ℤ) → a ≤ℤ b → downRight a ≤ℤ downRight b
+downRight-≤ a .(a +ℤ pos n) (n , refl) = n +ℕ n , {!dis!}
+
+upLeft-≤ : (a b : ℤ) → a ≤ℤ b → upLeft a ≤ℤ upLeft b
+upLeft-≤ a .(a +ℤ pos n) (n , refl) = {!!} , {!!}
+
+ci-lower-upper-<' : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
+                  → (δ : ℤ)
+                  → (n : ℕ) → succℤ i +pos n ≡ δ
+                  → rec k downLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k downRight (succ n) 
+
+
+ci-lower-upper-<' (k , i) ((x , γx) , refl) δ 0        refl
+ = γx i
+ci-lower-upper-<' (k , i) ((x , γx) , refl) δ (succ n) refl
+ = ℤ≤-trans _ _ _ (downLeft-≤ _ _ IHl) (pr₁ (γx (succℤ i +ℤ pos n)))
+ , ℤ≤-trans _ _ _ (pr₂ (γx (succℤ i +pos n))) (downRight-≤ _ _ IHr)
+ where
+   IH = ci-lower-upper-<' (x i , i) ((x , γx) , refl)
+          (predℤ δ) n (predsuccℤ _ ⁻¹)
+   IHl : rec (x i) downLeft (succ n) ≤ℤ x (succℤ i +ℤ pos n)
+   IHl = transport (λ - → rec (x i) downLeft (succ n) ≤ℤ x -)
+          (predsuccℤ _)
+          (pr₁ IH)
+   IHr : x (succℤ i +pos n) ≤ℤ rec (x i) downRight (succ n)
+   IHr = transport (λ - → x - ≤ℤ rec (x i) downRight (succ n))
+           (predsuccℤ _)
+           (pr₂ IH)
 
 ci-lower-upper-< : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                  → (δ : ℤ)
                  → ((n , _) : i <ℤ δ)
                  → rec k downLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k downRight (succ n) 
-ci-lower-upper-< (k , i) ((x , γx) , refl) δ (0      , refl)
- = γx i
-ci-lower-upper-< (k , i) ((x , γx) , refl) δ (succ n , refl)
- = {!!} , {!!}
+ci-lower-upper-< (k , i) x δ (n , i<δ) = ci-lower-upper-<' (k , i) x δ n i<δ
+
+ci-lower-upper->' : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
+                  → (δ : ℤ)
+                  → (n : ℕ) → succℤ δ +pos n ≡ i
+                  → rec k   upLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k   upRight (succ n) 
+ci-lower-upper->' (k , i) ((x , γx) , refl) δ 0        refl
+ = {!!}
+ci-lower-upper->' (k , i) ((x , γx) , refl) δ (succ n) refl
+ = (ℤ≤-trans _ _ _
+     (upLeft-≤ (rec (x i) upLeft (succ n)) (rec (x (predℤ i)) upLeft n)
+       {!γ2!}) -- upLeft (x i) ≤ℤ upLeft (x (predℤ i))
+     IHl)
+ , {!!}
  where
-   IHl : rec (x i) downLeft (succ n) ≤ℤ x (succℤ i +ℤ pos n)
-   IHl = transport (λ - → rec (x i) downLeft (succ n) ≤ℤ x -)
-          (predsuccℤ _)
-          (pr₁ (ci-lower-upper-< (x i , i) ((x , γx) , refl)
-           (predℤ δ) (n , (predsuccℤ _ ⁻¹))))
+   γ : {!x i!} above {!x!}
+   γ = {!!}
+   γ2 : upLeft (x i) ≤ℤ upLeft (x (predℤ i))
+   γ2 = {!!}
+   below-shift : x i below x (predℤ i)
+   below-shift = {!!}
+   IH = ci-lower-upper->' (x (predℤ i) , predℤ i) ((x , γx) , refl)
+          δ n (predsuccℤ _ ⁻¹)
+   IHl : rec (x (predℤ (succℤ δ +pos succ n))) upLeft (succ n) ≤ℤ x δ
+   IHl = pr₁ IH
 
 ci-lower-upper-> : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                  → (δ : ℤ)
                  → ((n , _) : δ <ℤ i)
                  → rec k   upLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k   upRight (succ n) 
-ci-lower-upper-> (k , i) ((x , γx) , refl) δ (0      , refl)
- = {!!}
-ci-lower-upper-> (k , i) ((x , γx) , refl) δ (succ n , refl)
- = {!!}
+ci-lower-upper-> (k , i) x δ (n , δ<i) = ci-lower-upper->' (k , i) x δ n δ<i
 
 ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                → (δ : ℤ)
