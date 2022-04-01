@@ -17,12 +17,12 @@ open import SearchableTypes fe pe
 We encode real numbers using the data type for ternary Boehm reals 𝕂.
 
 Each 𝕂 is a function x ꞉ ℤ → ℤ with some restrictions on it, so that we only
-have our encodings of real numbers inside 𝕂, and not any function of type ℤ → ℤ.
+have our encodings of real numbers inside 𝕂, and n2ot any function of type ℤ → ℤ.
 
 The function x : ℤ → ℤ takes a "precision-level" n : ℤ and gives back an
 encoding x(n) : ℤ of a real interval.
 
-The idea is that each precision-level n : ℤ represents a "layer" in the
+The idea is that each precision-level n : ℤ represents a "layer4" in the
 following illustrative "brick pattern".
 
 Level n+1 has bricks half the size of those on level n.
@@ -88,11 +88,23 @@ We define the functions upLeft : ℤ → ℤ and upRight : ℤ → ℤ, such tha
 is even upLeft k = predℤ (upRight k) and when n is odd upLeft k = upRight k.
 
 ```
-upRight upLeft : ℤ → ℤ
+
+upRight : ℤ → ℤ
 upRight x = sign x (num x /2)
-upLeft  x with even-or-odd? x
-...     | (inl e) = predℤ (upRight x)
-...     | (inr o) =        upRight x
+
+upLeft' : (x : ℤ) → even x + odd x → ℤ
+upLeft' x (inl _) = predℤ (upRight x)
+upLeft' x (inr _) =        upRight x
+
+upLeft : ℤ → ℤ
+upLeft x = upLeft' x (even-or-odd? x)
+
+upLeft-elim : (x : ℤ) → (P : ℤ → 𝓤 ̇ )
+            → P (predℤ (upRight x)) → P (upRight x)
+            → P (upLeft x)
+upLeft-elim x P Pe Po with even-or-odd? x
+... | (inl e) = Pe
+... | (inr o) = Po
 ```
 
 upLeft-is-below  : (k : ℕ) → k below upLeft  k
@@ -175,11 +187,10 @@ CompactInterval (k , p) = Σ (x , _) ꞉ 𝕂 , x(p) ≡ k
 
 You can also build an element of a closed interval in a similar way
 
-build-ci : (Σ x ꞉ (ℕ → ℤ) , (n : ℕ) → (x (succ n)) below (x n))
-         → (i : ℤ) → CompactInterval (x(0) , i)
-build-ci x = build x i , {!!}
-
 ```
+build-ci : (x : 𝕂) → (δ : ℤ) → CompactInterval (⟨ x ⟩ δ , δ)
+build-ci x = {!!}
+
 ℤ-trichotomous-is-prop
  : (n i : ℤ) → is-prop ((n <ℤ i) + (n ≡ i) + (i <ℤ n))
 ℤ-trichotomous-is-prop = {!!}
@@ -203,19 +214,60 @@ rec-upRight/downRight x (pos n)     = rec x downRight n
 rec-upRight/downRight x (negsucc n) = rec x upRight   (succ n)
 
 lower upper : ℤ × ℤ → ℤ → ℤ
-lower (k , i) δ = rec-upLeft/downLeft   k (i −ℤ δ)
-upper (k , i) δ = rec-upRight/downRight k (i −ℤ δ)
+lower (k , i) δ with ℤ-trichotomous i δ
+... | inl      (n , si+n≡δ)  = rec k downLeft (succ n)
+... | inr (inl refl)         = k
+... | inr (inr (n , sδ+n≡i)) = rec k   upLeft (succ n)
+upper (k , i) δ with ℤ-trichotomous i δ
+... | inl      (n , si+n≡δ)  = rec k downRight (succ n)
+... | inr (inl refl)         = k
+... | inr (inr (n , sδ+n≡i)) = rec k   upRight (succ n)
+
+_below'_ : (x y : ℤ) → 𝓤₀ ̇
+x below' y = (x ≡ downLeft y) + (x ≡ downMid y) + (x ≡ downRight y) 
+
+below-leadsto-above : (x y : ℤ)
+                    → downLeft y ≤ℤ x ≤ℤ downRight y
+                    →   upLeft y ≤ℤ x ≤ℤ   upRight y
+below-leadsto-above x y ((n , e) , (m , q)) = {!!} , {!!}
+
+ci-lower-upper-< : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
+                 → (δ : ℤ)
+                 → ((n , _) : i <ℤ δ)
+                 → rec k downLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k downRight (succ n) 
+ci-lower-upper-< (k , i) ((x , γx) , refl) δ (0      , refl)
+ = γx i
+ci-lower-upper-< (k , i) ((x , γx) , refl) δ (succ n , refl)
+ = {!!} , {!!}
+ where
+   IHl : rec (x i) downLeft (succ n) ≤ℤ x (succℤ i +ℤ pos n)
+   IHl = transport (λ - → rec (x i) downLeft (succ n) ≤ℤ x -)
+          (predsuccℤ _)
+          (pr₁ (ci-lower-upper-< (x i , i) ((x , γx) , refl)
+           (predℤ δ) (n , (predsuccℤ _ ⁻¹))))
+
+ci-lower-upper-> : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
+                 → (δ : ℤ)
+                 → ((n , _) : δ <ℤ i)
+                 → rec k   upLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k   upRight (succ n) 
+ci-lower-upper-> (k , i) ((x , γx) , refl) δ (0      , refl)
+ = {!!}
+ci-lower-upper-> (k , i) ((x , γx) , refl) δ (succ n , refl)
+ = {!!}
 
 ci-lower-upper : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                → (δ : ℤ)
                → lower (k , i) δ ≤ℤ ⟨ ι x ⟩ δ ≤ℤ upper (k , i) δ 
-ci-lower-upper (k , i) x δ with (i −ℤ δ)
-... | pos n = {!!}
-... | negsucc n = {!!}
+ci-lower-upper (k , i) ((x , γx) , refl) δ with ℤ-trichotomous i δ
+... | inl      i<δ   = ci-lower-upper-< (k , i) ((x , γx) , refl) δ i<δ
+... | inr (inl refl) = (0 , refl) , (0 , refl)
+... | inr (inr i>δ)  = ci-lower-upper-> (k , i) ((x , γx) , refl) δ i>δ
 
 ci-low-up : ((k , i) : ℤ × ℤ) (δ : ℤ)
           → lower (k , i) δ ≤ℤ upper (k , i) δ
-ci-low-up   (k , i) δ = {!!}
+ci-low-up   (k , i) δ = ℤ≤-trans _ _ _ (pr₁ γ) (pr₂ γ)
+ where
+   γ = ci-lower-upper (k , i) (build-via-ci (k , i)) δ
 
 ci-lu-left : ((k , i) : ℤ × ℤ) (δ : ℤ)
            → lower (k , i) δ ≤ℤ lower (k , i) δ ≤ℤ upper (k , i) δ
@@ -466,28 +518,40 @@ Relationships:
 ```
 special-predicate-on-I : {𝓦 : Universe} → (δ : ℤ) → (𝓦 ⁺) ̇
 special-predicate-on-I {𝓦} δ
- = decidable-predicate-informed-by {𝓦} (Identity (ℤ × ℤ))
+ = decidable-predicate-informed-by {𝓦} (Identity ℤ)
 
-special-predicate-I-to-𝕂 : {𝓦 : Universe} → (δ : ℤ)
-                         → special-predicate-on-I {𝓦} δ
-                         → special-predicate-on-𝕂 {𝓦} δ
-special-predicate-I-to-𝕂 {𝓦} δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
- where
-   f = (_, δ) ∘ (λ - → - δ) ∘ ⟨_⟩
-   p = p' ∘ f
-   d = d' ∘ f
-   i = i' ∘ f
-   ϕ = λ x y x≣y → ϕ' (f x) (f y) (ap (_, δ) x≣y)
+open equiv-of-setoids
 
-special-predicate-𝕂-to-I : (δ : ℤ)
-                         → special-predicate-on-𝕂 {𝓦} δ
-                         → special-predicate-on-I {𝓦} δ
-special-predicate-𝕂-to-I δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
- where
-   p = p' ∘ build-via
-   d = d' ∘ build-via
-   i = i' ∘ build-via
-   ϕ = λ x y → transport p
+SE' : (δ : ℤ)
+    → equiv-of-setoids
+        (𝕂-equivalence-relation δ)
+        (Identity ℤ)
+f (SE' δ) = (λ α → α δ) ∘ ⟨_⟩
+g (SE' δ) = build-via ∘ (_, δ)
+trans-A (SE' δ) α = {!!}
+trans-B (SE' δ) z = {!!}
+lift-AB (SE' δ) α β = id
+lift-BA (SE' δ) z z refl = refl
+
+special-predicate-𝕂-to-I
+ : {𝓦 : Universe} → (δ : ℤ)
+ →  (pdiϕ𝕂 : special-predicate-on-𝕂 {𝓦} δ)
+ → Σ pdiϕI ꞉ special-predicate-on-I {𝓦} δ
+ , ((x : 𝕂)
+       → p⟨ 𝕂-equivalence-relation _    - pdiϕ𝕂 ⟩ x
+       → p⟨ Identity _                   - pdiϕI ⟩ (f (SE' δ) x))
+special-predicate-𝕂-to-I δ
+ = convert-predicates _ _ (SE' δ)
+
+special-predicate-I-to-𝕂
+ : {𝓦 : Universe} → (δ : ℤ)
+ →  (pdiϕI : special-predicate-on-I {𝓦} δ)
+ → Σ pdiϕ𝕂 ꞉ special-predicate-on-𝕂 {𝓦} δ
+ , ((x : ℤ)
+       → p⟨ Identity _                   - pdiϕI ⟩ x
+       → p⟨ 𝕂-equivalence-relation _     - pdiϕ𝕂 ⟩ (g (SE' δ) x))
+special-predicate-I-to-𝕂 δ
+ = convert-predicates _ _ (equiv-of-setoids-sym _ _ (SE' δ))
 ```
 
 But these are not searchable!
@@ -503,30 +567,6 @@ special-predicate-on-𝕂c {𝓦} (k , i) δ
 special-predicate-on-Ic : {𝓦 : Universe} → (δ l u : ℤ) → (𝓦 ⁺) ̇ 
 special-predicate-on-Ic {𝓦} δ l u
  = decidable-predicate-informed-by {𝓦} (Identity (ℤ[ l , u ]))
-
-special-predicate-Ic-to-𝕂c : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
-                            → special-predicate-on-Ic {𝓦} δ
-                                (lower (k , i) δ) (upper (k , i) δ)
-                            → special-predicate-on-𝕂c {𝓦} (k , i) δ
-special-predicate-Ic-to-𝕂c {𝓦} (k , q) δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
- where
-   f = λ α → ⟨ ι α ⟩ δ , ci-lower-upper (k , q) α δ
-   p = p' ∘ f
-   d = d' ∘ f
-   i = i' ∘ f
-   ϕ = λ x y x≣y → ϕ' (f x) (f y) (to-subtype-≡ ≤ℤ²-is-prop x≣y)
-
-special-predicate-𝕂c-to-Ic : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
-                            → special-predicate-on-𝕂c {𝓦} (k , i) δ
-                            → special-predicate-on-Ic {𝓦} δ
-                                (lower (k , i) δ) (upper (k , i) δ)
-special-predicate-𝕂c-to-Ic {𝓦} (k , q) δ ((p' , d' , i') , ϕ') = (p , d , i) , ϕ
- where
-   f = {!!} -- build-via-via
-   p = p' ∘ f
-   d = d' ∘ f
-   i = i' ∘ f
-   ϕ = λ x y → {!!}
 ```
 
 These are searchable.
@@ -542,16 +582,59 @@ The Ic predicates are searchable, and are logically equivalent to the 𝕂c
 predicates.
 
 ```
+SE : ((k , i) : ℤ × ℤ) (δ : ℤ)
+   → equiv-of-setoids
+       (𝕂c-equivalence-relation (k , i) δ)
+       (Identity ℤ[ (lower (k , i) δ) , (upper (k , i) δ) ])
+f (SE (k , i) δ) α           = ⟨ ι α ⟩ δ , ci-lower-upper (k , i) α δ
+g (SE (k , i) δ) (z , l≤z≤u) = pr₁ (replace (k , i) (z , δ) l≤z≤u)
+trans-A (SE (k , i) δ) α
+ = pr₂ (replace (k , i) (⟨ ι α ⟩ δ , δ) (ci-lower-upper (k , i) α δ)) ⁻¹
+trans-B (SE (k , i) δ) (z , l≤z≤u)
+ = to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (z , δ) l≤z≤u) ⁻¹)
+lift-AB (SE (k , i) δ) α β
+ = to-subtype-≡ ≤ℤ²-is-prop 
+lift-BA (SE (k , i) δ) (z , l≤z≤u) (z , l≤z≤u) refl
+ = refl
 
-SE : setoid-equiv ? ?
-SE = ?
+special-predicate-𝕂c-to-Ic
+ : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
+ →  (pdiϕ𝕂c : special-predicate-on-𝕂c {𝓦} (k , i) δ)
+ → Σ pdiϕIc ꞉ special-predicate-on-Ic {𝓦} δ (lower (k , i) δ) (upper (k , i) δ)
+ , ((x : CompactInterval (k , i))
+       → p⟨ 𝕂c-equivalence-relation _ _ - pdiϕ𝕂c ⟩ x
+       → p⟨ Identity _                   - pdiϕIc ⟩ (f (SE (k , i) δ) x))
+special-predicate-𝕂c-to-Ic (k , i) δ
+ = convert-predicates _ _ (SE (k , i) δ)
 
+special-predicate-Ic-to-𝕂c
+ : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
+ →  (pdiϕIc : special-predicate-on-Ic {𝓦} δ (lower (k , i) δ) (upper (k , i) δ))
+ → Σ pdiϕ𝕂c ꞉ special-predicate-on-𝕂c {𝓦} (k , i) δ
+ , ((x : ℤ[ _ , _ ])
+       → p⟨ Identity _                   - pdiϕIc ⟩ x
+       → p⟨ 𝕂c-equivalence-relation _ _ - pdiϕ𝕂c ⟩ (g (SE (k , i) δ) x))
+special-predicate-Ic-to-𝕂c (k , i) δ
+ = convert-predicates _ _ (equiv-of-setoids-sym _ _ (SE (k , i) δ))
 ```
 
 Therefore, 𝕂c predicates are searchable in two ways: directly, or
 via the setoid equivalence.
 
 ```
+
+𝕂c-searchable-directly : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
+                       → Searchable {𝓦} (𝕂c-equivalence-relation (k , i) δ)
+𝕂c-searchable-directly = {!!}
+
+𝕂c-searchable-equiv : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
+                    → Searchable {𝓦} (𝕂c-equivalence-relation (k , i) δ)
+𝕂c-searchable-equiv (k , i) δ
+ = convert-searchable _ _ (SE (k , i) δ) (ℤ[ l , u ]-searchable (pr₁ l≤u) (pr₂ l≤u))
+ where
+   l = lower (k , i) δ
+   u = upper (k , i) δ
+   l≤u = ci-low-up (k , i) δ
 
 ```
 

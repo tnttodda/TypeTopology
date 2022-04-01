@@ -853,6 +853,18 @@ record equiv-of-setoids {𝓤 𝓤' 𝓥 𝓥' : Universe} {X : 𝓤 ̇ } {Y : �
 
 open equiv-of-setoids
 
+equiv-of-setoids-sym : {𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
+                     → (A : equivalence-relation {𝓥 } X)
+                     → (B : equivalence-relation {𝓥'} Y)
+                     → equiv-of-setoids A B
+                     → equiv-of-setoids B A
+f (equiv-of-setoids-sym A B se) = g se
+g (equiv-of-setoids-sym A B se) = f se
+trans-A (equiv-of-setoids-sym A B se) = trans-B se
+trans-B (equiv-of-setoids-sym A B se) = trans-A se
+lift-AB (equiv-of-setoids-sym A B se) = lift-BA se
+lift-BA (equiv-of-setoids-sym A B se) = lift-AB se
+
 convert-predicates
  : {𝓦 𝓥 𝓥' 𝓤 𝓤' : Universe} {X : 𝓤 ̇ } {Y : 𝓤' ̇ }
  → (A : equivalence-relation {𝓥 } X)
