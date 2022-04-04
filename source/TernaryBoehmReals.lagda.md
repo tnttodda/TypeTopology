@@ -88,7 +88,6 @@ We define the functions upLeft : ℤ → ℤ and upRight : ℤ → ℤ, such tha
 is even upLeft k = predℤ (upRight k) and when n is odd upLeft k = upRight k.
 
 ```
-
 upRight : ℤ → ℤ
 upRight x = sign x (num x /2)
 
@@ -223,32 +222,105 @@ upper (k , i) δ with ℤ-trichotomous i δ
 ... | inr (inl refl)         = k
 ... | inr (inr (n , sδ+n≡i)) = rec k   upRight (succ n)
 
-_below'_ : (x y : ℤ) → 𝓤₀ ̇
-x below' y = (x ≡ downLeft y) + (x ≡ downMid y) + (x ≡ downRight y) 
-
 _above_ : ℤ → ℤ → 𝓤₀ ̇ 
-b above a = upLeft b ≤ℤ a ≤ℤ upRight b
+b above a = upLeft a ≤ℤ b ≤ℤ upRight a
 
-{-
-below-leadsto-above : (x y : ℤ)
-                    → downLeft y ≤ℤ x
-                    →   upLeft y ≤ℤ downLeft y 
-below-leadsto-above x y ((n , e) , (m , q)) = {!!} , {!!}
--}
+_below'_ : ℤ → ℤ → 𝓤₀ ̇
+a below' b = (a ≡ downLeft b) + (a ≡ downMid b) + (a ≡ downRight b)
+
+-- upLeft (a + 2) = upLeft a + 1
+
+below-implies-above-pos : (a : ℤ) (b : ℕ) → a below' (pos b) → (pos b) above a
+
+upRight-suc : (a : ℤ) → upRight (succℤ (succℤ a)) ≡ succℤ (upRight a)
+upRight-suc (pos zero) = refl
+upRight-suc (pos (succ zero)) = refl
+upRight-suc (pos (succ (succ x))) = refl
+upRight-suc (negsucc zero) = refl
+upRight-suc (negsucc (succ zero)) = refl
+upRight-suc (negsucc (succ (succ x))) = refl
+
+upLeft-suc : (a : ℤ) → upLeft (succℤ (succℤ a)) ≡ succℤ (upLeft a)
+upLeft-suc a = {!!}
+
+upLeft-downLeft-pos : (b : ℕ) → pos b ≡ succℤ (upLeft (downLeft (pos b)))
+upLeft-downLeft-pos 0 = refl
+upLeft-downLeft-pos (succ b)
+ = ap succℤ γ
+ where
+   γ : pos b ≡ upLeft (downLeft (succℤ (pos b)))
+   γ = upLeft-downLeft-pos b
+     ∙ upLeft-suc (pos b +pos b) ⁻¹
+     ∙ ap (upLeft ∘ succℤ) (ℤ-left-succ-pos _ b ⁻¹)
+
+upRight-downLeft-pos : (b : ℕ) → pos b ≡ upRight (downLeft (pos b))
+upRight-downLeft-pos 0 = refl
+upRight-downLeft-pos (succ b)
+ = ap succℤ (upRight-downLeft-pos b)
+ ∙ upRight-suc (pos b +pos b) ⁻¹
+ ∙ ap upRight (ap succℤ (ℤ-left-succ-pos _ b ⁻¹))
+
+below-implies-above-pos-dL : (b : ℕ) → (pos b) above (downLeft  (pos b))
+below-implies-above-pos-dL b = (1 , (upLeft-downLeft-pos b ⁻¹))
+                             , (0 , upRight-downLeft-pos b)
+
+below-implies-above-pos-dM : (b : ℕ) → (pos b) above (downMid   (pos b))
+below-implies-above-pos-dM 0 = (0 , refl) , (0 , refl)
+below-implies-above-pos-dM (succ b) = {!!}
+
+below-implies-above-pos-dR : (b : ℕ) → (pos b) above (downRight (pos b))
+below-implies-above-pos-dR 0 = (0 , refl) , (1 , refl)
+below-implies-above-pos-dR (succ b) = {!!}
+
+below-implies-above-pos .(downLeft (pos 0)) 0 (inl refl) = (1 , refl) , (0 , refl)
+below-implies-above-pos .(downLeft (pos 1)) 1 (inl refl) = (1 , refl) , (0 , refl)
+below-implies-above-pos a (succ (succ b)) x
+ = {!!} {- (succ n
+   , (ap (_+pos succ n) (upLeft-pred a)
+   ∙ {!!} -- 
+   ∙ ap (succℤ ∘ succℤ) γ))
+ , ({!!} , {!!})
+ where
+   IH = below-implies-above-pos ((predℤ ^ 4) a) b
+          (hmmm a b x)
+   n = pr₁ (pr₁ IH)
+   γ = pr₂ (pr₁ IH) -}
+below-implies-above-pos a b (inr x) = {!!}
+
+below-implies-above : (a b : ℤ) → a below' b → b above a
+below-implies-above a b = {!!}
+
+ℤ-pos-distrib : (a b : ℤ) (n m : ℕ) → ((a +ℤ b) +pos (n +ℕ m)) ≡ (a +pos n) +ℤ (b +pos m)
+ℤ-pos-distrib a b n m
+ = ℤ+-assoc a b (pos (n +ℕ m))
+ ∙ ap (a +ℤ_)
+     (ap (b +ℤ_) (pos-addition-equiv-to-ℕ n m ⁻¹)
+     ∙ ℤ+-assoc b (pos n) (pos m) ⁻¹
+     ∙ ap (_+pos m) (ℤ+-comm b (pos n))
+     ∙ ℤ+-assoc (pos n) b (pos m))
+ ∙ ℤ+-assoc a (pos n) (b +pos m) ⁻¹
+ 
 downLeft-≤ : (a b : ℤ) → a ≤ℤ b → downLeft a ≤ℤ downLeft b
-downLeft-≤ a .(a +ℤ pos n) (n , refl) = n +ℕ n , {!dis!}
+downLeft-≤ a .(a +ℤ pos n) (n , refl) = n +ℕ n , ℤ-pos-distrib a a n n
 
 downRight-≤ : (a b : ℤ) → a ≤ℤ b → downRight a ≤ℤ downRight b
-downRight-≤ a .(a +ℤ pos n) (n , refl) = n +ℕ n , {!dis!}
+downRight-≤ a .(a +ℤ pos n) (n , refl)
+ = n +ℕ n
+ , (ℤ-left-succ-pos (succℤ (a +ℤ a)) (n +ℕ n)
+ ∙ ap succℤ (ℤ-left-succ-pos (a +ℤ a) (n +ℕ n))
+ ∙ ap (succℤ ∘ succℤ) (ℤ-pos-distrib a a n n))
+
+upRight-≤ : (a b : ℤ) → a ≤ℤ b → upRight a ≤ℤ upRight b
+upRight-≤ a .(a +ℤ pos n) (n , refl) = {!hard!}
 
 upLeft-≤ : (a b : ℤ) → a ≤ℤ b → upLeft a ≤ℤ upLeft b
-upLeft-≤ a .(a +ℤ pos n) (n , refl) = {!!} , {!!}
+upLeft-≤ a .(a +ℤ pos n) (n , refl)
+ = upLeft-elim a (_≤ℤ upLeft (a +ℤ pos n)) {!!} {!!}
 
 ci-lower-upper-<' : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                   → (δ : ℤ)
                   → (n : ℕ) → succℤ i +pos n ≡ δ
                   → rec k downLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k downRight (succ n) 
-
 
 ci-lower-upper-<' (k , i) ((x , γx) , refl) δ 0        refl
  = γx i
@@ -278,24 +350,19 @@ ci-lower-upper->' : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                   → (n : ℕ) → succℤ δ +pos n ≡ i
                   → rec k   upLeft (succ n) ≤ℤ ⟨ ι x ⟩ δ ≤ℤ rec k   upRight (succ n) 
 ci-lower-upper->' (k , i) ((x , γx) , refl) δ 0        refl
- = {!!}
+ = below-implies-above _ _ {!!}
 ci-lower-upper->' (k , i) ((x , γx) , refl) δ (succ n) refl
- = (ℤ≤-trans _ _ _
-     (upLeft-≤ (rec (x i) upLeft (succ n)) (rec (x (predℤ i)) upLeft n)
-       {!γ2!}) -- upLeft (x i) ≤ℤ upLeft (x (predℤ i))
-     IHl)
- , {!!}
+ = ℤ≤-trans _ _ _ (upLeft-≤ _ _ IHl) (pr₁ (below-implies-above _ _ {!!})) -- (γx δ)))
+ , ℤ≤-trans _ _ _ (pr₂ (below-implies-above _ _ {!!})) (upRight-≤ _ _ IHr)
  where
-   γ : {!x i!} above {!x!}
-   γ = {!!}
-   γ2 : upLeft (x i) ≤ℤ upLeft (x (predℤ i))
-   γ2 = {!!}
-   below-shift : x i below x (predℤ i)
-   below-shift = {!!}
-   IH = ci-lower-upper->' (x (predℤ i) , predℤ i) ((x , γx) , refl)
-          δ n (predsuccℤ _ ⁻¹)
-   IHl : rec (x (predℤ (succℤ δ +pos succ n))) upLeft (succ n) ≤ℤ x δ
+   δx : x (predℤ δ) above x (succℤ (predℤ δ))
+   δx = below-implies-above (x (succℤ (predℤ δ))) (x (predℤ δ)) {!!} -- (γx (predℤ δ))
+   IH = ci-lower-upper->' (x i , i) ((x , γx) , refl)
+          (succℤ δ) n (ℤ-left-succ-pos (succℤ δ) n)
+   IHl : rec (x i) upLeft (succ n) ≤ℤ x (succℤ δ)
    IHl = pr₁ IH
+   IHr : x (succℤ δ) ≤ℤ rec (x i) upRight (succ n)
+   IHr = pr₂ IH
 
 ci-lower-upper-> : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
                  → (δ : ℤ)
