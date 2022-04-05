@@ -20,7 +20,7 @@ open import NaturalsOrder
 open import DecidableAndDetachable
 open import UF-Equiv
 open import UF-Subsingletons-FunExt
-open import TernaryBoehmRealsPrelude
+open import TernaryBoehmRealsPrelude fe
 open import InfiniteSearch1 (dfunext (fe _ _))
   hiding (predicate;everywhere-decidable;decidable;trivial-predicate)
 
