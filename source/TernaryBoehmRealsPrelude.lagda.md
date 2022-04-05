@@ -1,21 +1,21 @@
 ```agda
 {-# OPTIONS --without-K --exact-split #-}
 
-module TernaryBoehmRealsPrelude where
+open import UF-FunExt
+open import SpartanMLTT
 
+module TernaryBoehmRealsPrelude (fe : FunExt) where
 
-open import SpartanMLTT public
-open import Two-Properties public hiding (zero-is-not-one)
-open import NaturalsOrder public
-open import NaturalsAddition public renaming (_+_ to _+ℕ_)
-open import IntegersB public
-open import IntegersOrder public
-open import IntegersAddition public renaming (_+_ to _+ℤ_)
-open import IntegersNegation public renaming (-_  to  −ℤ_)
-open import UF-Subsingletons public
-open import NaturalsOrder public
+open import Two-Properties hiding (zero-is-not-one)
+open import NaturalsOrder
+open import NaturalsAddition renaming (_+_ to _+ℕ_)
+open import IntegersB
+open import IntegersOrder
+open import IntegersAddition renaming (_+_ to _+ℤ_)
+open import IntegersNegation renaming (-_  to  −ℤ_)
+open import UF-Subsingletons
+open import NaturalsOrder
 open import DecidableAndDetachable
--- open import Infi
 
 succ-lc : (x y : ℕ) → succ x ≡ succ y → x ≡ y
 succ-lc x x refl = refl
@@ -85,6 +85,20 @@ even-or-odd? (pos (succ (succ x)))     = even-or-odd? (pos x)
 even-or-odd? (negsucc               0) = inr ⋆
 even-or-odd? (negsucc               1) = inl (λ x → x)
 even-or-odd? (negsucc (succ (succ x))) = even-or-odd? (negsucc x)
+
+odd-is-prop : (x : ℤ) → is-prop (odd x)
+odd-is-prop (pos                   0) = 𝟘-is-prop
+odd-is-prop (pos                   1) = 𝟙-is-prop
+odd-is-prop (pos (succ (succ x)))     = odd-is-prop (pos x)
+odd-is-prop (negsucc               0) = 𝟙-is-prop
+odd-is-prop (negsucc               1) = 𝟘-is-prop
+odd-is-prop (negsucc (succ (succ x))) = odd-is-prop (negsucc x)
+
+even-is-prop : (x : ℤ) → is-prop (even x)
+even-is-prop x p q = dfunext (fe _ _) (λ i → 𝟘-elim (p i))
+
+even-or-odd-is-prop : (x : ℤ) → is-prop (even x + odd x)
+even-or-odd-is-prop x = +-is-prop (even-is-prop x) (odd-is-prop x) id
 
 _−ℤ_ : ℤ → ℤ → ℤ
 x −ℤ y = x +ℤ (−ℤ y)
