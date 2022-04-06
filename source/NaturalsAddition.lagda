@@ -44,6 +44,10 @@ addition-associativity l n = induction base step
                l + succ (n + m)   ≡⟨ refl ⟩
                l + (n + succ m)   ∎
 
+addition-succ : (n m : ℕ) → succ n + m ≡ succ (n + m)
+addition-succ n zero = refl
+addition-succ n (succ m) = ap succ (addition-succ n m)
+
 addition-commutativity : (n m : ℕ) → n + m ≡ m + n
 addition-commutativity n = induction base step
   where
