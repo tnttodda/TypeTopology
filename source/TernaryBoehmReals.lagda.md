@@ -71,6 +71,15 @@ downRight a = succℤ (downMid  a)
 _below_ : ℤ → ℤ → 𝓤₀ ̇ 
 a below b = downLeft b ≤ℤ a ≤ℤ downRight b
 
+downLeft-below : (a : ℤ) → downLeft a below a
+downLeft-below a = (0 , refl) , (2 , refl)
+
+downMid-below : (a : ℤ) → downMid a below a
+downMid-below a = (1 , refl) , (1 , refl)
+
+downRight-below : (a : ℤ) → downRight a below a
+downRight-below a = (2 , refl) , (0 , refl)
+
 𝕂 : 𝓤₀ ̇ 
 𝕂 = Σ x ꞉ (ℤ → ℤ) , ((n : ℤ) → (x (succℤ n)) below (x n))
 ```
@@ -215,19 +224,41 @@ build-via' (k , i) n (inr (inl         n≡i))
 build-via' (k , i) n (inr (inr (j , sn+j≡n)))
  = rec k downLeft (succ j)
 
+ℤ-trich-succ : (x y : ℤ) 
+             → ((      x <ℤ y) + (      x ≡ y) + (y <ℤ       x))
+             → ((succℤ x <ℤ y) + (succℤ x ≡ y) + (y <ℤ succℤ x))
+ℤ-trich-succ x y (inl (0           , sn+j≡i))
+ = (inr ∘ inl) sn+j≡i
+ℤ-trich-succ x y (inl (succ j      , sn+j≡i))
+ = inl (j , (ℤ-left-succ-pos (succℤ x) j ∙ sn+j≡i))
+ℤ-trich-succ x y (inr (inl              n≡i))
+ = (inr ∘ inr) (0 , ap succℤ (n≡i ⁻¹))
+ℤ-trich-succ x y (inr (inr (j      , sn+j≡i)))
+ = (inr ∘ inr) (succ j , ap succℤ sn+j≡i)
+
 build-via'-below
  : ((k , i) : ℤ × ℤ) (n : ℤ)
- → (η₁ : (succℤ n <ℤ i) + (succℤ n ≡ i) + (i <ℤ succℤ n))
- → (η₂ : (      n <ℤ i) + (      n ≡ i) + (i <ℤ       n))
- → build-via' (k , i) (succℤ n) η₁ below build-via' (k , i) n η₂
-build-via'-below (k , i) n = {!!}
+ → (η : (n <ℤ i) + (n ≡ i) + (i <ℤ n))
+ → build-via' (k , i) (succℤ n) (ℤ-trich-succ n i η) below build-via' (k , i) n η
+build-via'-below (k , i) n (inl (0           , sn+j≡i))
+ = {!!}
+build-via'-below (k , i) n (inl (succ j      , sn+j≡i))
+ = {!!}
+build-via'-below (k , i) n (inr (inl              n≡i))
+ = downLeft-below k
+build-via'-below (k , i) n (inr (inr (j      , sn+j≡i)))
+ = downLeft-below (rec k downLeft (succ j))
 
 build-via : ℤ × ℤ → 𝕂
-build-via (k , i) = (λ n → build-via' (k , i) n (η₁ n))
-                  , λ n → build-via'-below (k , i) n (η₂ n) (η₁ n)
- where
-   η₁ = λ (n : ℤ) → ℤ-trichotomous        n  i
-   η₂ = λ (n : ℤ) → ℤ-trichotomous (succℤ n) i
+build-via (k , i)
+ = (λ n → build-via' (k , i) n (ℤ-trichotomous n i))
+ , (λ n → transport (λ - → build-via' (k , i) (succℤ n) -
+                           below
+                           build-via' (k , i)        n (ℤ-trichotomous n i))
+            (ℤ-trichotomous-is-prop (succℤ n) i
+               (ℤ-trich-succ n i (ℤ-trichotomous n i))
+               (ℤ-trichotomous (succℤ n) i))
+            (build-via'-below (k , i) n (ℤ-trichotomous n i)))
 ```
 
 -------------------------------------------------------------------
@@ -251,10 +282,6 @@ You can also build an element of a closed interval in a similar way
 ```
 build-ci : (x : 𝕂) → (δ : ℤ) → CompactInterval (⟨ x ⟩ δ , δ)
 build-ci x δ = x , refl
-
-ℤ-trichotomous-is-prop
- : (n i : ℤ) → is-prop ((n <ℤ i) + (n ≡ i) + (i <ℤ n))
-ℤ-trichotomous-is-prop = {!!}
 
 build-via-ci : ((k , i) : ℤ × ℤ) → CompactInterval (k , i)
 build-via-ci (k , i)
@@ -692,6 +719,18 @@ replace' (k , i) c δ l≤c≤u with replace'' (k , i) c δ l≤c≤u
 ... | inl x = upLeft  c , x , {!!} -- upLeft-below 
 ... | inr x = upRight c , x , {!!} -- upRight-below
 
+replace* : ((k , i) (c , δ) : ℤ × ℤ)
+         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
+         → (δ <ℤ i) + (δ ≡ i) + (i <ℤ δ)
+         → Σ ((x , _) , _) ꞉ CompactInterval (k , i)
+         , x δ ≡ c
+replace* (k , i) (c , δ) l≤c≤u (inl δ<i)
+ = {!!}
+replace* (k , i) (c , i) l≤c≤u (inr (inl refl))
+ = (build-via-ci (k , i)) , {!!}
+replace* (k , i) (c , δ) l≤c≤u (inr (inr i<δ))
+ = {!!}
+
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
         → Σ ((x , _) , _) ꞉ CompactInterval (k , i)
@@ -923,8 +962,8 @@ SE' : (δ : ℤ)
         (Identity ℤ)
 f (SE' δ) = (λ α → α δ) ∘ ⟨_⟩
 g (SE' δ) = build-via ∘ (_, δ)
-trans-A (SE' δ) α = {!!}
-trans-B (SE' δ) z = {!!}
+trans-A (SE' δ) α = ap (λ - → build-via' (⟨ α ⟩ δ , δ) δ -) (ℤ-trichotomous-is-prop δ δ ((inr ∘ inl) refl) (ℤ-trichotomous δ δ))
+trans-B (SE' δ) z = ap (λ - → build-via' (  z     , δ) δ -) (ℤ-trichotomous-is-prop δ δ ((inr ∘ inl) refl) (ℤ-trichotomous δ δ))
 lift-AB (SE' δ) α β = id
 lift-BA (SE' δ) z z refl = refl
 
