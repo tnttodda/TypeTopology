@@ -233,6 +233,15 @@ negative-less-than-positive x y = (x ℕ+ y) , I
     II : (y < x) ∔ (y ≡ x) → (x < y) ∔ (x ≡ y) ∔ (y < x) 
     II (inl l) = inr (inr l)
     II (inr r) = inr (inl (r ⁻¹))
+
+ℤ-trichotomous-is-prop : (x y : ℤ) → is-prop ((x < y) ∔ (x ≡ y) ∔ (y < x))
+ℤ-trichotomous-is-prop x y
+ = +-is-prop (ℤ<-is-prop x y)
+     (+-is-prop ℤ-is-set (ℤ<-is-prop y x)
+       (λ x≡y → transport (λ - → ¬ (- <ℤ x)) x≡y (ℤ-equal-not-less-than x)))
+       (λ x<y → cases
+                  (λ x≡y → ℤ-bigger-or-equal-not-less y x (0 , (x≡y ⁻¹)) x<y)
+                  (ℤ-bigger-or-equal-not-less x y (<-is-≤ x y x<y)))
 {-
 ℤ-trichotomous : (x y : ℤ) → (x < y) ∔ (x ≡ y) ∔ (y < x)
 ℤ-trichotomous (pos x) (pos y) = I (nat-order-trichotomous x y)
