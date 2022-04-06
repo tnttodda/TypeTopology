@@ -94,6 +94,21 @@ odd-is-prop (negsucc               0) = 𝟙-is-prop
 odd-is-prop (negsucc               1) = 𝟘-is-prop
 odd-is-prop (negsucc (succ (succ x))) = odd-is-prop (negsucc x)
 
+succ-odd-is-even : (x : ℤ) → odd x → even (succℤ x)
+succ-odd-is-even (pos                          1) o = id
+succ-odd-is-even (pos            (succ (succ x))) o = succ-odd-is-even (pos x) o
+succ-odd-is-even (negsucc                      0) o = id
+succ-odd-is-even (negsucc (succ (succ (succ x)))) o = succ-odd-is-even (negsucc (succ x)) o
+
+succ-even-is-odd : (x : ℤ) → even x → odd (succℤ x)
+succ-even-is-odd (pos                          0) e = ⋆
+succ-even-is-odd (pos                          1) e = e ⋆
+succ-even-is-odd (pos            (succ (succ x))) e = succ-even-is-odd (pos x) e
+succ-even-is-odd (negsucc                      0) e = e ⋆
+succ-even-is-odd (negsucc                      1) e = ⋆
+succ-even-is-odd (negsucc                      2) e = e ⋆
+succ-even-is-odd (negsucc (succ (succ (succ x)))) e = succ-even-is-odd (negsucc (succ x)) e
+
 even-is-prop : (x : ℤ) → is-prop (even x)
 even-is-prop x p q = dfunext (fe _ _) (λ i → 𝟘-elim (p i))
 
