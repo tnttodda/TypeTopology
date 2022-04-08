@@ -124,16 +124,6 @@ upLeft-elim x P Pe Po with even-or-odd? x
 ... | (inl e) = Pe
 ... | (inr o) = Po
 
-odd-succ-succ : (x : ℤ) → odd x → odd (succℤ (succℤ x))
-odd-succ-succ (pos x) = id
-odd-succ-succ (negsucc zero) = id
-odd-succ-succ (negsucc (succ (succ x))) = id
-
-even-succ-succ : (x : ℤ) → even x → even (succℤ (succℤ x))
-even-succ-succ (pos x) = id
-even-succ-succ (negsucc zero) = id
-even-succ-succ (negsucc (succ (succ x))) = id
-
 upLeft²-elim : (x : ℤ) → (P : ℤ → ℤ → 𝓤 ̇ )
              → P (predℤ (upRight x)) (predℤ (upRight (succℤ (succℤ x))))
              → P (upRight x) (upRight (succℤ (succℤ x)))
@@ -317,46 +307,6 @@ b above a = upLeft a ≤ℤ b ≤ℤ upRight a
 _below'_ : ℤ → ℤ → 𝓤₀ ̇
 a below' b = (a ≡ downLeft b) + (a ≡ downMid b) + (a ≡ downRight b)
 
-upRight-suc : (a : ℤ) → upRight (succℤ (succℤ a)) ≡ succℤ (upRight a)
-upRight-suc (pos zero) = refl
-upRight-suc (pos (succ zero)) = refl
-upRight-suc (pos (succ (succ x))) = refl
-upRight-suc (negsucc zero) = refl
-upRight-suc (negsucc (succ zero)) = refl
-upRight-suc (negsucc (succ (succ x))) = refl
-
-pred-upRight-suc : (a : ℤ) → predℤ (upRight (succℤ (succℤ a))) ≡ succℤ (predℤ (upRight a))
-pred-upRight-suc (pos zero) = refl
-pred-upRight-suc (pos (succ zero)) = refl
-pred-upRight-suc (pos (succ (succ x))) = refl
-pred-upRight-suc (negsucc zero) = refl
-pred-upRight-suc (negsucc (succ zero)) = refl
-pred-upRight-suc (negsucc (succ (succ x))) = refl
-
-upLeft-suc : (a : ℤ) → upLeft (succℤ (succℤ a)) ≡ succℤ (upLeft a)
-upLeft-suc a
- = upLeft²-elim a (λ a b → b ≡ succℤ a) (pred-upRight-suc a) (upRight-suc a)
-
-pred-upRight-pred : (a : ℤ) → predℤ (upRight (predℤ (predℤ a))) ≡ predℤ (predℤ (upRight a))
-pred-upRight-pred (pos zero) = refl
-pred-upRight-pred (pos (succ zero)) = refl
-pred-upRight-pred (pos (succ (succ x))) = refl
-pred-upRight-pred (negsucc zero) = refl
-pred-upRight-pred (negsucc (succ zero)) = refl
-pred-upRight-pred (negsucc (succ (succ x))) = refl
-
-upRight-pred : (a : ℤ) → upRight (predℤ (predℤ a)) ≡ predℤ (upRight a)
-upRight-pred (pos 0) = refl
-upRight-pred (pos 1) = refl
-upRight-pred (pos (succ (succ x))) = refl
-upRight-pred (negsucc 0) = refl
-upRight-pred (negsucc 1) = refl
-upRight-pred (negsucc (succ (succ x))) = refl
-
-upLeft-pred : (a : ℤ) → upLeft (predℤ (predℤ a)) ≡ predℤ (upLeft a)
-upLeft-pred a
- = upLeft²-elim-pred a (λ a b → a ≡ predℤ b) (pred-upRight-pred a) (upRight-pred a)
- 
 ℤ-elim : (P : ℤ → 𝓤 ̇ )
        → ((n : ℕ) → P (pos n)) → ((n : ℕ) → P (negsucc n))
        → Π P
@@ -510,14 +460,6 @@ below-implies-below' a b ((succ (succ (succ n)) , e) , (succ (succ (succ m)) , f
    k≡2 = pos-lc k 2 (ℤ+-lc (pos k) (pos 2) (downLeft b) (η ∙ ζ ⁻¹))
    k≢2 : k ≢ 2
    k≢2 = λ ()
-
-below'-implies-above : (a b : ℤ) → a below' b → b above a
-below'-implies-above .(downLeft  b) b (inl refl)
- = below-implies-above-dL b
-below'-implies-above .(downMid   b) b (inr (inl refl))
- = below-implies-above-dM b
-below'-implies-above .(downRight b) b (inr (inr refl))
- = below-implies-above-dR b
 
 below-implies-above : (a b : ℤ) → a below b → b above a
 below-implies-above a b = (below'-implies-above a b) ∘ (below-implies-below' a b)

@@ -109,6 +109,16 @@ succ-even-is-odd (negsucc                      1) e = ⋆
 succ-even-is-odd (negsucc                      2) e = e ⋆
 succ-even-is-odd (negsucc (succ (succ (succ x)))) e = succ-even-is-odd (negsucc (succ x)) e
 
+odd-succ-succ : (x : ℤ) → odd x → odd (succℤ (succℤ x))
+odd-succ-succ (pos x) = id
+odd-succ-succ (negsucc zero) = id
+odd-succ-succ (negsucc (succ (succ x))) = id
+
+even-succ-succ : (x : ℤ) → even x → even (succℤ (succℤ x))
+even-succ-succ (pos x) = id
+even-succ-succ (negsucc zero) = id
+even-succ-succ (negsucc (succ (succ x))) = id
+
 even-is-prop : (x : ℤ) → is-prop (even x)
 even-is-prop x p q = dfunext (fe _ _) (λ i → 𝟘-elim (p i))
 
