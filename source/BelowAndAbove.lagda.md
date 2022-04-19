@@ -182,18 +182,20 @@ above'-implies-above .(upLeft  b) b (inl refl) = upLeft-above b
 above'-implies-above .(upRight b) b (inr refl) = upRight-above b
 
 a<b→a≢b : ∀ a b → (b <ℤ a) → a ≢ b
-a<b→a≢b = {!!}
-
-ab+ : ∀ a b n m → a +ℤ n ≡ b → a +ℤ m ≡ b → n ≡ m
-ab+ = {!!}
+a<b→a≢b a a (n , a<a) refl = γ γ'
+ where
+   γ' : 0 ≡ succ n
+   γ' = pos-lc _ _ (ℤ+-lc _ _ a (a<a ⁻¹ ∙ ℤ-left-succ-pos a n))
+   γ : 0 ≢ succ n
+   γ ()
 
 impossible : (a b : ℤ) → (pos 2) ≤ℤ b → upLeft a +ℤ b ≢ upRight a
 impossible a .(pos 2 +ℤ (pos n)) (n , refl) e
  = Cases (upLeft-≡-+ a)
      (λ g → a<b→a≢b (pos 2 +pos n) (pos 0) (1 +ℕ n , γ   )
-       (ab+ (upLeft a) (upRight a) (pos 2 +pos n) (pos 0) e g))
+       (ℤ+-lc (pos 2 +pos n) (pos 0) (upLeft a) (e ∙ g ⁻¹)))
      (λ g → a<b→a≢b (pos 2 +pos n) (pos 1) (     n , refl)
-       (ab+ (upLeft a) (upRight a) (pos 2 +pos n) (pos 1) e g))
+       (ℤ+-lc (pos 2 +pos n) (pos 1) (upLeft a) (e ∙ g ⁻¹)))
  where
    γ : succℤ (pos 0) +ℤ pos (1 +ℕ n) ≡ (pos 2 +pos n)
    γ = ap (pos 1 +ℤ_) (pos-addition-equiv-to-ℕ 1 n ⁻¹)
@@ -203,14 +205,37 @@ above-implies-above' : (a b : ℤ) → a above b → a above' b
 above-implies-above' a b ((0 , refl) , (m , f)) = inl refl
 above-implies-above' a b ((succ n , e) , zero , refl) = inr refl
 above-implies-above' a b ((1 , e) , succ m , f)
- = Cases (upLeft-≡-+ b) (λ g → 𝟘-elim {!!})
+ = Cases (upLeft-≡-+ b) (λ g → 𝟘-elim η)
                         (λ g → inr (e ⁻¹ ∙ g))
-above-implies-above' a b ((succ (succ n) , e) , succ m , f)
- = 𝟘-elim (impossible {!!} {!!} {!!} {!!})
  where
-   γ : upLeft b +ℤ (pos (succ (succ n)) +pos m) ≡ upRight b
-   γ = {!!}
+   ζ : pos 2 +ℤ pos m ≡ succℤ (succℤ (pos m))
+   ζ = pos-addition-equiv-to-ℕ 2 m
+     ∙ ap pos (addition-commutativity 2 m)
+   γ : upLeft b +ℤ succℤ (succℤ (pos m)) ≡ upRight b
+   γ = ap succℤ (ℤ-left-succ-pos (upLeft b) m ⁻¹)
+     ∙ ap (λ - → succℤ (- +pos m)) e
+     ∙ f
+   η = impossible b (succℤ (succℤ (pos m))) (m , ζ) γ
+above-implies-above' a b ((succ (succ n) , e) , succ m , f)
+ = 𝟘-elim (impossible b (pos (succ (succ (succ n))) +pos m)
+             (succ n +ℕ m , ζ) γ)
+ where
+   γ : upLeft b +ℤ (pos (succ (succ (succ n))) +pos m) ≡ upRight b
+   γ = ℤ+-assoc (upLeft b) (pos (succ (succ (succ n)))) (pos m) ⁻¹
+     ∙ ℤ-left-succ-pos _ m
+     ∙ ap (λ - → succℤ (- +pos m)) e
+     ∙ f
+   ζ : pos 2 +pos (succ n +ℕ m) ≡ pos (succ (succ (succ n))) +pos m
+   ζ = ap (pos 2 +ℤ_) (pos-addition-equiv-to-ℕ (succ n) m ⁻¹)
+     ∙ ℤ+-assoc (pos 2) (pos (succ n)) (pos m) ⁻¹
+     ∙ ap (_+pos m)
+         (ap succℤ (pos-addition-equiv-to-ℕ 2 n)
+       ∙ ap (pos ∘ succ) (addition-commutativity 2 n))
+```
 
+Relationship between below and above
+
+```
 upRight-suc : (a : ℤ) → upRight (succℤ (succℤ a)) ≡ succℤ (upRight a)
 upRight-suc (pos zero) = refl
 upRight-suc (pos (succ zero)) = refl
@@ -250,17 +275,6 @@ upRight-pred (negsucc (succ (succ x))) = refl
 upLeft-pred : (a : ℤ) → upLeft (predℤ (predℤ a)) ≡ predℤ (upLeft a)
 upLeft-pred a
  = upLeft²-elim-pred a (λ a b → a ≡ predℤ b) (pred-upRight-pred a) (upRight-pred a)
-
-
-
-above-downLeft : (a : ℤ) → a above (downLeft a)
-above-downLeft a = {!!}
-
-above-downMid : (a : ℤ) → a above (downMid a)
-above-downMid a = {!!}
-
-above-downRight : (a : ℤ) → a above (downRight a)
-above-downRight a = {!!}
 
 ℤ-elim : (P : ℤ → 𝓤 ̇ )
        → ((n : ℕ) → P (pos n)) → ((n : ℕ) → P (negsucc n))
@@ -397,4 +411,30 @@ above'-implies-below a b (inr x) = {!!}
 
 below-implies-above : (a b : ℤ) → a below b → b above a
 below-implies-above a b = (below'-implies-above a b) ∘ (below-implies-below' a b)
+
+above-downLeft : (a : ℤ) → a above (downLeft a)
+above-downLeft a = below-implies-above (downLeft a) a (downLeft-below a)
+
+above-downMid : (a : ℤ) → a above (downMid a)
+above-downMid a = below-implies-above (downMid a) a (downMid-below a)
+
+above-downRight : (a : ℤ) → a above (downRight a)
+above-downRight a = below-implies-above (downRight a) a (downRight-below a)
 ```
+
+Recursive above
+
+```
+
+data Vec (X : 𝓤 ̇ ) : ℕ → 𝓤 ̇ where
+  [] : Vec X 0
+  _::_ : {n : ℕ} → X → Vec X n → Vec X (succ n)
+
+get : {X : 𝓤 ̇ } {n : ℕ} → Vec X n → (i : ℕ) → i <ℕ n → X
+get (x :: vs) zero i<n = x
+get (x :: vs) (succ i) i<n = get vs i i<n
+
+somewhere-above : ℤ → ℤ → 𝓤₀ ̇ 
+somewhere-above a b = Σ (n , ls , _) ꞉ (Σ (Vec ℤ))
+                    , ((i : ℕ) (i<n : i <ℕ n)
+                    → get {!!} {!!} {!!} above get ls {!!} {!//!}) 
