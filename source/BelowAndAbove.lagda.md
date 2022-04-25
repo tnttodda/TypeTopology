@@ -405,9 +405,11 @@ below'-implies-above .(downMid   b) b (inr (inl refl))
 below'-implies-above .(downRight b) b (inr (inr refl))
  = below-implies-above-dR b
 
+{-
 above'-implies-below : (a b : ℤ) → a above' b → b below a
 above'-implies-below .(upLeft b) b (inl refl) = {!!}
 above'-implies-below a b (inr x) = {!!}
+-}
 
 below-implies-above : (a b : ℤ) → a below b → b above a
 below-implies-above a b = (below'-implies-above a b) ∘ (below-implies-below' a b)
@@ -426,15 +428,27 @@ Recursive above
 
 ```
 
-data Vec (X : 𝓤 ̇ ) : ℕ → 𝓤 ̇ where
-  [] : Vec X 0
-  _::_ : {n : ℕ} → X → Vec X n → Vec X (succ n)
+_aboveⁿ_ : (a c : ℤ) → ℕ → 𝓤₀ ̇
+(a aboveⁿ c) 0 = a above c
+(a aboveⁿ c) (succ n) = Σ b ꞉ ℤ , (a above b) × (b aboveⁿ c) n
 
-get : {X : 𝓤 ̇ } {n : ℕ} → Vec X n → (i : ℕ) → i <ℕ n → X
-get (x :: vs) zero i<n = x
-get (x :: vs) (succ i) i<n = get vs i i<n
+_belowⁿ_ : (a c : ℤ) → ℕ → 𝓤₀ ̇
+(a belowⁿ c) 0 = a below c
+(a belowⁿ c) (succ n) = Σ b ꞉ ℤ , (a below b) × (b belowⁿ c) n
 
-somewhere-above : ℤ → ℤ → 𝓤₀ ̇ 
-somewhere-above a b = Σ (n , ls , _) ꞉ (Σ (Vec ℤ))
-                    , ((i : ℕ) (i<n : i <ℕ n)
-                    → get {!!} {!!} {!!} above get ls {!!} {!//!}) 
+{-
+belowⁿ-s : (a b : ℤ) → (n : ℕ) → (a belowⁿ b) n
+         → (m : ℕ) → m <ℕ n → (a belowⁿ b) m
+belowⁿ-s a c (succ n) (b , x , y) zero ⋆ = {!!}
+belowⁿ-s a c (succ n) f (succ m) m<n = {!!}
+-}
+
+{-
+factual : (a b : ℤ) (n : ℕ) → (a aboveⁿ b) (succ n)
+        → (a aboveⁿ upLeft b) n + (a aboveⁿ upRight b) n
+factual a b n (a' , f , e)
+ = Cases (above-implies-above' a' b e)
+     (λ a'≡l → inl (transport (λ - → (a aboveⁿ -) n) a'≡l f))
+     (λ a'≡r → inr (transport (λ - → (a aboveⁿ -) n) a'≡r f))
+
+-}
