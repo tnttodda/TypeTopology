@@ -369,19 +369,25 @@ REPLACEB : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
          → ((c , j) : ℤ × ℤ) → (n : ℕ) → (c belowⁿ k) n -- also i < j ?
          → Σ ((y , _) , _) ꞉ CompactInterval (k , i)
          , y j ≡ c
-REPLACEB (k , i) ((x , u) , refl) (c , j) zero b = ((y , γ) , {!!}) , {!!}
+REPLACEB (k , i) ((x , u) , refl) (c , j) zero b = (α , {!!}) , {!!}
  where
-   yγ : (z : ℤ) → Σ z' ꞉ ℤ , z' below x z
-   yγ z with ℤ-is-discrete z i
-   ... | inl refl = c , b
-   ... | inr _ = x (succℤ z) , u z
-   y : ℤ → ℤ
-   y z = pr₁ (yγ (predℤ z))
-   γ : (z : ℤ) → y (succℤ z) below y z
-   γ z = transport (λ - → y (succℤ z) below y -) (predsuccℤ _ ⁻¹) {!ρ!}
+   α : Σ y ꞉ (ℤ → ℤ) , ((z : ℤ) → y (succℤ z) below y z)
+   α = (λ z → y' z {!ℤ-dichotomous!}) , {!!}
     where
-      ρ : y z below x (predℤ z)
-      ρ = pr₂ (yγ (predℤ z))
+     trich : ℤ → ℤ → {!!} ̇
+     trich a b = (a <ℤ b) + (b ≤ℤ a) 
+     y' : (z : ℤ) → trich z (succℤ i) → ℤ
+     y' z (inl _) = x z
+     y' z (inr (n , _)) = rec c downLeft n
+     η'' : (a b : ℤ) → trich a b → trich (succℤ a) b
+     η'' a b (inl (zero , e)) = inr (0 , (e ⁻¹))
+     η'' a b (inl (succ n , e)) = inl (n , ({!!} ∙ e))
+     η'' a b (inr (n , e)) = inr (succ n , ap succℤ e)
+     γ' : (z : ℤ) → (η : trich z (succℤ i)) 
+        → y' (succℤ z) (η'' z (succℤ i) η)  below y' z η
+     γ' z (inl (zero , e)) = transport (λ - → c below x -) (succℤ-lc e ⁻¹) b
+     γ' z (inl (succ n , e)) = u z
+     γ' z (inr (n , e)) = downLeft-below (rec c downLeft n)
 REPLACEB (k , i) ((x , u) , v) (c , j) (succ n) b = {!!}
 
 replace-below-succ : ∀ k c n γ → (replace-below k c (succ n) γ belowⁿ k) n
