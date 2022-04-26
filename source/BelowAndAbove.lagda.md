@@ -436,6 +436,60 @@ _belowⁿ_ : (a c : ℤ) → ℕ → 𝓤₀ ̇
 (a belowⁿ c) 0 = a below c
 (a belowⁿ c) (succ n) = Σ b ꞉ ℤ , (a below b) × (b belowⁿ c) n
 
+data Vec (X : 𝓤 ̇ ) : ℕ → 𝓤 ̇ where
+  [] : Vec X 0
+  _++_ : ∀ {n} → X → Vec X n → Vec X (succ n)
+
+[_] : {X : 𝓤 ̇ } → X → Vec X 1
+[ x ] = x ++ []
+
+_+++_ : {X : 𝓤 ̇ } {n : ℕ} → Vec X n → X → Vec X (succ n)
+[] +++ x = [ x ]
+(h ++ v) +++ x = h ++ (v +++ x)
+
+below-vec' : (a c : ℤ) → (n : ℕ) → (a belowⁿ c) n → Vec ℤ (succ n)
+below-vec' a c zero b = [ a ]
+below-vec' a c (succ n) (a' , _ , f) = a ++ below-vec' a' c n f
+
+below-vec : (a c : ℤ) → (n : ℕ) → (a belowⁿ c) n → Vec ℤ (succ (succ n))
+below-vec a c n b = (below-vec' a c n b) +++ c
+
+_!!_ : {X : 𝓤 ̇ } {n : ℕ} → Vec X n → (k : ℕ) → k <ℕ n → X
+((x ++ v) !! zero) k<n = x
+((x ++ v) !! succ k) k<n = (v !! k) k<n
+
+pairwise : {X : 𝓤 ̇ } {n : ℕ} → Vec X (succ n) → (p : X → X → 𝓥 ̇ ) → 𝓥 ̇
+pairwise {𝓤} {𝓥} {X} {n} v p
+ = (k : ℕ) → (k<n : k <ℕ n)
+ → p ((v !! k) (<-trans k n (succ n) k<n (<-succ n))) ((v !! succ k) k<n)
+
+below-vec-!!0 : (a c : ℤ) (n : ℕ) (b : (a belowⁿ c) n)
+              → (below-vec a c n b !! zero) ⋆ ≡ a
+below-vec-!!0 a c zero b = refl
+below-vec-!!0 a c (succ n) b = refl
+
+pairwise-below-vec : (a c : ℤ) → (n : ℕ) → (b : (a belowⁿ c) n)
+                   → pairwise (below-vec a c n b) _below_
+pairwise-below-vec a c zero b zero k<n = b
+pairwise-below-vec a c (succ n) (b' , e , f) zero k<n
+ = transport (a below_) (below-vec-!!0 b' c n f ⁻¹) e
+pairwise-below-vec a c (succ n) (b' , e , f) (succ k) k<n
+ = pairwise-below-vec b' c n f k k<n
+
+get-below : (a c : ℤ) (n : ℕ) → (a belowⁿ c) n → ℤ
+get-below a c 0 _ = a
+get-below a c (succ _) (b , _) = b
+
+pred : ℕ → ℕ
+pred 0 = 0
+pred (succ n) = n
+{-
+get-below' : (a c : ℤ) → (n n' : ℕ) → (b : (a belowⁿ c) n)
+           → (k : ℕ) → n' +ℕ k ≡ n
+           → Σ a' ꞉ ℤ , (a belowⁿ a') (pred n)
+get-below' a c n n' b zero v = a , {!!}
+get-below' a c (succ n) n' (a' , f , _) (succ k) v = a' , f
+-}
 {-
 belowⁿ-s : (a b : ℤ) → (n : ℕ) → (a belowⁿ b) n
          → (m : ℕ) → m <ℕ n → (a belowⁿ b) m
