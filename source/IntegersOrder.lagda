@@ -87,6 +87,10 @@ instance
 ℤ≤-split x y (zero , p) = inr p
 ℤ≤-split x y (succ a , p) = inl (a , (ℤ-left-succ x (pos a)  ∙ p))
 
+ℤ≤-attach : (x y : ℤ) → (y ≡ x) ∔ (x < y) → x ≤ y
+ℤ≤-attach x x (inl refl) = 0 , refl
+ℤ≤-attach x y (inr (a , p)) = succ a , (ℤ-left-succ-pos x a ⁻¹ ∙ p)
+
 ℤ≤-trans : (x y z : ℤ) → x ≤ y → y ≤ z → x ≤ z
 ℤ≤-trans x y z (a , p) (b , q) = a ℕ+ b , I
  where
