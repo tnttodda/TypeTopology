@@ -31,8 +31,8 @@ module NaturalsOrderExtended where
 
 nat-order-trichotomous : (x y : ℕ) → (x < y) ∔ (x ≡ y) ∔ (y < x)
 nat-order-trichotomous 0        0        = inr (inl refl)
-nat-order-trichotomous 0        (succ y) = inl (zero-minimal y)
-nat-order-trichotomous (succ x) 0        = inr (inr (zero-minimal x))
+nat-order-trichotomous 0        (succ y) = inl (zero-least y)
+nat-order-trichotomous (succ x) 0        = inr (inr (zero-least x))
 nat-order-trichotomous (succ x) (succ y) = tri-split (nat-order-trichotomous x y)
  where
   tri-split : (x < y) ∔ (x ≡ y) ∔ (y < x) → (succ x < succ y) ∔ (succ x ≡ succ y) ∔ (succ y < succ x)
@@ -80,8 +80,8 @@ less-than-one-is-zero 0        l = refl
 less-than-one-is-zero (succ x) l = 𝟘-elim l
 
 not-less-or-equal-is-bigger : (x y : ℕ) → ¬(x ≤ y) → y < x
-not-less-or-equal-is-bigger 0        y        l = l (zero-minimal y)
-not-less-or-equal-is-bigger (succ x) 0        l = zero-minimal x
+not-less-or-equal-is-bigger 0        y        l = l (zero-least y)
+not-less-or-equal-is-bigger (succ x) 0        l = zero-least x
 not-less-or-equal-is-bigger (succ x) (succ y) l = not-less-or-equal-is-bigger x y l
 
 ≤-dichotomous : (x y : ℕ) → x ≤ y ∔ y ≤ x
@@ -90,8 +90,8 @@ not-less-or-equal-is-bigger (succ x) (succ y) l = not-less-or-equal-is-bigger x 
 ≤-dichotomous (succ x) (succ y) = ≤-dichotomous x y
 
 ≥-dichotomy : (x y : ℕ) → x ≥ y ∔ x ≤ y
-≥-dichotomy 0        y        = inr (zero-minimal y)
-≥-dichotomy (succ x) 0        = inl (zero-minimal (succ x))
+≥-dichotomy 0        y        = inr (zero-least y)
+≥-dichotomy (succ x) 0        = inl (zero-least (succ x))
 ≥-dichotomy (succ x) (succ y) = ≥-dichotomy x y
 
 subtraction' : (x y : ℕ) → x < y → Σ z ꞉ ℕ , (z + x ≡ y)
@@ -131,14 +131,14 @@ least-element-unique σ (α , α₀ , α₁) (β , β₀ , β₁) = ≤-anti α 
     
 least-element-unique' : {A : ℕ → 𝓤 ̇} → (σ : detachable A)
                                        → (x y : ℕ)
-                                       → (δ : Σ A) → x ≡ pr₁ (minimal-from-given A σ δ) → y ≡ pr₁ (minimal-from-given A σ δ)
+                                       → (δ : Σ A) → x ≡ pr₁ (least-from-given A σ δ) → y ≡ pr₁ (least-from-given A σ δ)
                                        → x ≡ y
 least-element-unique' σ x y δ e₁ e₂ = e₁ ∙ e₂ ⁻¹
 
 order-split : (x y : ℕ) → (x < y) ∔ (x ≥ y)
-order-split 0        0        = inr (zero-minimal 0)
-order-split 0        (succ y) = inl (zero-minimal (succ y))
-order-split (succ x) 0        = inr (zero-minimal (succ x))
+order-split 0        0        = inr (zero-least 0)
+order-split 0        (succ y) = inl (zero-least (succ y))
+order-split (succ x) 0        = inr (zero-least (succ x))
 order-split (succ x) (succ y) = order-split x y
 
 \end{code}
@@ -150,7 +150,7 @@ In the following functions, following a similar strategy employed in NaturalsOrd
 bounded-maximisation : (A : ℕ → 𝓤 ̇) → detachable A
                      → (k : ℕ)
                      → (Σ m ꞉ ℕ , (m < k × A m × ((n : ℕ) → n < k → A n → n ≤ m))) ∔ ((n : ℕ) → A n → n ≥ k) 
-bounded-maximisation A δ zero = inr (λ n a → zero-minimal n)
+bounded-maximisation A δ zero = inr (λ n a → zero-least n)
 bounded-maximisation A δ (succ k) = f (bounded-maximisation A δ k)
  where
   conclusion = (Σ m ꞉ ℕ , (m < succ k) × A m × ((n : ℕ) → n < succ k → A n → n ≤ m)) ∔ ((n : ℕ) → A n → n ≥ succ k)

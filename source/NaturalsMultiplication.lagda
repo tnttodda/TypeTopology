@@ -175,7 +175,7 @@ ordering-multiplication-compatible' : (m n k : ℕ) → m ≤ n → m * k ≤ n 
 ordering-multiplication-compatible' m n = induction base step
  where
   base : m ≤ n → (m * 0) ≤ (n * 0)
-  base l = zero-minimal 0
+  base l = zero-least 0
 
   step : (k : ℕ)
        → (m ≤ n → (m * k) ≤ (n * k))
