@@ -6,7 +6,7 @@ Ordinals like in the HoTT book and variations.
 
 \begin{code}
 
-{-# OPTIONS --without-K --exact-split --safe #-}
+{-# OPTIONS --without-K --exact-split --safe --auto-inline #-}
 
 open import SpartanMLTT
 open import DiscreteAndSeparated
@@ -55,7 +55,7 @@ prev-behaviour' : (x : X) (σ : (y : X) → y < x → is-accessible y)
 prev-behaviour' x σ = refl
 
 transfinite-induction' :  (P : X → 𝓦 ̇ )
-                       → ((x : X) → (∀(y : X) → y < x → P y) → P x)
+                       → ((x : X) → ((y : X) → y < x → P y) → P x)
                        → (x : X) → is-accessible x → P x
 transfinite-induction' P f = accessible-induction
                               (λ x _ → P x)
@@ -217,27 +217,22 @@ being-well-order-is-prop fe = prop-criterion γ
                    (extensionality-is-prop fe (prop-valuedness o))
                    (transitivity-is-prop fe (prop-valuedness o))
 
-_≾_ : X → X → 𝓥 ̇
-x ≾ y = ¬ (y < x)
+private
+ _≾_ : X → X → 𝓥 ̇
+ x ≾ y = ¬ (y < x)
 
 ≾-is-prop-valued : funext 𝓥 𝓤₀ → is-prop-valued → (x y : X) → is-prop (x ≾ y)
 ≾-is-prop-valued fe p x y = negations-are-props fe
 
-is-top : X → 𝓤 ⊔ 𝓥 ̇
-is-top x = (y : X) → y ≾ x
-
-has-top : 𝓤 ⊔ 𝓥 ̇
-has-top = Σ x ꞉ X , is-top x
-
-<-coarser-than-≾  : (x : X)
-                  → is-accessible x
-                  → (y : X) → y < x → y ≾ x
-<-coarser-than-≾ = transfinite-induction'
+<-gives-≾  : (x : X)
+           → is-accessible x
+           → (y : X) → y < x → y ≾ x
+<-gives-≾ = transfinite-induction'
                      (λ x → (y : X) → y < x → y ≾ x)
                      (λ x f y l m → f y l x m l)
 
 ≾-refl : (x : X) → is-accessible x → x ≾ x
-≾-refl x a l = <-coarser-than-≾ x a x l l
+≾-refl x a l = <-gives-≾ x a x l l
 
 irreflexive : (x : X) → is-accessible x → ¬ (x < x)
 irreflexive = ≾-refl
@@ -246,11 +241,23 @@ irreflexive = ≾-refl
           → (x y : X) → x < y → x ≢ y
 <-gives-≢ w x y l p = irreflexive y (w y) (transport (_< y) p l)
 
-<-coarser-than-≼ : is-transitive → {x y : X} → x < y → x ≼ y
-<-coarser-than-≼ t {x} {y} l u m = t u x y m l
+<-gives-≼ : is-transitive → {x y : X} → x < y → x ≼ y
+<-gives-≼ t {x} {y} l u m = t u x y m l
 
 ≼-coarser-than-≾ : (y : X) → is-accessible y → (x : X) → x ≼ y → x ≾ y
 ≼-coarser-than-≾ y a x f l = ≾-refl y a (f y l)
+
+is-top : X → 𝓤 ⊔ 𝓥 ̇
+is-top x = (y : X) → y ≾ x
+
+is-top' : X → 𝓤 ⊔ 𝓥 ̇
+is-top' x = (y : X) → y ≼ x
+
+is-top'-gives-is-top : is-well-founded → (x : X) → is-top' x → is-top x
+is-top'-gives-is-top w x i y = ≼-coarser-than-≾ x (w x) y (i y)
+
+has-top : 𝓤 ⊔ 𝓥 ̇
+has-top = Σ x ꞉ X , is-top x
 
 no-minimal-is-empty : is-well-founded
                      → ∀ {𝓦} (A : X → 𝓦 ̇ )
@@ -294,8 +301,11 @@ the time of writing, namely 11th January 2021).
 
 \begin{code}
 
-is-trichotomous : 𝓤 ⊔ 𝓥 ̇
-is-trichotomous = (x y : X) → (x < y) + (x ≡ y) + (y < x)
+is-trichotomous-element : X → 𝓤 ⊔ 𝓥 ̇
+is-trichotomous-element x = (y : X) → (x < y) + (x ≡ y) + (y < x)
+
+is-trichotomous-order : 𝓤 ⊔ 𝓥 ̇
+is-trichotomous-order = (x : X) → is-trichotomous-element x
 
 \end{code}
 
@@ -307,7 +317,7 @@ relations are discrete (have decidable equality):
 \begin{code}
 
 trichotomous-gives-discrete : is-well-founded
-                            → is-trichotomous
+                            → is-trichotomous-order
                             → is-discrete X
 trichotomous-gives-discrete w t x y = f (t x y)
  where
@@ -330,11 +340,10 @@ proposition).
 
 \begin{code}
 
-
 trichotomy : funext (𝓤 ⊔ 𝓥) 𝓤₀
            → excluded-middle (𝓤 ⊔ 𝓥)
            → is-well-order
-           → is-trichotomous
+           → is-trichotomous-order
 trichotomy fe em (p , w , e , t) = γ
  where
   P : X → X → 𝓤 ⊔ 𝓥 ̇
@@ -510,8 +519,8 @@ proposition valued.
 cotransitive : 𝓤 ⊔ 𝓥 ̇
 cotransitive = (x y z : X) → x < y → (x < z) + (z < y)
 
-cotransitive-≾-coarser-than-≼ : cotransitive → (x y : X) → x ≾ y → x ≼ y
-cotransitive-≾-coarser-than-≼ c x y n u l = γ (c u x y l)
+cotransitive-≾-gives-≼ : cotransitive → (x y : X) → x ≾ y → x ≼ y
+cotransitive-≾-gives-≼ c x y n u l = γ (c u x y l)
  where
   γ : (u < y) + (y < x) → u < y
   γ (inl l) = l

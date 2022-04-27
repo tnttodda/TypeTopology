@@ -17,7 +17,7 @@ cumbersome and (2) requires much work in other modules.
 
 \begin{code}
 
-{-# OPTIONS --without-K --exact-split --safe #-}
+{-# OPTIONS --without-K --exact-split --safe --auto-inline #-}
 
 open import UF-FunExt
 
@@ -25,19 +25,17 @@ module ToppedOrdinalArithmetic
         (fe : FunExt)
        where
 
+open import UF-Subsingletons
+
 open import SpartanMLTT
 open import OrdinalsType
 open import OrdinalArithmetic fe
 open import OrdinalsWellOrderArithmetic
 open import ToppedOrdinalsType fe
+open import OrdinalsType-Injectivity fe
 open import GenericConvergentSequence
-open import NaturalsOrder
-open import InjectiveTypes fe
 open import SquashedSum fe
 open import CanonicalMapNotation
-
-open import UF-Subsingletons
-open import UF-Embeddings
 
 Ordᵀ = Ordinalᵀ 𝓤₀
 
@@ -47,6 +45,11 @@ succₒ α = α +ₒ 𝟙ₒ  ,
            (underlying-order α)
            (underlying-order 𝟙ₒ)
            (prop.topped 𝟙 𝟙-is-prop ⋆)
+
+succₒ-is-trichotomous : (α : Ord)
+                      → is-trichotomous α
+                      → is-trichotomous [ succₒ α ]
+succₒ-is-trichotomous α t = +ₒ-is-trichotomous α 𝟙ₒ t 𝟙ₒ-is-trichotomous
 
 𝟙ᵒ 𝟚ᵒ ℕ∞ᵒ : Ordᵀ
 𝟙ᵒ  = 𝟙ₒ , prop.topped 𝟙 𝟙-is-prop ⋆
@@ -70,6 +73,12 @@ Sum of an ordinal-indexed family of ordinals:
 
   module Sum = sum-top fe _<_ _≺_ (λ x → top (υ x)) (λ x → top-is-top (υ x))
 
+∑-is-trichotomous : (τ : Ordᵀ) (υ : ⟪ τ ⟫ → Ordᵀ)
+                  → is-trichotomous [ τ ]
+                  → ((x : ⟪ τ ⟫) → is-trichotomous [ υ x ])
+                  → is-trichotomous [ ∑ τ υ ]
+∑-is-trichotomous τ υ = sum.trichotomy-preservation _ _
+
 \end{code}
 
 Addition and multiplication can be reduced to ∑, given the ordinal 𝟚ᵒ
@@ -80,28 +89,28 @@ defined above:
 _+ᵒ_ : Ordᵀ → Ordᵀ → Ordᵀ
 τ +ᵒ υ = ∑ 𝟚ᵒ (cases (λ _ → τ) (λ _ → υ))
 
++ᵒ-is-trichotomous : (τ υ : Ordᵀ)
+                   → is-trichotomous [ τ ]
+                   → is-trichotomous [ υ ]
+                   → is-trichotomous [ τ +ᵒ υ ]
++ᵒ-is-trichotomous τ υ t u = ∑-is-trichotomous 𝟚ᵒ (cases (λ _ → τ) (λ _ → υ))
+                              𝟚ₒ-is-trichotomous
+                              (dep-cases (λ _ → t) (λ _ → u))
+
 _×ᵒ_ : Ordᵀ → Ordᵀ → Ordᵀ
 τ ×ᵒ υ = ∑ τ  (λ (_ : ⟪ τ ⟫) → υ)
+
+×ᵒ-is-trichotomous : (τ υ : Ordᵀ)
+                   → is-trichotomous [ τ ]
+                   → is-trichotomous [ υ ]
+                   → is-trichotomous [ τ ×ᵒ υ ]
+×ᵒ-is-trichotomous τ υ t u = ∑-is-trichotomous τ (λ _ → υ) t (λ _ → u)
 
 \end{code}
 
 Extension of a family X → Ordᵀ along an embedding j : X → A to get a
 family A → Ordᵀ. (This can also be done for Ord-valued families.)
-This uses the module 𝓤₀F-InjectiveTypes to calculate Y / j.
-
-\begin{code}
-
-_↗_ : {X A : 𝓤₀ ̇ } → (X → Ordᵀ) → (Σ j ꞉ (X → A), is-embedding j) → (A → Ordᵀ)
-τ ↗ (j , e) = λ a → ((Y / j) a ,
-                     Extension.order a ,
-                     Extension.well-order a (λ x → tis-well-ordered (τ x))) ,
-                     Extension.top-preservation a (λ x → topped (τ x))
- where
-  Y : domain τ → 𝓤₀ ̇
-  Y x = ⟪ τ x ⟫
-  module Extension = extension fe Y j e (λ {x} → tunderlying-order (τ x))
-
-\end{code}
+This uses the module UF-InjectiveTypes to calculate Y / j.
 
 Sum of a countable family with an added non-isolated top element. We
 first extend the family to ℕ∞ and then take the ordinal-indexed sum of
@@ -109,8 +118,10 @@ ordinals defined above.
 
 \begin{code}
 
+open topped-ordinals-injectivity
+
 ∑¹ : (ℕ → Ordᵀ) → Ordᵀ
-∑¹ τ = ∑ ℕ∞ᵒ (τ ↗ (ι , ι-embedding fe₀))
+∑¹ τ = ∑ ℕ∞ᵒ (τ ↗ embedding-ℕ-to-ℕ∞ (fe 𝓤₀ 𝓤₀))
 
 \end{code}
 
@@ -119,6 +130,6 @@ And now with an isolated top element:
 \begin{code}
 
 ∑₁ : (ℕ → Ordᵀ) → Ordᵀ
-∑₁ τ = ∑ (succₒ ℕₒ) (τ ↗ (over , over-embedding))
+∑₁ τ = ∑ (succₒ ω) (τ ↗ (over , over-embedding))
 
 \end{code}

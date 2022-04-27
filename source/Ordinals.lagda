@@ -8,7 +8,7 @@ OrdinalNotationInterpretation.
 
 \begin{code}
 
-{-# OPTIONS --without-K --exact-split --safe #-}
+{-# OPTIONS --without-K --exact-split --safe --auto-inline #-}
 
 import BuraliForti
 import LexicographicOrder
@@ -18,7 +18,9 @@ import OrdinalCodes
 import OrdinalNotationInterpretation
 import OrdinalNotions
 import OrdinalOfOrdinals
+import OrdinalOfOrdinalsSuprema
 import OrdinalOfTruthValues
+import OrdinalTaboos
 import OrdinalsClosure
 import OrdinalsFreeGroup
 import OrdinalsShulmanTaboo
