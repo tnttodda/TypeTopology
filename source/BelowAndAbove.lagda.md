@@ -460,21 +460,37 @@ _!!_ : {X : 𝓤 ̇ } {n : ℕ} → Vec X n → (k : ℕ) → k <ℕ n → X
 
 pairwise : {X : 𝓤 ̇ } {n : ℕ} → Vec X (succ n) → (p : X → X → 𝓥 ̇ ) → 𝓥 ̇
 pairwise {𝓤} {𝓥} {X} {n} v p
- = (k : ℕ) → (k<n : k <ℕ n)
- → p ((v !! k) (<-trans k n (succ n) k<n (<-succ n))) ((v !! succ k) k<n)
+ = (k : ℕ) → (k<n : k <ℕ n) → (k<sn : k <ℕ succ n)
+ → p ((v !! k) k<sn) ((v !! succ k) k<n)
 
 below-vec-!!0 : (a c : ℤ) (n : ℕ) (b : (a belowⁿ c) n)
               → (below-vec a c n b !! zero) ⋆ ≡ a
 below-vec-!!0 a c zero b = refl
 below-vec-!!0 a c (succ n) b = refl
 
+!!-helper : {X : 𝓤 ̇ } {n : ℕ} → (v : Vec X n) → (k₁ k₂ : ℕ)
+          → (k₁<n : k₁ <ℕ n) (k₂<n : k₂ <ℕ n)
+          → k₁ ≡ k₂
+          → (v !! k₁) k₁<n ≡ (v !! k₂) k₂<n
+!!-helper (x ++ v) zero .zero k₁<n k₂<n refl = refl
+!!-helper (x ++ v) (succ k) .(succ k) k₁<n k₂<n refl
+ = !!-helper v k k k₁<n k₂<n refl
+
+below-vec-!!sn : (a c : ℤ) (n : ℕ) (b : (a belowⁿ c) n)
+               → (n<sn : n <ℕ succ n)
+               → (below-vec a c n b !! succ n) n<sn ≡ c
+below-vec-!!sn a c zero b n<sn = refl
+below-vec-!!sn a c (succ n) (b , e , f) n<sn
+ = below-vec-!!sn b c n f n<sn
+
 pairwise-below-vec : (a c : ℤ) → (n : ℕ) → (b : (a belowⁿ c) n)
                    → pairwise (below-vec a c n b) _below_
-pairwise-below-vec a c zero b zero k<n = b
-pairwise-below-vec a c (succ n) (b' , e , f) zero k<n
+pairwise-below-vec a c zero b zero k<n k<sn
+ = b
+pairwise-below-vec a c (succ n) (b' , e , f) zero k<n k<sn
  = transport (a below_) (below-vec-!!0 b' c n f ⁻¹) e
-pairwise-below-vec a c (succ n) (b' , e , f) (succ k) k<n
- = pairwise-below-vec b' c n f k k<n
+pairwise-below-vec a c (succ n) (b' , e , f) (succ k) k<n k<sn
+ = pairwise-below-vec b' c n f k k<n k<sn
 
 get-below : (a c : ℤ) (n : ℕ) → (a belowⁿ c) n → ℤ
 get-below a c 0 _ = a

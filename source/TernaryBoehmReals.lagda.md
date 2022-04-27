@@ -339,11 +339,38 @@ above-replace k c (succ j) l≤c≤u with FACT k c (succ j) l≤c≤u
 ... | inr (inr f)
  = downRight c , above-downRight c , above-replace k (downRight c) j f
 
-<-< : (a z b : ℤ) → (z <ℤ a) + (a ≤ℤ z ≤ℤ b) + (b <ℤ z)
-<-< a z b = Cases (ℤ-trichotomous z a) inl
+trich : ℤ → ℤ → ℤ → 𝓤₀ ̇
+trich z a b = (z <ℤ a) + (a ≤ℤ z ≤ℤ b) + (b <ℤ z)
+
+trich-succ : (z a b : ℤ) → a <ℤ b → trich z a b → trich (succℤ z) a b
+trich-succ z a b (k , η) (inl (succ n , ε))
+ = inl         (n , (ℤ-left-succ-pos (succℤ z) n ∙ ε))
+trich-succ z a b (k , η) (inl (0      , refl))
+ = (inr ∘ inl) ((0 , refl) , (succ k , (ℤ-left-succ-pos (succℤ z) k ⁻¹ ∙ η)))
+trich-succ z a b (k , η) (inr (inl ((n₁ , ε₁) , succ n₂ , ε₂)))
+ = (inr ∘ inl) ((succ n₁ , (ap succℤ ε₁)) , (n₂ , (ℤ-left-succ-pos z n₂ ∙ ε₂)))
+trich-succ z a b (k , η) (inr (inl ((n₁ , ε₁) , zero , ε₂)))
+ = (inr ∘ inr) (0 , ap succℤ (ε₂ ⁻¹))
+trich-succ z a b (k , η) (inr (inr (n , refl)))
+ = (inr ∘ inr) (succ n , refl)
+
+trich-all : (z a b : ℤ) → trich z a b
+trich-all z a b = Cases (ℤ-trichotomous z a) inl
           λ a≤z → Cases (ℤ-trichotomous b z) (inr ∘ inr)
           λ z≤b → (inr ∘ inl) (ℤ≤-attach _ _ a≤z , ℤ≤-attach _ _ z≤b)
 
+ne : (a b c : ℤ) → ((n , _) : a ≤ℤ c) → ((n₁ , _) : a ≤ℤ b) → ((n₂ , _) : b ≤ℤ c)
+   → n₁ +ℕ n₂ ≡ n
+ne a b c (n , refl) (n₁ , refl) (n₂ , s)
+ = pos-lc _ _ (ℤ+-lc (pos (n₁ +ℕ n₂)) (pos n) a
+     (ap (a +ℤ_) (pos-addition-equiv-to-ℕ n₁ n₂ ⁻¹)
+     ∙ ℤ+-assoc a (pos n₁) (pos n₂) ⁻¹
+     ∙ s))
+
+ye : (a b c : ℤ) → ((n , _) : a ≤ℤ c) → a ≤ℤ b → ((n₂ , _) : b ≤ℤ c) → n₂ <ℕ succ n
+ye a b c (n , q) (n₁ , r) (n₂ , s)
+ = transport (n₂ ≤ℕ_) (ne a b c (n , q) (n₁ , r) (n₂ , s)) (≤-+' n₁ n₂)
+ 
 REPLACEC : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
          → ((c , j) : ℤ × ℤ) → (n : ℕ) → (i +pos succ n ≡ j)
          → (c belowⁿ k) n
@@ -353,53 +380,42 @@ REPLACEC (k , i) ((x , u) , refl) (c , j) n refl b
  = (((pr₁ α) , pr₁ (pr₂ α))
  , pr₁ (pr₂ (pr₂ α))) , pr₂ (pr₂ (pr₂ α))
  where
-  trich : ℤ → ℤ → ℤ → 𝓤₀ ̇
-  trich z a b = (z <ℤ a) + (a ≤ℤ z ≤ℤ b) + (b <ℤ z)
-  trich* : ℤ → 𝓤₀ ̇
-  trich* z = trich z i j
-  fax : (z : ℤ) → trich* z
-  fax z = <-< i z j
-  ye : (a b c : ℤ) → ((n , _) : a ≤ℤ c) → a <ℤ b → ((n₂ , _) : b ≤ℤ c) → n₂ <ℕ n
-  ye a b c (n , q) (n₁ , r) (n₂ , s) = {!!}
+  trich* = λ z → trich z i j
+  trich-all* = λ z → trich-all z i j
   α : Σ y ꞉ (ℤ → ℤ) , ((z : ℤ) → y (succℤ z) below y z) × (y i ≡ k) × (y j ≡ c)
-  α = (λ z → y z (fax z)) , (λ z → γ* z (fax z) (fax (succℤ z)))
-    , {!!}
-    , {!!}
+  α = (λ z → y  z (trich-all* z))
+    , (λ z → γ* z (trich-all* z) (trich-all* (succℤ z)))
+    , ζ* (trich-all* i)
+    , θ* (trich-all* j)
    where
     y : (z : ℤ) → trich* z → ℤ
-    y z (inl      _ )                               = x z   -- i < z
-    y z (inr (inl ((zero , ε₁) , n₂ , ε₂)))         = k     -- i = z < j
-    y z (inr (inl ((succ n₁ , ε₁) , n₂ , ε₂)))
-     = ((below-vec c k n b) !! n₂)
-       (<-trans n₂ (succ n) (succ (succ n))
-         (ye i z j (succ n , refl) (n₁ , (ℤ-left-succ-pos i n₁ ∙ ε₁)) (n₂ , ε₂))
-         (<-succ n))
-    y z (inr (inr (n' , ε))) = rec c downLeft (succ n')
-    η'' : (z : ℤ) → trich* z → trich* (succℤ z)
-    η'' z (inl (succ n' , ε)) = inl (n' , (ℤ-left-succ-pos (succℤ z) n' ∙ ε))
-    η'' z (inl (zero , ε)) = inr (inl ((0 , (ε ⁻¹)) , (succ n , (ap (_+pos succ n) ε))))
-    η'' z (inr (inl ((zero , ε₁) , n₂ , ε₂))) = inr (inl ((1 , (ap succℤ ε₁)) , {!!})) -- inl (0 , (ap succℤ ε₁))
-    η'' z (inr (inl ((succ n₁ , ε₁) , zero , ε₂)))
-     = inr (inr (0 , (ap succℤ (ε₂ ⁻¹))))
-    η'' z (inr (inl ((succ n₁ , ε₁) , succ n₂ , ε₂)))
-     = inr (inl ((succ (succ n₁) , ap succℤ ε₁) , n₂ , (ℤ-left-succ-pos z n₂ ∙ ε₂)))
-    η'' z (inr (inr (n' , ε)))
-     = inr (inr (succ n' , ap succℤ ε))
-    γ : (z : ℤ) → (η : trich* z) → y (succℤ z) (η'' z η) below y z η
-    γ z (inl      _ ) = {!!} -- u z  -- i < z
-    γ z (inr (inl ((zero , ε₁) , n₂ , ε₂)))
-     = {!!} -- transport (λ - → x (succℤ z) below x -) (ε₁ ⁻¹) (u z)     -- i = z < j
-    γ z (inr (inl ((succ n₁ , ε₁) , zero , ε₂)))
-     = transport (downLeft c below_) (below-vec-!!0 c k n b ⁻¹) (downLeft-below c) -- downLeft-below c     -- i < z = j
-    γ z (inr (inl ((succ n₁ , ε₁) , succ n₂ , ε₂)))
-     = pairwise-below-vec c k n b n₂
-         (<-trans n₂ n (succ n)
-           (ye i z j (succ n , refl) (n₁ , (ℤ-left-succ-pos i n₁ ∙ ε₁)) (succ n₂ , ε₂))
-           (<-succ n))
-    γ z (inr (inr (n' , ε)))
-     = downLeft-below (rec c downLeft (succ n'))
+    y z (inl      _ )
+     = x z
+    y z (inr (inl ((n₁ , ε₁) , n₂ , ε₂)))
+     = ((below-vec c k n b) !! n₂) (ye i z j (succ n , refl) (n₁ , ε₁) (n₂ , ε₂))
+    y z (inr (inr (n , ε)))
+     = rec c downLeft (succ n)
+    γ : (z : ℤ) → (η : trich* z) → y (succℤ z) (trich-succ z i j (n , ℤ-left-succ-pos i n) η) below y z η
+    γ z (inl (succ n , ε))
+     = u z
+    γ z (inl (0      , refl))
+     = transport (_below x z) (below-vec-!!sn c k n b _ ⁻¹ ) (u z)
+    γ z (inr (inl ((n₁ , ε₁) , succ n₂ , ε₂)))
+     = pairwise-below-vec c k n b n₂ _ _
+    γ z (inr (inl ((n₁ , ε₁) , zero , ε₂)))
+     = transport (downLeft c below_) (below-vec-!!0 c k n b ⁻¹) (downLeft-below c)
+    γ z (inr (inr (n , refl)))
+     = downLeft-below (rec c downLeft (succ n))
+    ζ : y i (inr (inl ((0 , refl) , (succ n , refl)))) ≡ k
+    ζ = below-vec-!!sn c k n b _
+    θ : y j (inr (inl ((succ n , refl) , (0 , refl)))) ≡ c
+    θ = below-vec-!!0 c k n b
+    θ* : (η : trich* j) → y j η ≡ c
+    θ* η = transport (λ - → y j - ≡ c) {!!} θ
+    ζ* : (η : trich* i) → y i η ≡ x i
+    ζ* η = transport (λ - → y i - ≡ k) {!!} ζ
     γ* : (z : ℤ) → (η : trich* z) (η' : trich* (succℤ z)) → y (succℤ z) η' below y z η
-    γ* z η η' = transport (λ - → y (succℤ z) - below y z η) {!!} (γ z η)
+    γ* z η η' = transport (λ - → y (succℤ z) - below y z η) {!ye!} (γ z η)
 
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
