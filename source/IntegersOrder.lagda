@@ -107,6 +107,19 @@ instance
   I : succℤ x ≤ succℤ y
   I = ℤ≤-trans (succℤ x) y (succℤ y) l₁ (≤-incrℤ y)
 
+ℤ≤-same-witness : (x y : ℤ) → ((n , _) (m , _) : x ≤ y) → n ≡ m
+ℤ≤-same-witness x y p q = ap pr₁ (ℤ≤-is-prop x y p q)
+
+ℤ≤-add-witness : (x y z : ℤ) → ((n , p) : x ≤ y) ((m , q) : y ≤ z)
+               → ((o , r) : x ≤ z)
+               → o ≡ n ℕ+ m
+ℤ≤-add-witness x y z x≤y y≤z x≤z
+ = ℤ≤-same-witness x z x≤z (ℤ≤-trans x y z x≤y y≤z)
+
+ℤ-less-not-bigger-or-equal : (x y : ℤ) → x < y → ¬ (y ≤ x)
+ℤ-less-not-bigger-or-equal x y x<y y≤x
+ = ℤ-bigger-or-equal-not-less y x y≤x x<y
+
 ℤ≤-refl : (x : ℤ) → x ≤ x
 ℤ≤-refl x = 0 , refl
 

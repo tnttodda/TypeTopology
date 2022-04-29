@@ -199,6 +199,9 @@ build-via-ci (k , i)
  = build-via (k , i)
  , ap (build-via' (k , i) i)
      (ℤ-trichotomous-is-prop i i (ℤ-trichotomous i i) (inr (inl refl)))
+
+-- build-ci-ci : ((k , i) : ℤ × ℤ) → CompactInterval (k , i)
+
 ```
 
 TODO
@@ -359,43 +362,54 @@ trich-all z a b = Cases (ℤ-trichotomous z a) inl
           λ a≤z → Cases (ℤ-trichotomous b z) (inr ∘ inr)
           λ z≤b → (inr ∘ inl) (ℤ≤-attach _ _ a≤z , ℤ≤-attach _ _ z≤b)
 
-ne : (a b c : ℤ) → ((n , _) : a ≤ℤ c) → ((n₁ , _) : a ≤ℤ b) → ((n₂ , _) : b ≤ℤ c)
+trich-is-prop : (z a b : ℤ) → a <ℤ b → is-prop (trich z a b)
+trich-is-prop z a b a<b
+ = +-is-prop (ℤ<-is-prop z a) (+-is-prop (≤ℤ²-is-prop z) (ℤ<-is-prop b z)
+    λ (_ , z≤b) → ℤ-bigger-or-equal-not-less z b z≤b) 
+    (λ z<a → cases
+     (λ (a≤z , z≤b) → ℤ-less-not-bigger-or-equal z a z<a a≤z)
+     (ℤ-bigger-or-equal-not-less z b (<-is-≤ z b (ℤ<-trans z a b z<a a<b))))
+
+ne : (a b c : ℤ)
+   → ((n , _) : a ≤ℤ c) → ((n₁ , _) : a ≤ℤ b) → ((n₂ , _) : b ≤ℤ c)
    → n₁ +ℕ n₂ ≡ n
-ne a b c (n , refl) (n₁ , refl) (n₂ , s)
- = pos-lc _ _ (ℤ+-lc (pos (n₁ +ℕ n₂)) (pos n) a
-     (ap (a +ℤ_) (pos-addition-equiv-to-ℕ n₁ n₂ ⁻¹)
-     ∙ ℤ+-assoc a (pos n₁) (pos n₂) ⁻¹
-     ∙ s))
+ne a b c a≤c a≤b b≤c = ℤ≤-same-witness a c (ℤ≤-trans a b c a≤b b≤c) a≤c
 
 ye : (a b c : ℤ) → ((n , _) : a ≤ℤ c) → a ≤ℤ b → ((n₂ , _) : b ≤ℤ c) → n₂ <ℕ succ n
 ye a b c (n , q) (n₁ , r) (n₂ , s)
  = transport (n₂ ≤ℕ_) (ne a b c (n , q) (n₁ , r) (n₂ , s)) (≤-+' n₁ n₂)
  
-REPLACEC : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
-         → ((c , j) : ℤ × ℤ) → (n : ℕ) → (i +pos succ n ≡ j)
+replace-below
+         : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
+         → ((c , j) : ℤ × ℤ) → ((n , _) : i <ℤ j)
          → (c belowⁿ k) n
          → Σ ((y , _) , _) ꞉ CompactInterval (k , i)
          , y j ≡ c
-REPLACEC (k , i) ((x , u) , refl) (c , j) n refl b
- = (((pr₁ α) , pr₁ (pr₂ α))
- , pr₁ (pr₂ (pr₂ α))) , pr₂ (pr₂ (pr₂ α))
+replace-below (k , i) ((x , u) , refl) (c , j) (n , refl) b = α
  where
+  i<j = n , refl
+  i≤j = <-is-≤ i j i<j
   trich* = λ z → trich z i j
   trich-all* = λ z → trich-all z i j
-  α : Σ y ꞉ (ℤ → ℤ) , ((z : ℤ) → y (succℤ z) below y z) × (y i ≡ k) × (y j ≡ c)
-  α = (λ z → y  z (trich-all* z))
-    , (λ z → γ* z (trich-all* z) (trich-all* (succℤ z)))
-    , ζ* (trich-all* i)
-    , θ* (trich-all* j)
+  trich*-is-prop = λ z p q → trich-is-prop z i j p q
+  trich*-i : trich* i
+  trich*-i = inr (inl ((0 , refl) , i≤j))
+  trich*-j : trich* j
+  trich*-j = inr (inl (i≤j , (0 , refl)))
+  α = (((λ z → y z (trich-all* z))
+    , (λ z → γ* z (trich-all* z) (trich-all* (succℤ z))))
+    , (ζ* (trich-all* i)))
+    , (θ* (trich-all* j))
    where
     y : (z : ℤ) → trich* z → ℤ
     y z (inl      _ )
      = x z
     y z (inr (inl ((n₁ , ε₁) , n₂ , ε₂)))
-     = ((below-vec c k n b) !! n₂) (ye i z j (succ n , refl) (n₁ , ε₁) (n₂ , ε₂))
+     = ((below-vec c k n b) !! n₂) (ye i z j i≤j (n₁ , ε₁) (n₂ , ε₂))
     y z (inr (inr (n , ε)))
      = rec c downLeft (succ n)
-    γ : (z : ℤ) → (η : trich* z) → y (succℤ z) (trich-succ z i j (n , ℤ-left-succ-pos i n) η) below y z η
+    γ : (z : ℤ) → (η : trich* z)
+      → y (succℤ z) (trich-succ z i j i<j η) below y z η
     γ z (inl (succ n , ε))
      = u z
     γ z (inl (0      , refl))
@@ -403,28 +417,54 @@ REPLACEC (k , i) ((x , u) , refl) (c , j) n refl b
     γ z (inr (inl ((n₁ , ε₁) , succ n₂ , ε₂)))
      = pairwise-below-vec c k n b n₂ _ _
     γ z (inr (inl ((n₁ , ε₁) , zero , ε₂)))
-     = transport (downLeft c below_) (below-vec-!!0 c k n b ⁻¹) (downLeft-below c)
+     = transport (downLeft c below_)
+         (below-vec-!!0 c k n b ⁻¹) (downLeft-below c)
     γ z (inr (inr (n , refl)))
      = downLeft-below (rec c downLeft (succ n))
-    ζ : y i (inr (inl ((0 , refl) , (succ n , refl)))) ≡ k
+    ζ : y i trich*-i ≡ k
     ζ = below-vec-!!sn c k n b _
-    θ : y j (inr (inl ((succ n , refl) , (0 , refl)))) ≡ c
+    θ : y j trich*-j ≡ c
     θ = below-vec-!!0 c k n b
     θ* : (η : trich* j) → y j η ≡ c
-    θ* η = transport (λ - → y j - ≡ c) {!!} θ
+    θ* η = transport (λ - → y j - ≡ c)
+             (trich*-is-prop j i<j trich*-j η) θ
     ζ* : (η : trich* i) → y i η ≡ x i
-    ζ* η = transport (λ - → y i - ≡ k) {!!} ζ
-    γ* : (z : ℤ) → (η : trich* z) (η' : trich* (succℤ z)) → y (succℤ z) η' below y z η
-    γ* z η η' = transport (λ - → y (succℤ z) - below y z η) {!ye!} (γ z η)
+    ζ* η = transport (λ - → y i - ≡ k)
+             (trich*-is-prop i i<j trich*-i η) ζ
+    γ* : (z : ℤ) → (η : trich* z) (η' : trich* (succℤ z))
+       → y (succℤ z) η' below y z η
+    γ* z η η' = transport (λ - → y (succℤ z) - below y z η)
+                  (trich*-is-prop (succℤ z) i<j
+                    (trich-succ z i j i<j η) η') (γ z η)
+
+replace-above
+         : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
+         → ((c , j) : ℤ × ℤ) → ((n , _) : j <ℤ i)
+         → (c aboveⁿ k) n
+         → Σ ((y , _) , _) ꞉ CompactInterval (k , i)
+         , y j ≡ c
+replace-above (k , i) x (c , j) j<i b 
+ = ((pr₁ (pr₁ γ)) , (pr₂ γ)) , (pr₂ (pr₁ γ))
+ where
+   ζ : CompactInterval (c , j)
+   ζ = build-via-ci (c , j)
+   γ : Σ ((y , _) , _) ꞉ CompactInterval (c , j)
+     , y i ≡ k
+   γ = replace-below (c , j) (build-via-ci (c , j)) (k , i) j<i
+         {!!}
+      
 
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
         → Σ ((x , _) , _) ꞉ CompactInterval (k , i)
         , x δ ≡ c
 replace (k , i) (c , δ) l≤c≤u with ℤ-trichotomous i δ
-... | inl (n , θ) = REPLACEC (k , i) (build-via-ci (k , i)) (c , δ) n (ℤ-left-succ-pos i n ⁻¹ ∙ θ) {!!}
-... | inr (inl refl) = (build-via-ci (k , i)) , {!!}
-... | inr (inr (n , θ)) = {!!}
+... | inl i<δ
+    = replace-below (k , i) (build-via-ci (k , i)) (c , δ) i<δ {!!}
+... | inr (inl refl)
+    = build-via-ci (k , i) , {!!}
+... | inr (inr δ<i)
+    = replace-above (k , i) (build-via-ci (k , i)) (c , δ) δ<i {!!}
 ```
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
