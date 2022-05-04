@@ -33,7 +33,7 @@ have our encodings of real numbers inside 𝕂, and not any function of type ℤ
 The function x : ℤ → ℤ takes a "precision-level" n : ℤ and gives back an
 encoding x(n) : ℤ of a real interval.
 
-The idea is that each precision-level n : ℤ represents a "layer4" in the
+The idea is that each precision-level n : ℤ represents a "layer" in the
 following illustrative "brick pattern".
 
 Level n+1 has bricks half the size of those on level n.
@@ -53,13 +53,13 @@ Each brick encodes a real interval; specifically the interval ⟪ x(n) , n ⟫ a
 defined below.
 
 ⟪_⟫ : ℤ × ℤ → ℚ × ℚ
-⟪ k , p ⟫ = (k / 2^{p + 1}) , ((k + 2) / 2^{p + 1})
+⟪ k , p ⟫ = (k / 2^{p - 1}) , ((k + 2) / 2^{p - 1})
 
 ## Formal definition
 
-therefore, an encoding of a real number is a sequence of encodings of real
+Therefore, an encoding of a real number is a sequence of encodings of real
 intervals -- the restriction we add is that each brick x(n) is "below" the brick
--- x(n+1); meaning ⟪ x(n+1) , n+1 ⟫ ⊂ ⟪ x(n) , n ⟫.
+-- x(n-1); meaning ⟪ x(n+1) , n+1 ⟫ ⊂ ⟪ x(n) , n ⟫.
 
 note that there are precisely three brick below each brick.
 
@@ -152,9 +152,9 @@ build-via'-below
  → (η : (n <ℤ i) + (n ≡ i) + (i <ℤ n))
  → build-via' (k , i) (succℤ n) (ℤ-trich-succ n i η) below build-via' (k , i) n η
 build-via'-below (k , i) n (inl (0           , sn+j≡i))
- = {!!}
+ = above-implies-below _ _ (upRight-above k)
 build-via'-below (k , i) n (inl (succ j      , sn+j≡i))
- = {!!}
+ = above-implies-below _ _ (upRight-above (rec k upRight (succ j)))
 build-via'-below (k , i) n (inr (inl              n≡i))
  = downLeft-below k
 build-via'-below (k , i) n (inr (inr (j      , sn+j≡i)))
@@ -233,8 +233,8 @@ ci-lower-upper-<' : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
 ci-lower-upper-<' (k , i) ((x , γx) , refl) δ 0        refl
  = γx i
 ci-lower-upper-<' (k , i) ((x , γx) , refl) δ (succ n) refl
- = {!!} -- ℤ≤-trans _ _ _ (downLeft-≤ _ _ IHl) (pr₁ (γx (succℤ i +ℤ pos n)))
- , {!!} -- ℤ≤-trans _ _ _ (pr₂ (γx (succℤ i +pos n))) (downRight-≤ _ _ IHr)
+ = ℤ≤-trans _ _ _ (downLeft-monotone _ _ IHl) (pr₁ (γx (succℤ i +ℤ pos n)))
+ , ℤ≤-trans _ _ _ (pr₂ (γx (succℤ i +pos n))) (downRight-monotone _ _ IHr)
  where
    IH = ci-lower-upper-<' (x i , i) ((x , γx) , refl)
           (predℤ δ) n (predsuccℤ _ ⁻¹)
@@ -260,8 +260,8 @@ ci-lower-upper->' : ((k , i) : ℤ × ℤ) → (x : CompactInterval (k , i))
 ci-lower-upper->' (k , i) ((x , γx) , refl) δ 0        refl
  = below-implies-above _ _ (γx δ)
 ci-lower-upper->' (k , i) ((x , γx) , refl) δ (succ n) refl
- = ℤ≤-trans _ _ _ {!!} (pr₁ (below-implies-above _ _ (γx δ)))
- , ℤ≤-trans _ _ _ (pr₂ (below-implies-above _ _ (γx δ))) {!!} -- (upRight-≤ _ _ IHr)
+ = ℤ≤-trans _ _ _ (upLeft-monotone _ _ IHl) (pr₁ (below-implies-above _ _ (γx δ)))
+ , ℤ≤-trans _ _ _ (pr₂ (below-implies-above _ _ (γx δ))) (upRight-monotone _ _ IHr)
  where
    IH = ci-lower-upper->' (x i , i) ((x , γx) , refl)
           (succℤ δ) n (ℤ-left-succ-pos (succℤ δ) n)
@@ -309,9 +309,6 @@ _above/below_ : ((k , i) (c , j) : ℤ × ℤ) → 𝓤₀ ̇
 ... | inr (inl      _ ) = k ≡ c
 ... | inr (inr (n , _)) = (c aboveⁿ k) n
 
-above-implies-below : (a b : ℤ) → a above b → b below a
-above-implies-below a b = {!!}
-
 above/below→lower/upper : ((k , i) (c , j) : ℤ × ℤ)
                         → (k , i) above/below (c , j)
                         → lower (k , i) j ≤ℤ c ≤ℤ upper (k , i) j
@@ -330,17 +327,22 @@ FACT : (k c : ℤ) (j : ℕ)
 FACT k c zero (l≤c , c≤u) = Cases (above-implies-above' c k (l≤c , c≤u)) {!!} {!!}
 FACT k c (succ j) (l≤c , c≤u) = {!!}
 
+{-
 above-replace : (k c : ℤ)(j : ℕ)
               → rec k upLeft (succ j) ≤ℤ c ≤ℤ rec k upRight (succ j)
               → (c aboveⁿ k) j
 above-replace k c zero = id
-above-replace k c (succ j) l≤c≤u with FACT k c (succ j) l≤c≤u
+above-replace k c (succ j) (l≤c , c≤u) with FACT k c (succ j) (l≤c , c≤u)
 ... | inl      f
- = downLeft  c , above-downLeft  c , above-replace k (downLeft  c) j f
+ = {!!} , above-replace k c j ({!!} , {!!}) -- above-downLeft  c
+        , {!!} -- above-replace k (downLeft  c) j f
 ... | inr (inl f)
- = downMid   c , above-downMid   c , above-replace k (downMid   c) j f
+ = downMid   c , {!!} -- above-downMid   c
+               , {!!} -- above-replace k (downMid   c) j f
 ... | inr (inr f)
- = downRight c , above-downRight c , above-replace k (downRight c) j f
+ = downRight c , {!!} -- above-downRight c
+               , {!!} -- above-replace k (downRight c) j f
+-}
 
 trich : ℤ → ℤ → ℤ → 𝓤₀ ̇
 trich z a b = (z <ℤ a) + (a ≤ℤ z ≤ℤ b) + (b <ℤ z)
@@ -380,13 +382,15 @@ ye a b c (n , q) (n₁ , r) (n₂ , s)
  = transport (n₂ ≤ℕ_) (ne a b c (n , q) (n₁ , r) (n₂ , s)) (≤-+' n₁ n₂)
  
 replace-below
-         : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
-         → ((c , j) : ℤ × ℤ) → ((n , _) : i <ℤ j)
-         → (c belowⁿ k) n
-         → Σ ((y , _) , _) ꞉ CompactInterval (k , i)
-         , y j ≡ c
-replace-below (k , i) ((x , u) , refl) (c , j) (n , refl) b = α
+         : ((k , i) (c , j) : ℤ × ℤ)
+         → ((n , _) : i <ℤ j) → (c belowⁿ k) n
+         → Σ ((y , _) , _) ꞉ CompactInterval (k , i) , y j ≡ c
+replace-below (k , i) (c , j) (n , refl) b = α
  where
+  x* = build-via-ci (k , i)
+  x = ⟨ ι x* ⟩
+  u = pr₂ (pr₁ x*)
+  xi≡k = pr₂ x*
   i<j = n , refl
   i≤j = <-is-≤ i j i<j
   trich* = λ z → trich z i j
@@ -413,7 +417,7 @@ replace-below (k , i) ((x , u) , refl) (c , j) (n , refl) b = α
     γ z (inl (succ n , ε))
      = u z
     γ z (inl (0      , refl))
-     = transport (_below x z) (below-vec-!!sn c k n b _ ⁻¹ ) (u z)
+     = transport (_below x z) (xi≡k ∙ below-vec-!!sn c k n b _ ⁻¹) (u z)
     γ z (inr (inl ((n₁ , ε₁) , succ n₂ , ε₂)))
      = pairwise-below-vec c k n b n₂ _ _
     γ z (inr (inl ((n₁ , ε₁) , zero , ε₂)))
@@ -428,7 +432,7 @@ replace-below (k , i) ((x , u) , refl) (c , j) (n , refl) b = α
     θ* : (η : trich* j) → y j η ≡ c
     θ* η = transport (λ - → y j - ≡ c)
              (trich*-is-prop j i<j trich*-j η) θ
-    ζ* : (η : trich* i) → y i η ≡ x i
+    ζ* : (η : trich* i) → y i η ≡ k
     ζ* η = transport (λ - → y i - ≡ k)
              (trich*-is-prop i i<j trich*-i η) ζ
     γ* : (z : ℤ) → (η : trich* z) (η' : trich* (succℤ z))
@@ -438,21 +442,38 @@ replace-below (k , i) ((x , u) , refl) (c , j) (n , refl) b = α
                     (trich-succ z i j i<j η) η') (γ z η)
 
 replace-above
-         : ((k , i) : ℤ × ℤ) → (((x , _) , _) : CompactInterval (k , i))
-         → ((c , j) : ℤ × ℤ) → ((n , _) : j <ℤ i)
-         → (c aboveⁿ k) n
-         → Σ ((y , _) , _) ꞉ CompactInterval (k , i)
-         , y j ≡ c
-replace-above (k , i) x (c , j) j<i b 
+         : ((k , i) (c , j) : ℤ × ℤ)
+         → ((n , _) : j <ℤ i) → (c aboveⁿ k) n
+         → Σ ((y , _) , _) ꞉ CompactInterval (k , i) , y j ≡ c
+replace-above (k , i) (c , j) j<i b 
  = ((pr₁ (pr₁ γ)) , (pr₂ γ)) , (pr₂ (pr₁ γ))
  where
-   ζ : CompactInterval (c , j)
-   ζ = build-via-ci (c , j)
-   γ : Σ ((y , _) , _) ꞉ CompactInterval (c , j)
-     , y i ≡ k
-   γ = replace-below (c , j) (build-via-ci (c , j)) (k , i) j<i
-         {!!}
-      
+   γ = replace-below (c , j) (k , i) j<i (aboveⁿ-implies-belowⁿ k c (pr₁ j<i) b)
+
+lower-upper-below : (k c : ℤ) (n : ℕ)
+                  → rec k downLeft (succ n) ≤ℤ c ≤ℤ rec k downRight (succ n)
+                  → (c belowⁿ k) n
+lower-upper-below k c 0 = id
+lower-upper-below k c (succ n) (l≤c , c≤u)
+ = b , lower-upper-below b c 0 {!!} , lower-upper-below k b n {!!}
+ where
+   b : ℤ
+   b = ?
+   fact-0 : b ≤ℤ rec k downLeft (succ n)
+   fact-0 = {!!}
+   fact-1 : rec k downLeft (succ n) ≤ℤ b
+   fact-1 = {!!}
+   fact-2 : b ≤ℤ rec k downRight (succ n)
+   fact-2 = {!!}
+   fact-3 : rec k downRight (succ n) ≤ℤ b
+   fact-3 = {!!}
+   find : Σ b ꞉ ℤ , (downLeft b ≤ℤ c ≤ℤ downRight b)
+                  × (downLeft (rec k downLeft n) ≤ℤ b ≤ℤ downRight (rec k downRight n))
+   find = b
+        , ((ℤ≤-trans _ _ _ (downLeft-monotone b (rec k downLeft (succ n)) fact-0) l≤c)
+        , ℤ≤-trans _ _ _ c≤u (downRight-monotone (rec k downRight (succ n)) b fact-3))
+        -- (ℤ≤-trans _ _ _ c≤u (downRight-monotone (rec k downRight (succ n)) b {!fact-2!})))
+        , fact-1 , fact-2
 
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
@@ -460,11 +481,11 @@ replace : ((k , i) (c , δ) : ℤ × ℤ)
         , x δ ≡ c
 replace (k , i) (c , δ) l≤c≤u with ℤ-trichotomous i δ
 ... | inl i<δ
-    = replace-below (k , i) (build-via-ci (k , i)) (c , δ) i<δ {!!}
+    = replace-below (k , i) (c , δ) i<δ {!!}
 ... | inr (inl refl)
     = build-via-ci (k , i) , {!!}
 ... | inr (inr δ<i)
-    = replace-above (k , i) (build-via-ci (k , i)) (c , δ) δ<i {!!}
+    = replace-above (k , i) (c , δ) δ<i {!!}
 ```
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
