@@ -86,11 +86,25 @@ downLeft-≤-succ a
 downLeft-monotone : (a b : ℤ) → a ≤ℤ b → downLeft a ≤ℤ downLeft b
 downLeft-monotone = ≤-succ-to-monotone downLeft downLeft-≤-succ
 
+downLeftⁿ-monotone : (a b : ℤ) (n : ℕ) → a ≤ℤ b
+                   → rec a downLeft (succ n) ≤ℤ rec b downLeft (succ n)
+downLeftⁿ-monotone a b 0 a≤b
+ = downLeft-monotone a b a≤b
+downLeftⁿ-monotone a b (succ n) a≤b
+ = downLeft-monotone _ _ (downLeftⁿ-monotone a b n a≤b)
+
 downRight-≤-succ : (a : ℤ) → downRight a ≤ℤ downRight (succℤ a)
 downRight-≤-succ a = 2 , ap (succℤ ∘ succℤ) (pr₂ (downLeft-≤-succ a))
 
 downRight-monotone : (a b : ℤ) → a ≤ℤ b → downRight a ≤ℤ downRight b
 downRight-monotone = ≤-succ-to-monotone downRight downRight-≤-succ
+
+downRightⁿ-monotone : (a b : ℤ) (n : ℕ) → a ≤ℤ b
+                   → rec a downRight (succ n) ≤ℤ rec b downRight (succ n)
+downRightⁿ-monotone a b 0 a≤b
+ = downRight-monotone a b a≤b
+downRightⁿ-monotone a b (succ n) a≤b
+ = downRight-monotone _ _ (downRightⁿ-monotone a b n a≤b)
 ```
 
 below and below'
@@ -726,3 +740,13 @@ pairwise-below-vec a c (succ n) (b' , e , f) zero k<n k<sn
  = transport (a below_) (below-vec-!!0 b' c n f ⁻¹) e
 pairwise-below-vec a c (succ n) (b' , e , f) (succ k) k<n k<sn
  = pairwise-below-vec b' c n f k k<n k<sn
+
+below-everything-in-vec : (a c : ℤ) → (n : ℕ) → (b : (a belowⁿ c) n)
+                        → (k : ℕ) → (k<sn : k <ℕ succ n)
+                        → (a belowⁿ ((below-vec a c n b !! (succ k)) k<sn)) k
+below-everything-in-vec a c zero b zero k<sn
+ = b
+below-everything-in-vec a c (succ n) (b , η , θ) zero k<sn
+ = transport (a below_) (below-vec-!!0 b c n θ ⁻¹) η 
+below-everything-in-vec a c (succ n) (b , η , θ) (succ k) k<sn
+ = b , η , below-everything-in-vec b c n θ k k<sn
