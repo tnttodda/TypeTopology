@@ -302,40 +302,6 @@ ci-lu-right (k , i) δ = (ci-low-up (k , i) δ) , (ℤ≤-refl _)
 TODO
 
 ```
-
-_above/below_ : ((k , i) (c , j) : ℤ × ℤ) → 𝓤₀ ̇
-(k , i) above/below (c , j) with ℤ-trichotomous i j
-... | inl      (n , _)  = (c belowⁿ k) n
-... | inr (inl      _ ) = k ≡ c
-... | inr (inr (n , _)) = (c aboveⁿ k) n
-
-above/below→lower/upper : ((k , i) (c , j) : ℤ × ℤ)
-                        → (k , i) above/below (c , j)
-                        → lower (k , i) j ≤ℤ c ≤ℤ upper (k , i) j
-above/below→lower/upper (k , i) (c , j) f with ℤ-trichotomous i j
-... | inl (zero , _) = f
-... | inl (succ n , _) = ({!!} , {!!} ) , {!!}
-... | inr (inl refl) = (0 , f) , (0 , (f ⁻¹))
-... | inr (inr (zero , _)) = f
-... | inr (inr (succ n , _)) = {!!}
-
-{-
-above-replace : (k c : ℤ)(j : ℕ)
-              → rec k upLeft (succ j) ≤ℤ c ≤ℤ rec k upRight (succ j)
-              → (c aboveⁿ k) j
-above-replace k c zero = id
-above-replace k c (succ j) (l≤c , c≤u) with FACT k c (succ j) (l≤c , c≤u)
-... | inl      f
- = {!!} , above-replace k c j ({!!} , {!!}) -- above-downLeft  c
-        , {!!} -- above-replace k (downLeft  c) j f
-... | inr (inl f)
- = downMid   c , {!!} -- above-downMid   c
-               , {!!} -- above-replace k (downMid   c) j f
-... | inr (inr f)
- = downRight c , {!!} -- above-downRight c
-               , {!!} -- above-replace k (downRight c) j f
--}
-
 trich : ℤ → ℤ → ℤ → 𝓤₀ ̇
 trich z a b = (z <ℤ a) + (a ≤ℤ z ≤ℤ b) + (b <ℤ z)
 
@@ -442,33 +408,62 @@ replace-above (k , i) (c , j) j<i b
  where
    γ = replace-below (c , j) (k , i) j<i (aboveⁿ-implies-belowⁿ k c (pr₁ j<i) b)
 
-upLeft-or-upRight-pos : (k₁ k₂ : ℤ) (c n : ℕ)
-                      → downLeft k₁ ≤ℤ         (pos c) ≤ℤ downRight k₂
-                      →         (k₁ ≤ℤ upLeft  (pos c) ≤ℤ           k₂)
-                      +         (k₁ ≤ℤ upRight (pos c) ≤ℤ           k₂)
-upLeft-or-upRight-pos k₁ k₂ 0 n ((m₁ , η₁) , m₂ , η₂)
- = {!!}
-upLeft-or-upRight-pos k₁ k₂ 1 n ((m₁ , η₁) , m₂ , η₂)
- = inr (((m₁ /2) , {!!}) , ({!!} , {!!}))
-upLeft-or-upRight-pos k₁ k₂ (succ (succ c)) n ((m₁ , η₁) , m₂ , η₂) = {!!}
+upRight≤upLeft-succ-pos : (a : ℕ) → upRight (pos a) ≡ upLeft (succℤ (pos a))
+upRight≤upLeft-succ-pos 0 = refl
+upRight≤upLeft-succ-pos 1 = refl
+upRight≤upLeft-succ-pos (succ (succ a))
+ = upRight-suc (pos a)
+ ∙ ap succℤ (upRight≤upLeft-succ-pos a)
+ ∙ upLeft-suc (pos (succ a)) ⁻¹
 
-upLeft-or-upRight' : (k₁ k₂ c : ℤ) (n : ℕ)
-                  → downLeft k₁ ≤ℤ c ≤ℤ downRight k₂
-                  → Σ b ꞉ ℤ , k₁ ≤ℤ b ≤ℤ k₂
-upLeft-or-upRight' k₁ k₂ c n (l≤c , c≤u) = {!!}
+upRight≤upLeft-succ-negsucc : (a : ℕ) → upRight (negsucc a) ≡ upLeft (succℤ (negsucc a))
+upRight≤upLeft-succ-negsucc 0 = refl
+upRight≤upLeft-succ-negsucc 1 = refl
+upRight≤upLeft-succ-negsucc (succ (succ a))
+ = upRight-pred (negsucc a)
+ ∙ ap predℤ (upRight≤upLeft-succ-negsucc a)
+ ∙ upLeft-pred (succℤ (negsucc a)) ⁻¹
+ ∙ ap (λ - → upLeft (predℤ -)) (predsuccℤ (negsucc a))
 
-upLeft-or-upRight : (k₁ k₂ c : ℤ) (n : ℕ)
+upRight≤upLeft-succ : (a : ℤ) → upRight a ≡ upLeft (succℤ a)
+upRight≤upLeft-succ
+ = ℤ-elim (λ b → upRight b ≡ upLeft (succℤ b))
+     upRight≤upLeft-succ-pos upRight≤upLeft-succ-negsucc
+
+upRight≤upLeft : (a b : ℤ) → a <ℤ b → upRight a ≤ℤ upLeft b
+upRight≤upLeft a b (n      , refl)
+ = transport (_≤ℤ upLeft (succℤ a +pos n)) (upRight≤upLeft-succ a ⁻¹)
+     (upLeft-monotone _ _ (n , refl))
+
+upLeft-or-upRight' : (k₁ k₂ c : ℤ) (n m : ℕ)
+                   → k₁ +pos n ≡ c
+                   → c +pos m ≡ k₂
+                   → k₁ ≢ k₂
+                   → (upRight k₁ ≤ℤ upLeft  c ≤ℤ upLeft k₂)
+                   + (upRight k₁ ≤ℤ upRight c ≤ℤ upLeft k₂)
+upLeft-or-upRight' k₁ k₂ c 0 0        p q f = 𝟘-elim (f (p ∙ q))
+upLeft-or-upRight'
+ k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl f
+ = inr (ℤ≤-refl _ , upRight≤upLeft _ _ (m , ℤ-left-succ-pos k₁ m))
+upLeft-or-upRight'
+ k₁ .((k₁ +pos succ n) +pos zero) .(k₁ +pos succ n) (succ n) zero refl refl f
+ = inl (upRight≤upLeft _ _ (n , ℤ-left-succ-pos k₁ n) , ℤ≤-refl _)
+upLeft-or-upRight'
+ k₁ .((k₁ +pos succ n) +pos succ m) .(k₁ +pos succ n) (succ n) (succ m) refl refl f
+ = inl (upRight≤upLeft _ _ (n , ℤ-left-succ-pos k₁ n)
+     , upLeft-monotone _ _ (succ m , refl))
+
+upLeft-or-upRight : (k₁ k₂ c : ℤ)
+                  → downLeft k₁ ≢ downRight k₂
                   → downLeft k₁ ≤ℤ         c ≤ℤ downRight k₂
                   →         (k₁ ≤ℤ upLeft  c ≤ℤ           k₂)
                   +         (k₁ ≤ℤ upRight c ≤ℤ           k₂)
-upLeft-or-upRight k₁ k₂ c n ((m₁ , η₁) , (m₂ , η₂))
- = {!!}
- where
-   ζ : upLeft c ≤ℤ upRight c ≤ℤ upRight c
-   ζ = below-implies-above c (upRight c) {!!}
-   γ : k₁ ≤ℤ upRight c ≤ℤ k₂
-   γ = pr₁ (below-implies-above {!!} (upRight c) {!!})
-     , {!!}
+upLeft-or-upRight k₁ k₂ c f ((m₁ , η₁) , (m₂ , η₂))
+ = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂ f)
+     (λ l → inl (transport (_≤ℤ upLeft c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
+       (transport (upRight (downLeft k₁) ≤ℤ upLeft c ≤ℤ_) (upLeft-downRight k₂) l)))
+     (λ r → inr (transport (_≤ℤ upRight c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
+       (transport (upRight (downLeft k₁) ≤ℤ upRight c ≤ℤ_) (upLeft-downRight k₂) r)))
 
 rec-f-≡ : {X : 𝓤 ̇ } → (f : X → X) (x : X) (n : ℕ)
         → rec (f x) f n ≡ rec x f (succ n) 
@@ -506,38 +501,12 @@ below-lower-upper k c (succ n) (b , η , θ)
    IH₂ : rec k* downLeft (succ n) ≤ℤ c ≤ℤ rec k* downRight (succ n)
    IH₂ = below-lower-upper k* c n γ
 
-down-choices : (k c : ℤ) (n : ℕ)
-             → rec k downLeft (succ n) ≤ℤ c ≤ℤ rec k downRight (succ n)
-             → (rec (downLeft k) downLeft n ≤ℤ c ≤ℤ rec (downLeft k) downRight n)
-             + (rec (downMid k) downLeft n ≤ℤ c ≤ℤ rec (downMid k) downRight n)
-             + (rec (downRight k) downLeft n ≤ℤ c ≤ℤ rec (downRight k) downRight n)
-down-choices k c zero (l≤c , c≤u)
- = Cases (below-implies-below' c k (l≤c , c≤u))
-     (λ l → inl (transport (λ - → downLeft k ≤ℤ - ≤ℤ downLeft k) (l ⁻¹)
-       (ℤ≤-refl _ , ℤ≤-refl _)))
-   (cases
-     (λ m → (inr ∘ inl) (transport (λ - → downMid k ≤ℤ - ≤ℤ downMid k) (m ⁻¹)
-       (ℤ≤-refl _ , ℤ≤-refl _)))
-     (λ r → (inr ∘ inr) (transport (λ - → downRight k ≤ℤ - ≤ℤ downRight k) (r ⁻¹)
-       (ℤ≤-refl _ , ℤ≤-refl _))))
-down-choices k c (succ n) (l≤c , c≤u)
- = {!!}
- where
-   IH₁ : {!!}
-   IH₁ = {!down-choices !}
-
 lower-upper-below : (k c : ℤ) (n : ℕ)
                   → rec k downLeft (succ n) ≤ℤ c ≤ℤ rec k downRight (succ n)
                   → (c belowⁿ k) n
 lower-upper-below k c 0 = id
-lower-upper-below k c (succ n) (l≤c , c≤u)
- = {!!}
- where
-   γ : (c belowⁿ {!!}) n
-   γ = lower-upper-below {!!} c n {!!}
-
-{-
- = Cases (upLeft-or-upRight _ _ c n (l≤c , c≤u))
+lower-upper-below k c (succ n) l≤c≤u
+ = Cases (upLeft-or-upRight _ _ _ {!!} l≤c≤u)
      (λ η → (upLeft  c) , ((above-implies-below _ _ (upLeft-above  c)) , (IH-l η)))
      (λ η → (upRight c) , ((above-implies-below _ _ (upRight-above c)) , (IH-r η)))
  where
@@ -546,8 +515,8 @@ lower-upper-below k c (succ n) (l≤c , c≤u)
    IH-l = lower-upper-below k (upLeft  c) n 
    IH-r : rec k downLeft (succ n) ≤ℤ upRight c ≤ℤ rec k downRight (succ n)
         → (upRight c belowⁿ k) n
-   IH-r = lower-upper-below k (upRight c) n
-  -} 
+   IH-r = lower-upper-below k (upRight c) n 
+
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
         → Σ ((x , _) , _) ꞉ CompactInterval (k , i)
