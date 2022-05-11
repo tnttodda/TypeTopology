@@ -89,42 +89,40 @@ downLeft and downRight properties
 downLeft≢downRight : (a b : ℤ) → a ≡ b → downLeft a ≢ downRight a
 downLeft≢downRight a a refl dL≡dR = b<a→a≢b _ _ (1 , refl) (dL≡dR ⁻¹)
 
+
+downLeft-monotone' : (a b : ℤ) → ((n , _) : a ≤ℤ b)
+                   → downLeft a +pos (n +ℕ n) ≡ downLeft b
+downLeft-monotone' a b (n , refl)
+ = ap ((a +ℤ a) +ℤ_) (pos-addition-equiv-to-ℕ n n ⁻¹)
+ ∙ ℤ+-rearrangement (a +ℤ a) (pos n) (pos n) ⁻¹
+ ∙ ap (λ - → (- +pos n) +pos n) (ℤ+-comm a a)
+ ∙ ap (_+pos n)
+     (ℤ+-assoc a a (pos n)
+     ∙ ap (a +ℤ_) (ℤ+-comm a (pos n))
+     ∙ ℤ+-assoc a (pos n) a ⁻¹)
+ ∙ ℤ+-assoc (a +pos n) a (pos n)
+
+downLeft<<downRight : (a b : ℤ) → a <ℤ b → downLeft a <ℤ downRight b
+downLeft<<downRight a b (n , refl)
+ = (succ (succ (succ (n +ℕ n))))
+ , ap (succℤ ∘ succℤ)
+     (ap succℤ
+       (ap (_+pos (n +ℕ n)) (ℤ-left-succ a a ⁻¹)
+       ∙ ap ((succℤ a +ℤ a) +ℤ_) (pos-addition-equiv-to-ℕ n n ⁻¹)
+       ∙ ℤ+-rearrangement (succℤ a +ℤ a) (pos n) (pos n) ⁻¹
+       ∙ ap (λ - → (- +pos n) +pos n) (ℤ+-comm (succℤ a) a)
+       ∙ ap (_+pos n)
+           (ℤ+-assoc a (succℤ a) (pos n)
+         ∙ ap (a +ℤ_) (ℤ+-comm (succℤ a) (pos n))
+         ∙ ℤ+-assoc a (pos n) (succℤ a) ⁻¹)
+       ∙ ℤ+-assoc (a +pos n) (succℤ a) (pos n))
+   ∙ ℤ-left-succ (a +pos n) (succℤ a +pos n) ⁻¹
+   ∙ ap (_+ℤ (succℤ a +pos n)) (ℤ-left-succ-pos a n ⁻¹))
+
 downLeft<downRight : (a : ℤ) (n : ℕ)
                    → rec a downLeft (succ n) <ℤ rec a downRight (succ n)
 downLeft<downRight a zero = 1 , refl
-downLeft<downRight a (succ n)
- = succ (succ (succ (pr₁ IH +ℕ pr₁ IH)))
- , (ap (succℤ ∘ succℤ)
-     (ap succℤ
-       (ap (λ - → succℤ (rec a downLeft (succ (succ n))) +ℤ -)
-         (pos-addition-equiv-to-ℕ (pr₁ IH) (pr₁ IH) ⁻¹))
-     ∙ {!!})
- ∙ ap downRight (pr₂ IH))
- {-
- , (ap (succℤ (rec a downLeft (succ (succ n))) +ℤ_)
-     (pos-addition-equiv-to-ℕ (pr₁ IH) (pr₁ IH) ⁻¹)
-   ∙ ℤ+-assoc _ (pos (pr₁ IH)) (pos (pr₁ IH)) ⁻¹ 
-   ∙ ap (_+pos pr₁ IH) {!ℤ-left-succ-pos _ (pr₁ IH) ⁻¹!}
-   ∙ ap (_+pos pr₁ IH) (pr₂ IH)
-   ∙ {!!}
-   ∙ ap downRight (pr₂ IH)) -}
- where
-   IH : rec a downLeft (succ n) <ℤ rec a downRight (succ n)
-   IH = downLeft<downRight a n
-
-downLeft≢downRightⁿ : (a : ℤ) (n : ℕ) → rec a downLeft (succ n) ≢ rec a downRight (succ n)
-downLeft≢downRightⁿ a zero     = downLeft≢downRight a a refl
-downLeft≢downRightⁿ a (succ n) = {!!}
- where
-   γ : rec a downLeft (succ n) ≢ rec a downRight (succ n)
-   γ = downLeft≢downRightⁿ a n
-   ζ : rec a downLeft (succ n) ≡ rec a downRight (succ n)
-   ζ = {!!}
-   ρ : rec a downLeft (succ (succ n)) ≢ rec a downRight (succ (succ n))
-   ρ = {!!}
-   θ : downLeft  (rec a downLeft (succ (succ n)))
-     ≢ downRight (rec a downLeft (succ (succ n)))
-   θ = downLeft≢downRight (rec a downLeft (succ (succ n))) (rec a downRight (succ (succ n))) {!!}
+downLeft<downRight a (succ n) = downLeft<<downRight _ _ (downLeft<downRight a n)
 
 downLeft-≤-succ : (a : ℤ) → downLeft a ≤ℤ downLeft (succℤ a)
 downLeft-≤-succ a
@@ -609,45 +607,89 @@ below'-implies-above .(downMid   b) b (inr (inl refl))
 below'-implies-above .(downRight b) b (inr (inr refl))
  = below-implies-above-dR b
 
-downLeft-upRight-pos : (b : ℕ)
-                     → (downLeft (upRight (pos b)) +pos 0 ≡ pos b)
-                     + (downLeft (upRight (pos b)) +pos 1 ≡ pos b)
-downLeft-upRight-pos 0 = inl refl
-downLeft-upRight-pos 1 = inr refl
-downLeft-upRight-pos (succ (succ b)) with downLeft-upRight-pos b
+downLeft-upRight-pos' : (b : ℕ)
+                      → (downLeft (upRight (pos b)) +pos 0 ≡ pos b)
+                      + (downLeft (upRight (pos b)) +pos 1 ≡ pos b)
+downLeft-upRight-pos' 0 = inl refl
+downLeft-upRight-pos' 1 = inr refl
+downLeft-upRight-pos' (succ (succ b)) with downLeft-upRight-pos' b
 ... | inl γ = inl (ap succℤ (ℤ-left-succ-pos (pos (b /2)) (b /2))
                   ∙ ap (succℤ ∘ succℤ) γ)
 ... | inr γ = inr (ap (succℤ ∘ succℤ) (ℤ-left-succ-pos (pos (b /2)) (b /2) ∙ γ))
 
-downLeft-upRight-negsucc : (b : ℕ)
-                         → (downLeft (upRight (negsucc b)) +pos 0 ≡ negsucc b)
-                         + (downLeft (upRight (negsucc b)) +pos 1 ≡ negsucc b)
-downLeft-upRight-negsucc 0 = inr refl
-downLeft-upRight-negsucc 1 = inl refl
-downLeft-upRight-negsucc (succ (succ b)) with downLeft-upRight-negsucc b
+downLeft-upRight-negsucc' : (b : ℕ)
+                          → (downLeft (upRight (negsucc b)) +pos 0 ≡ negsucc b)
+                          + (downLeft (upRight (negsucc b)) +pos 1 ≡ negsucc b)
+downLeft-upRight-negsucc' 0 = inr refl
+downLeft-upRight-negsucc' 1 = inl refl
+downLeft-upRight-negsucc' (succ (succ b)) with downLeft-upRight-negsucc' b
 ... | inl γ = inl (ap predℤ (ℤ-left-pred-negsucc (negsucc (b /2)) (b /2) )
                   ∙ ap (predℤ ∘ predℤ) γ)
 ... | inr γ = inr (ap (succℤ ∘ predℤ) (ℤ-left-pred-negsucc (negsucc (b /2)) (b /2))
                   ∙ succpredℤ _
                   ∙ ap predℤ (predsuccℤ _ ⁻¹)
                   ∙ ap (predℤ ∘ predℤ) γ)
-                  
+
+dLuL-dRuR-pos : (a : ℕ) → let b = pos a in
+                ((downLeft (upLeft b) +pos 2 ≡ b) × (b +pos 2 ≡ downRight (upRight b)))
+              + ((downLeft (upLeft b) +pos 1 ≡ b) × (b +pos 1 ≡ downRight (upRight b)))
+dLuL-dRuR-pos 0 = inl (refl , refl)
+dLuL-dRuR-pos 1 = inr (refl , refl)
+dLuL-dRuR-pos (succ (succ a)) = {!!}
+
+
+above-upLeft' : (b : ℤ)
+              → ((downLeft (upLeft b) +pos 2 ≡ b) × (b +pos 2 ≡ downRight (upRight b)))
+              + ((downLeft (upLeft b) +pos 1 ≡ b) × (b +pos 1 ≡ downRight (upRight b)))
+above-upLeft' b = {!!}
+
+downLeft-upRight' : (b : ℤ)
+                  → ((downLeft (upRight b) +pos 0) ≡ b)
+                  + ((downLeft (upRight b) +pos 1) ≡ b)
+downLeft-upRight' = ℤ-elim (λ - → (downLeft (upRight -) +pos 0 ≡ -)
+                                + (downLeft (upRight -) +pos 1 ≡ -))
+                      downLeft-upRight-pos' downLeft-upRight-negsucc'
+
+{-
+downLeft-upLeft-upRight : (b : ℤ)
+                        → (downLeft (upLeft b) +pos 0 ≡ downLeft (upRight b))
+                        + (downLeft (upLeft b) +pos 2 ≡ downLeft (upRight b))
+downLeft-upLeft-upRight b
+ = upLeft-elim b
+     (λ - → (downLeft - +pos 0 ≡ downLeft (upRight b))
+          + (downLeft - +pos 2 ≡ downLeft (upRight b)))
+     (inr (downLeft-monotone' (predℤ (upRight b)) (upRight b)
+       (1 , succpredℤ _)))
+     (inl refl)
+
+downLeft-upLeft' : (b : ℤ)
+                  → ((downLeft (upLeft b) +pos 0) ≡ b)
+                  + ((downLeft (upLeft b) +pos 1) ≡ b)
+                  + ((downLeft (upLeft b) +pos 2) ≡ b)
+downLeft-upLeft' b
+ = Cases (downLeft-upRight' b) {!inl!} {!!}
+ -}
+
+downLeft-upRight : (b : ℤ) → downLeft (upRight b) ≤ℤ b
+downLeft-upRight b
+ = Cases (downLeft-upRight' b)
+     (λ e → transport (downLeft (upRight b) ≤ℤ_) e (ℤ≤-refl _))
+     (λ e → transport (downLeft (upRight b) ≤ℤ_) e (1 , refl))
+
+downLeft-upLeft  : (b : ℤ) → downLeft (upLeft b) ≤ℤ b
+downLeft-upLeft b
+ = ℤ≤-trans _ _ _ (downLeft-monotone _ _ (upLeft≤upRight b)) (downLeft-upRight b)
+
 above-upRight' : (b : ℤ)
                → ((downLeft (upRight b) +pos 0 ≡ b)
                  × (b +pos 2 ≡ downRight (upRight b)))
                + ((downLeft (upRight b) +pos 1 ≡ b)
                  × (b +pos 1 ≡ downRight (upRight b)))
 above-upRight' b
- = Cases p (λ l → inl (l , ap (succℤ ∘ succℤ) (l ⁻¹)))
-           (λ r → inr (r , ap succℤ (r ⁻¹)))
- where
-   p : (downLeft (upRight b) +pos 0 ≡ b)
-     + (downLeft (upRight b) +pos 1 ≡ b)
-   p = ℤ-elim
-         (λ - → (downLeft (upRight -) +pos 0 ≡ -)
-              + (downLeft (upRight -) +pos 1 ≡ -))
-         downLeft-upRight-pos downLeft-upRight-negsucc b
-
+ = Cases (downLeft-upRight' b)
+     (λ l → inl (l , ap (succℤ ∘ succℤ) (l ⁻¹)))
+     (λ r → inr (r , ap succℤ (r ⁻¹)))   
+     
 above-upRight : (b : ℤ) → b below (upRight b)
 above-upRight b = Cases (above-upRight' b)
                     (λ (al , bl) → (0 , al) , (2 , bl))
@@ -724,7 +766,7 @@ Recursive above
 ```
 _aboveⁿ_ : (a c : ℤ) → ℕ → 𝓤₀ ̇
 (a aboveⁿ c) 0 = a above c
-(a aboveⁿ c) (succ n) = Σ b ꞉ ℤ , (a aboveⁿ b) n × (b above c)
+(a aboveⁿ c) (succ n) = Σ b ꞉ ℤ , (a above b) × (b aboveⁿ c) n
 
 _belowⁿ_ : (a c : ℤ) → ℕ → 𝓤₀ ̇
 (a belowⁿ c) 0 = a below c
@@ -733,7 +775,7 @@ _belowⁿ_ : (a c : ℤ) → ℕ → 𝓤₀ ̇
 aboveⁿ-implies-belowⁿ : (a c : ℤ) (n : ℕ) → (c aboveⁿ a) n → (a belowⁿ c) n
 aboveⁿ-implies-belowⁿ a c zero γ = above-implies-below c a γ
 aboveⁿ-implies-belowⁿ a c (succ n) (b , η , θ)
- = b , above-implies-below b a θ , aboveⁿ-implies-belowⁿ b c n η
+ = {!!} -- b , above-implies-below b a θ , aboveⁿ-implies-belowⁿ b c n η
 
 below-up : (a c : ℤ) (n : ℕ) → (a belowⁿ c) (succ n)
          → (upLeft a belowⁿ c) n + (upRight a belowⁿ c) n

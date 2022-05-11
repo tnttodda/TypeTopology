@@ -438,32 +438,75 @@ upRight≤upLeft a b (n      , refl)
 upLeft-or-upRight' : (k₁ k₂ c : ℤ) (n m : ℕ)
                    → k₁ +pos n ≡ c
                    → c +pos m ≡ k₂
-                   → k₁ ≢ k₂
+                   → k₁ <ℤ k₂
                    → (upRight k₁ ≤ℤ upLeft  c ≤ℤ upLeft k₂)
                    + (upRight k₁ ≤ℤ upRight c ≤ℤ upLeft k₂)
-upLeft-or-upRight' k₁ k₂ c 0 0        p q f = 𝟘-elim (f (p ∙ q))
+upLeft-or-upRight' k₁ k₂ c 0 0        p q f
+ = 𝟘-elim (b<a→a≢b _ _ f ((p ∙ q) ⁻¹))
 upLeft-or-upRight'
  k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl f
  = inr (ℤ≤-refl _ , upRight≤upLeft _ _ (m , ℤ-left-succ-pos k₁ m))
 upLeft-or-upRight'
- k₁ .((k₁ +pos succ n) +pos zero) .(k₁ +pos succ n) (succ n) zero refl refl f
- = inl (upRight≤upLeft _ _ (n , ℤ-left-succ-pos k₁ n) , ℤ≤-refl _)
-upLeft-or-upRight'
- k₁ .((k₁ +pos succ n) +pos succ m) .(k₁ +pos succ n) (succ n) (succ m) refl refl f
+ k₁ .((k₁ +pos succ n) +pos m) .(k₁ +pos succ n) (succ n) m refl refl f
  = inl (upRight≤upLeft _ _ (n , ℤ-left-succ-pos k₁ n)
-     , upLeft-monotone _ _ (succ m , refl))
+     , upLeft-monotone _ _ (m , refl))
+
+downRight≡downLeft : (a : ℤ) → downRight a ≡ downLeft (succℤ a)
+downRight≡downLeft a = ap succℤ (ℤ-left-succ a a ⁻¹ ∙ ℤ+-comm (succℤ a) a)
+                     ∙ ℤ-left-succ a (succℤ a) ⁻¹
+
+down-choices' : (k₁ k₂ c : ℤ) (n m : ℕ)
+              → k₁ +pos n ≡ c
+              → c +pos m ≡ k₂
+              → k₁ <ℤ k₂
+              → (downRight k₁ ≤ℤ downLeft  c ≤ℤ downLeft k₂)
+              + (downRight k₁ ≤ℤ downRight c ≤ℤ downLeft k₂)
+down-choices' k₁ k₂ c 0 0 p q f = 𝟘-elim (b<a→a≢b _ _ f ((p ∙ q) ⁻¹))
+down-choices'
+ k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl f
+ = inr ((zero , refl)
+       , transport (downRight k₁ ≤ℤ_) (downRight≡downLeft (k₁ +pos m))
+           (downRight-monotone _ _ (m , refl)))
+down-choices'
+ k₁ .((k₁ +pos succ n) +pos m) .(k₁ +pos succ n) (succ n) m refl refl f
+ = inl (transport (downRight k₁ ≤ℤ_) (downRight≡downLeft (k₁ +pos n))
+          (downRight-monotone _ _ (n , refl))
+      , downLeft-monotone _ _ (m , refl))
+
+apparently : (k₁ k₂ c : ℤ)
+           → k₁ <ℤ k₂
+           → downRight (upLeft k₁) ≤ℤ c ≤ℤ downLeft (upRight k₂)
+           → k₁ ≤ℤ c ≤ℤ k₂
+apparently k₁ k₂ c k₁<k₂ l≤c≤u = {!!}
+
+down-choices : (k₁ k₂ c : ℤ)
+             → k₁ <ℤ k₂
+             → upLeft k₁ ≤ℤ           c ≤ℤ upRight k₂
+             →       (k₁ ≤ℤ downLeft  c ≤ℤ k₂)
+             +       (k₁ ≤ℤ downRight c ≤ℤ k₂)
+down-choices k₁ k₂ c k₁<k₂ ((m₁ , η₁) , (m₂ , η₂))
+ = Cases (down-choices' (upLeft k₁) (upRight k₂) c m₁ m₂ η₁ η₂ {!!})
+     (λ l → inl (apparently _ _ _ k₁<k₂ l))
+     (λ r → inr (apparently _ _ _ k₁<k₂ r))
 
 upLeft-or-upRight : (k₁ k₂ c : ℤ)
-                  → downLeft k₁ ≢ downRight k₂
+                  → k₁ <ℤ k₂
                   → downLeft k₁ ≤ℤ         c ≤ℤ downRight k₂
                   →         (k₁ ≤ℤ upLeft  c ≤ℤ           k₂)
                   +         (k₁ ≤ℤ upRight c ≤ℤ           k₂)
-upLeft-or-upRight k₁ k₂ c f ((m₁ , η₁) , (m₂ , η₂))
- = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂ f)
+upLeft-or-upRight k₁ k₂ c k₁<k₂ ((m₁ , η₁) , (m₂ , η₂))
+ = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂ (downLeft<<downRight k₁ k₂ k₁<k₂))
      (λ l → inl (transport (_≤ℤ upLeft c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
        (transport (upRight (downLeft k₁) ≤ℤ upLeft c ≤ℤ_) (upLeft-downRight k₂) l)))
      (λ r → inr (transport (_≤ℤ upRight c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
        (transport (upRight (downLeft k₁) ≤ℤ upRight c ≤ℤ_) (upLeft-downRight k₂) r)))
+
+upLeft-or-upRight-2 : (k c : ℤ) (n : ℕ)
+                    → upLeft (upLeft (rec k upLeft n)) ≤ℤ c ≤ℤ upRight (upRight (rec k upRight n))
+                    → (upLeft (rec (upLeft  k) upLeft n) ≤ℤ c ≤ℤ upRight (rec (upLeft  k) upRight n))
+                    + (upLeft (rec (upRight k) upLeft n) ≤ℤ c ≤ℤ upRight (rec (upRight k) upRight n))
+upLeft-or-upRight-2 k c zero = {!!}
+upLeft-or-upRight-2 k c (succ n) = {!!}
 
 rec-f-≡ : {X : 𝓤 ̇ } → (f : X → X) (x : X) (n : ℕ)
         → rec (f x) f n ≡ rec x f (succ n) 
@@ -506,16 +549,24 @@ lower-upper-below : (k c : ℤ) (n : ℕ)
                   → (c belowⁿ k) n
 lower-upper-below k c 0 = id
 lower-upper-below k c (succ n) l≤c≤u
- = Cases (upLeft-or-upRight _ _ _ {!!} l≤c≤u)
+ = Cases (upLeft-or-upRight _ _ _ (downLeft<downRight k n) l≤c≤u)
      (λ η → (upLeft  c) , ((above-implies-below _ _ (upLeft-above  c)) , (IH-l η)))
      (λ η → (upRight c) , ((above-implies-below _ _ (upRight-above c)) , (IH-r η)))
  where
-   IH-l : rec k downLeft (succ n) ≤ℤ upLeft c ≤ℤ rec k downRight (succ n)
-        → (upLeft c belowⁿ k) n
    IH-l = lower-upper-below k (upLeft  c) n 
-   IH-r : rec k downLeft (succ n) ≤ℤ upRight c ≤ℤ rec k downRight (succ n)
-        → (upRight c belowⁿ k) n
-   IH-r = lower-upper-below k (upRight c) n 
+   IH-r = lower-upper-below k (upRight c) n
+
+lower-upper-above : (k c : ℤ) (n : ℕ)
+                  → rec k upLeft (succ n) ≤ℤ c ≤ℤ rec k upRight (succ n)
+                  → (c aboveⁿ k) n
+lower-upper-above k c 0 = id
+lower-upper-above k c (succ n) l≤c≤u
+ = Cases (down-choices _ _ _ {!!} l≤c≤u)
+     (λ η → downLeft c  , below-implies-above _ _ (downLeft-below  c) , (IH-l η))
+     (λ η → downRight c , below-implies-above _ _ (downRight-below c) , (IH-r η))
+ where
+   IH-l = lower-upper-above k (downLeft c) n
+   IH-r = lower-upper-above k (downRight c) n
 
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
@@ -527,7 +578,7 @@ replace (k , i) (c , δ) l≤c≤u with ℤ-trichotomous i δ
 ... | inr (inl refl)
     = build-via-ci (k , i) , ({!!} ∙ {!!})
 ... | inr (inr δ<i)
-    = replace-above (k , i) (c , δ) δ<i {!!}
+    = replace-above (k , i) (c , δ) δ<i (lower-upper-above k c (pr₁ δ<i) l≤c≤u)
 ```
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
