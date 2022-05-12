@@ -408,27 +408,8 @@ replace-above (k , i) (c , j) j<i b
  where
    γ = replace-below (c , j) (k , i) j<i (aboveⁿ-implies-belowⁿ k c (pr₁ j<i) b)
 
-upRight≤upLeft-succ-pos : (a : ℕ) → upRight (pos a) ≡ upLeft (succℤ (pos a))
-upRight≤upLeft-succ-pos 0 = refl
-upRight≤upLeft-succ-pos 1 = refl
-upRight≤upLeft-succ-pos (succ (succ a))
- = upRight-suc (pos a)
- ∙ ap succℤ (upRight≤upLeft-succ-pos a)
- ∙ upLeft-suc (pos (succ a)) ⁻¹
-
-upRight≤upLeft-succ-negsucc : (a : ℕ) → upRight (negsucc a) ≡ upLeft (succℤ (negsucc a))
-upRight≤upLeft-succ-negsucc 0 = refl
-upRight≤upLeft-succ-negsucc 1 = refl
-upRight≤upLeft-succ-negsucc (succ (succ a))
- = upRight-pred (negsucc a)
- ∙ ap predℤ (upRight≤upLeft-succ-negsucc a)
- ∙ upLeft-pred (succℤ (negsucc a)) ⁻¹
- ∙ ap (λ - → upLeft (predℤ -)) (predsuccℤ (negsucc a))
-
 upRight≤upLeft-succ : (a : ℤ) → upRight a ≡ upLeft (succℤ a)
-upRight≤upLeft-succ
- = ℤ-elim (λ b → upRight b ≡ upLeft (succℤ b))
-     upRight≤upLeft-succ-pos upRight≤upLeft-succ-negsucc
+upRight≤upLeft-succ a = ap upRight (predsuccℤ _ ⁻¹)
 
 upRight≤upLeft : (a b : ℤ) → a <ℤ b → upRight a ≤ℤ upLeft b
 upRight≤upLeft a b (n      , refl)
