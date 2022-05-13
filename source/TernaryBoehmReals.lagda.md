@@ -436,29 +436,57 @@ downRight≡downLeft : (a : ℤ) → downRight a ≡ downLeft (succℤ a)
 downRight≡downLeft a = ap succℤ (ℤ-left-succ a a ⁻¹ ∙ ℤ+-comm (succℤ a) a)
                      ∙ ℤ-left-succ a (succℤ a) ⁻¹
 
+down-choices'' : (k₁ k₂ c : ℤ)
+               → (k₁ ≡ k₂) + (k₁ ≡ succℤ k₂)
+               → (c ≡ k₁) + (c ≡ k₂)
+               → (downLeft k₁ ≤ℤ downLeft  c ≤ℤ downRight k₂)
+               + (downLeft k₁ ≤ℤ downRight c ≤ℤ downRight k₂)
+down-choices'' k₁ .k₁ .k₁ (inl refl) (inl refl) = inl ((zero , refl) , 2 , refl)
+down-choices'' k₁ .k₁ .k₁ (inl refl) (inr refl) = inl ((zero , refl) , 2 , refl)
+down-choices'' .(succℤ k₂) k₂ .(succℤ k₂) (inr refl) (inl refl)
+ = inl ((zero , refl) , transport (_≤ℤ downRight k₂) (e ⁻¹) (zero , refl))
+ where
+   e : downLeft (succℤ k₂) ≡ downRight k₂
+   e = downLeft-monotone' k₂ (succℤ k₂) (1 , refl) ⁻¹
+down-choices'' .(succℤ k₂) k₂ .k₂ (inr refl) (inr refl)
+ = inr ((transport (_≤ℤ downRight k₂) (e ⁻¹) (zero , refl)) , (zero , refl))
+ where
+   e : downLeft (succℤ k₂) ≡ succℤ (succℤ (k₂ +ℤ k₂))
+   e = downLeft-monotone' _ _ (1 , refl) ⁻¹
+
 down-choices' : (k₁ k₂ c : ℤ) (n m : ℕ)
               → k₁ +pos n ≡ c
               → c +pos m ≡ k₂
-              → k₁ <ℤ k₂
               → (downRight k₁ ≤ℤ downLeft  c ≤ℤ downLeft k₂)
               + (downRight k₁ ≤ℤ downRight c ≤ℤ downLeft k₂)
-down-choices' k₁ k₂ c 0 0 p q f = 𝟘-elim (b<a→a≢b _ _ f ((p ∙ q) ⁻¹))
+down-choices' k₁ .((k₁ +pos zero) +pos zero) .(k₁ +pos zero) 0 0 refl refl
+ = {!!}
+
+--  𝟘-elim (b<a→a≢b _ _ f ((p ∙ q) ⁻¹))
 down-choices'
- k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl f
+ k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl
  = inr ((zero , refl)
        , transport (downRight k₁ ≤ℤ_) (downRight≡downLeft (k₁ +pos m))
            (downRight-monotone _ _ (m , refl)))
 down-choices'
- k₁ .((k₁ +pos succ n) +pos m) .(k₁ +pos succ n) (succ n) m refl refl f
+ k₁ .((k₁ +pos succ n) +pos m) .(k₁ +pos succ n) (succ n) m refl refl
  = inl (transport (downRight k₁ ≤ℤ_) (downRight≡downLeft (k₁ +pos n))
           (downRight-monotone _ _ (n , refl))
       , downLeft-monotone _ _ (m , refl))
 
 apparently : (k₁ k₂ c : ℤ)
-           → k₁ <ℤ k₂
            → downRight (upLeft k₁) ≤ℤ c ≤ℤ downLeft (upRight k₂)
            → k₁ ≤ℤ c ≤ℤ k₂
-apparently k₁ k₂ c k₁<k₂ l≤c≤u = {!!}
+apparently k₁ k₂ c (l≤c , c≤u)
+ = ℤ≤-trans _ _ _ (downRight-upLeft k₁) l≤c
+ , ℤ≤-trans _ _ _ c≤u (downLeft-upRight k₂) 
+
+apparently2 : (k₁ k₂ c : ℤ)
+            → downLeft (upLeft k₁) ≤ℤ c ≤ℤ downRight (upRight k₂)
+            → k₁ ≤ℤ c ≤ℤ k₂
+apparently2 k₁ k₂ c (l≤c , c≤u)
+ = (ℤ≤-trans _ _ _ {!downLeft-upLeft!} l≤c)
+ , {!!}
 
 down-choices : (k₁ k₂ c : ℤ)
              → k₁ <ℤ k₂
@@ -466,9 +494,11 @@ down-choices : (k₁ k₂ c : ℤ)
              →       (k₁ ≤ℤ downLeft  c ≤ℤ k₂)
              +       (k₁ ≤ℤ downRight c ≤ℤ k₂)
 down-choices k₁ k₂ c k₁<k₂ ((m₁ , η₁) , (m₂ , η₂))
- = Cases (down-choices' (upLeft k₁) (upRight k₂) c m₁ m₂ η₁ η₂ {!!})
-     (λ l → inl (apparently _ _ _ k₁<k₂ l))
-     (λ r → inr (apparently _ _ _ k₁<k₂ r))
+{- = Cases (down-choices' (upLeft k₁) (upRight k₂) c m₁ m₂ η₁ η₂)
+     (λ l → inl (apparently _ _ _ l))
+     (λ r → inr (apparently _ _ _ r)) -}
+ = Cases (down-choices'' (upLeft k₁) (upLeft k₂) c {!!} {!!})
+     {!!} {!!}
 
 upLeft-or-upRight : (k₁ k₂ c : ℤ)
                   → k₁ <ℤ k₂
@@ -481,13 +511,6 @@ upLeft-or-upRight k₁ k₂ c k₁<k₂ ((m₁ , η₁) , (m₂ , η₂))
        (transport (upRight (downLeft k₁) ≤ℤ upLeft c ≤ℤ_) (upLeft-downRight k₂) l)))
      (λ r → inr (transport (_≤ℤ upRight c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
        (transport (upRight (downLeft k₁) ≤ℤ upRight c ≤ℤ_) (upLeft-downRight k₂) r)))
-
-upLeft-or-upRight-2 : (k c : ℤ) (n : ℕ)
-                    → upLeft (upLeft (rec k upLeft n)) ≤ℤ c ≤ℤ upRight (upRight (rec k upRight n))
-                    → (upLeft (rec (upLeft  k) upLeft n) ≤ℤ c ≤ℤ upRight (rec (upLeft  k) upRight n))
-                    + (upLeft (rec (upRight k) upLeft n) ≤ℤ c ≤ℤ upRight (rec (upRight k) upRight n))
-upLeft-or-upRight-2 k c zero = {!!}
-upLeft-or-upRight-2 k c (succ n) = {!!}
 
 rec-f-≡ : {X : 𝓤 ̇ } → (f : X → X) (x : X) (n : ℕ)
         → rec (f x) f n ≡ rec x f (succ n) 

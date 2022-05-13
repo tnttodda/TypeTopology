@@ -48,7 +48,6 @@ succ-to-monotone' P r t s a b (succ n) refl
  = t a (succℤ a) b (s a)
      (succ-to-monotone' P r t s (succℤ a) (succℤ (a +pos n))
        n (ℤ-left-succ-pos a n))
-
 succ-to-monotone : (P : ℤ → ℤ → 𝓤 ̇ )
                  → ((a : ℤ) → P a a)
                  → ((a b c : ℤ) → P a b → P b c → P a c)
@@ -256,6 +255,7 @@ upRight-succ-negsucc (succ (succ a))
    IH = upRight-succ-negsucc a
    m = pr₁ IH
 
+
 upRight-≤-succ : (a : ℤ) → upRight a ≤ℤ upRight (succℤ a)
 upRight-≤-succ = ℤ-elim (λ a → upRight a ≤ℤ upRight (succℤ a))
                    upRight-succ-pos upRight-succ-negsucc
@@ -265,6 +265,40 @@ upRight-monotone = ≤-succ-to-monotone upRight upRight-≤-succ
 
 upLeft-monotone : (a b : ℤ) → a ≤ℤ b → upLeft a ≤ℤ upLeft b
 upLeft-monotone a b (n , refl) = upRight-monotone _ _ (n , ℤ-left-pred-pos a n)
+
+upRight-<-succ-succ : (a : ℤ) → upRight a <ℤ upRight (succℤ (succℤ a))
+upRight-<-succ-succ a = transport (upRight a <ℤ_) (upRight-suc a ⁻¹) (0 , refl)
+
+upRight-<<' : (a b : ℤ) (n : ℕ) → (a +pos succ n) ≡ predℤ b → upRight a <ℤ upRight b
+upRight-<<' a b zero e
+ = transport (λ - → upRight a <ℤ upRight -)
+     (ap succℤ e ∙ succpredℤ _)
+     (upRight-<-succ-succ a)
+upRight-<<' a b (succ n) e
+ = transport (λ - → upRight a <ℤ upRight -)
+     (ap succℤ e ∙ succpredℤ _)
+     (ℤ≤-trans _ _ _ (upRight-<-succ-succ a)
+       (upRight-monotone _ _
+       (succ n , ap succℤ (ℤ-left-succ-pos (succℤ a) n ∙ ap succℤ (ℤ-left-succ-pos a n)))))
+ 
+upRight-<< : (a b : ℤ) → a <ℤ predℤ b → upRight a <ℤ upRight b
+upRight-<< a b (n , e)
+ = upRight-<<' a b n (ℤ-left-succ-pos a n ⁻¹ ∙ e)
+
+upLeft-<< : (a b : ℤ) → a <ℤ b → upLeft a <ℤ upRight b
+upLeft-<< a b (n , refl)
+ = upRight-<< (predℤ a) b
+     (n , (ap (_+pos n) (succpredℤ _) ∙ predsuccℤ _ ⁻¹ ∙ ap predℤ (ℤ-left-succ-pos a n ⁻¹)))
+
+upLeft<upRight : (a : ℤ) (n : ℕ) → rec a upLeft (succ n) ≢ rec a upRight (succ n)
+upLeft<upRight (pos zero) zero = {!!}
+upLeft<upRight (pos zero) (succ zero) = {!!}
+upLeft<upRight (pos zero) (succ (succ n)) = {!!}
+upLeft<upRight (pos (succ x)) n = {!!}
+upLeft<upRight (negsucc zero) zero = {!!}
+upLeft<upRight (negsucc zero) (succ n) = {!!}
+upLeft<upRight (negsucc (succ x)) n = {!!}
+
 ```
 
 above and above'
@@ -437,6 +471,14 @@ below'-implies-above .(downMid   b) b (inr (inl refl))
 below'-implies-above .(downRight b) b (inr (inr refl))
  = below-implies-above-dR b
 
+downRight-upLeft-pos : (b : ℕ) → pos b ≤ℤ downRight (upLeft (pos b))
+downRight-upLeft-pos 0 = zero , refl
+downRight-upLeft-pos 1 = 1 , refl
+downRight-upLeft-pos (succ (succ b)) = {!!}
+
+downRight-upLeft : (b : ℤ) → b ≤ℤ downRight (upLeft b)
+downRight-upLeft = {!!}
+
 downLeft-upRight-pos' : (b : ℕ)
                       → (downLeft (upRight (pos b)) +pos 0 ≡ pos b)
                       + (downLeft (upRight (pos b)) +pos 1 ≡ pos b)
@@ -524,6 +566,7 @@ above-upRight b = Cases (above-upRight' b)
                     (λ (al , bl) → (0 , al) , (2 , bl))
                     (λ (ar , br) → (1 , ar) , (1 , br))
 
+{-
 downRight-predupRight-pos : (b : ℕ) → even (pos b)
                           → pos b ≤ℤ downRight (predℤ (upRight (pos b)))
 downRight-predupRight-pos 0 _ = 0 , refl
@@ -560,6 +603,7 @@ downRight-predupRight-negsucc (succ (succ b)) e
  where
    IH = downRight-predupRight-negsucc b e
    m = pr₁ IH
+-}
 
 above-upLeft : (b : ℤ) → b below (upLeft b)
 above-upLeft b
