@@ -194,11 +194,20 @@ You can also build an element of a closed interval in a similar way
 build-ci : (x : 𝕂) → (δ : ℤ) → CompactInterval (⟨ x ⟩ δ , δ)
 build-ci x δ = x , refl
 
+build-correct : (x : 𝕂) → (δ : ℤ) → ⟨ ι (build-ci x δ) ⟩ δ ≡ ⟨ x ⟩ δ
+build-correct x δ = refl
+
+build-via'-correct : ((k , i) : ℤ × ℤ)
+                   → (ζ : (i <ℤ i) + (i ≡ i) + (i <ℤ i))
+                   → build-via' (k , i) i ζ ≡ k
+build-via'-correct (k , i) ζ
+ = ap (build-via' (k , i) i)
+     (ℤ-trichotomous-is-prop i i ζ (inr (inl refl)))
+
 build-via-ci : ((k , i) : ℤ × ℤ) → CompactInterval (k , i)
 build-via-ci (k , i)
  = build-via (k , i)
- , ap (build-via' (k , i) i)
-     (ℤ-trichotomous-is-prop i i (ℤ-trichotomous i i) (inr (inl refl)))
+ , build-via'-correct (k , i) (ℤ-trichotomous i i)
 
 -- build-ci-ci : ((k , i) : ℤ × ℤ) → CompactInterval (k , i)
 
@@ -452,24 +461,23 @@ down-choices'' .(succℤ k₂) k₂ .k₂ (inr refl) (inr refl)
  = inr ((transport (_≤ℤ downRight k₂) (e ⁻¹) (zero , refl)) , (zero , refl))
  where
    e : downLeft (succℤ k₂) ≡ succℤ (succℤ (k₂ +ℤ k₂))
-   e = downLeft-monotone' _ _ (1 , refl) ⁻¹
+   e = downLeft-monotone' k₂ (succℤ k₂) (1 , refl) ⁻¹
 
 down-choices' : (k₁ k₂ c : ℤ) (n m : ℕ)
               → k₁ +pos n ≡ c
               → c +pos m ≡ k₂
+              → k₁ <ℤ k₂
               → (downRight k₁ ≤ℤ downLeft  c ≤ℤ downLeft k₂)
               + (downRight k₁ ≤ℤ downRight c ≤ℤ downLeft k₂)
-down-choices' k₁ .((k₁ +pos zero) +pos zero) .(k₁ +pos zero) 0 0 refl refl
- = {!!}
-
---  𝟘-elim (b<a→a≢b _ _ f ((p ∙ q) ⁻¹))
+down-choices' k₁ .((k₁ +pos zero) +pos zero) .(k₁ +pos zero) 0 0 refl refl f
+ = 𝟘-elim (b<a→a≢b _ _ f refl)
 down-choices'
- k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl
+ k₁ .((k₁ +pos zero) +pos succ m) .(k₁ +pos zero) 0 (succ m) refl refl f
  = inr ((zero , refl)
        , transport (downRight k₁ ≤ℤ_) (downRight≡downLeft (k₁ +pos m))
            (downRight-monotone _ _ (m , refl)))
 down-choices'
- k₁ .((k₁ +pos succ n) +pos m) .(k₁ +pos succ n) (succ n) m refl refl
+ k₁ .((k₁ +pos succ n) +pos m) .(k₁ +pos succ n) (succ n) m refl refl f
  = inl (transport (downRight k₁ ≤ℤ_) (downRight≡downLeft (k₁ +pos n))
           (downRight-monotone _ _ (n , refl))
       , downLeft-monotone _ _ (m , refl))
@@ -481,32 +489,34 @@ apparently k₁ k₂ c (l≤c , c≤u)
  = ℤ≤-trans _ _ _ (downRight-upLeft k₁) l≤c
  , ℤ≤-trans _ _ _ c≤u (downLeft-upRight k₂) 
 
-apparently2 : (k₁ k₂ c : ℤ)
-            → downLeft (upLeft k₁) ≤ℤ c ≤ℤ downRight (upRight k₂)
-            → k₁ ≤ℤ c ≤ℤ k₂
-apparently2 k₁ k₂ c (l≤c , c≤u)
- = (ℤ≤-trans _ _ _ {!downLeft-upLeft!} l≤c)
- , {!!}
-
 down-choices : (k₁ k₂ c : ℤ)
-             → k₁ <ℤ k₂
+             → (k₁ <ℤ k₂) + (k₁ ≡ k₂)
              → upLeft k₁ ≤ℤ           c ≤ℤ upRight k₂
              →       (k₁ ≤ℤ downLeft  c ≤ℤ k₂)
+             +       (k₁ ≤ℤ downMid   c ≤ℤ k₂)
              +       (k₁ ≤ℤ downRight c ≤ℤ k₂)
-down-choices k₁ k₂ c k₁<k₂ ((m₁ , η₁) , (m₂ , η₂))
-{- = Cases (down-choices' (upLeft k₁) (upRight k₂) c m₁ m₂ η₁ η₂)
-     (λ l → inl (apparently _ _ _ l))
-     (λ r → inr (apparently _ _ _ r)) -}
- = Cases (down-choices'' (upLeft k₁) (upLeft k₂) c {!!} {!!})
-     {!!} {!!}
+down-choices k₁ k₂ c (inl k₁<k₂) ((m₁ , η₁) , (m₂ , η₂))
+ = Cases (down-choices' (upLeft k₁) (upRight k₂) c m₁ m₂ η₁ η₂ (upLeft-<< k₁ k₂ k₁<k₂))
+     (λ l → inl         (apparently _ _ _ l))
+     (λ r → (inr ∘ inr) (apparently _ _ _ r))
+down-choices k k c (inr refl) ((m₁ , η₁) , (m₂ , η₂))
+ = Cases (below-implies-below' k c (above-implies-below c k ((m₁ , η₁) , (m₂ , η₂))))
+     l (cases m r)
+ where
+   l : _
+   l refl = inl ((zero , refl) , zero , refl)
+   m : _
+   m refl = inr (inl ((zero , refl) , zero , refl))
+   r : _
+   r refl = inr (inr ((zero , refl) , zero , refl))
 
 upLeft-or-upRight : (k₁ k₂ c : ℤ)
-                  → k₁ <ℤ k₂
+                  → k₁ ≤ℤ k₂
                   → downLeft k₁ ≤ℤ         c ≤ℤ downRight k₂
                   →         (k₁ ≤ℤ upLeft  c ≤ℤ           k₂)
                   +         (k₁ ≤ℤ upRight c ≤ℤ           k₂)
-upLeft-or-upRight k₁ k₂ c k₁<k₂ ((m₁ , η₁) , (m₂ , η₂))
- = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂ (downLeft<<downRight k₁ k₂ k₁<k₂))
+upLeft-or-upRight k₁ k₂ c k₁≤k₂ ((m₁ , η₁) , (m₂ , η₂))
+ = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂ (downLeft≤<downRight k₁ k₂ k₁≤k₂))
      (λ l → inl (transport (_≤ℤ upLeft c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
        (transport (upRight (downLeft k₁) ≤ℤ upLeft c ≤ℤ_) (upLeft-downRight k₂) l)))
      (λ r → inr (transport (_≤ℤ upRight c ≤ℤ k₂) (upRight-downLeft k₁ ⁻¹)
@@ -553,7 +563,7 @@ lower-upper-below : (k c : ℤ) (n : ℕ)
                   → (c belowⁿ k) n
 lower-upper-below k c 0 = id
 lower-upper-below k c (succ n) l≤c≤u
- = Cases (upLeft-or-upRight _ _ _ (downLeft<downRight k n) l≤c≤u)
+ = Cases (upLeft-or-upRight _ _ _ (downLeft≤downRight k (succ n)) l≤c≤u)
      (λ η → (upLeft  c) , ((above-implies-below _ _ (upLeft-above  c)) , (IH-l η)))
      (λ η → (upRight c) , ((above-implies-below _ _ (upRight-above c)) , (IH-r η)))
  where
@@ -565,12 +575,21 @@ lower-upper-above : (k c : ℤ) (n : ℕ)
                   → (c aboveⁿ k) n
 lower-upper-above k c 0 = id
 lower-upper-above k c (succ n) l≤c≤u
- = Cases (down-choices _ _ _ {!!} l≤c≤u)
-     (λ η → downLeft c  , below-implies-above _ _ (downLeft-below  c) , (IH-l η))
-     (λ η → downRight c , below-implies-above _ _ (downRight-below c) , (IH-r η))
+ = Cases (down-choices _ _ _ (ℤ≤-split _ _ (upLeft≤upRightⁿ k (succ n))) l≤c≤u)
+      (λ η → downLeft  c , below-implies-above _ _ (downLeft-below  c) , (IH-l η))
+     (cases
+      (λ η → downMid   c , below-implies-above _ _ (downMid-below   c) , (IH-m η))
+      (λ η → downRight c , below-implies-above _ _ (downRight-below c) , (IH-r η)))
  where
-   IH-l = lower-upper-above k (downLeft c) n
+   IH-l = lower-upper-above k (downLeft  c) n
+   IH-m = lower-upper-above k (downMid   c) n
    IH-r = lower-upper-above k (downRight c) n
+
+a≤b≤a : (a b : ℤ) → a ≤ℤ b → b ≤ℤ a → a ≡ b
+a≤b≤a a b a≤b b≤a
+ = Cases (ℤ≤-split _ _ a≤b)
+     (𝟘-elim ∘ ℤ-bigger-or-equal-not-less _ _ b≤a)
+     id
 
 replace : ((k , i) (c , δ) : ℤ × ℤ)
         → lower (k , i) δ ≤ℤ c ≤ℤ upper (k , i) δ
@@ -580,7 +599,10 @@ replace (k , i) (c , δ) l≤c≤u with ℤ-trichotomous i δ
 ... | inl i<δ
     = replace-below (k , i) (c , δ) i<δ (lower-upper-below k c (pr₁ i<δ) l≤c≤u)
 ... | inr (inl refl)
-    = build-via-ci (k , i) , ({!!} ∙ {!!})
+    = build-via-ci (k , i) , (build-via'-correct (k , i) (ℤ-trichotomous i i) ∙ k≡c)
+    where
+      k≡c : k ≡ c
+      k≡c = a≤b≤a k c (pr₁ l≤c≤u) (pr₂ l≤c≤u)
 ... | inr (inr δ<i)
     = replace-above (k , i) (c , δ) δ<i (lower-upper-above k c (pr₁ δ<i) l≤c≤u)
 ```
@@ -902,10 +924,6 @@ Therefore, 𝕂c predicates are searchable in two ways: directly, or
 via the setoid equivalence.
 
 ```
-
-𝕂c-searchable-directly : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
-                       → Searchable {𝓦} (𝕂c-equivalence-relation (k , i) δ)
-𝕂c-searchable-directly = {!!}
 
 𝕂c-searchable-equiv : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
                     → Searchable {𝓦} (𝕂c-equivalence-relation (k , i) δ)
