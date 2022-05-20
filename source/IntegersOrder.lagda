@@ -236,7 +236,10 @@ negative-less-than-positive x y = (x ℕ+ y) , I
   I (inl l) = inr (ℤ≤-swap (pos (succ x)) (pos (succ y)) (ℕ≤-to-ℤ≤ (succ x) (succ y) l))
   I (inr r) = inl (ℤ≤-swap (pos (succ y)) (pos (succ x)) (ℕ≤-to-ℤ≤ (succ y) (succ x) r))
 
-ℤ-trichotomous : (x y : ℤ) → (x < y) ∔ (x ≡ y) ∔ (y < x)
+trich-locate : (x y : ℤ) → 𝓤₀ ̇ 
+trich-locate x y = (x < y) ∔ (x ≡ y) ∔ (y < x)
+
+ℤ-trichotomous : (x y : ℤ) → trich-locate x y
 ℤ-trichotomous x y = I (ℤ-dichotomous x y) 
  where
   I : (x ≤ y) ∔ (y ≤ x) → (x < y) ∔ (x ≡ y) ∔ (y < x)

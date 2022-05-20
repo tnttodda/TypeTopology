@@ -16,6 +16,7 @@ open import IntegersNegation renaming (-_  to  −ℤ_)
 open import UF-Subsingletons
 open import NaturalsOrder
 open import DecidableAndDetachable
+open import OrderNotation
 
 succ-lc : (x y : ℕ) → succ x ≡ succ y → x ≡ y
 succ-lc x x refl = refl
@@ -149,3 +150,61 @@ x −ℤ y = x +ℤ (−ℤ y)
        (predsuccℤ (x +pos n) ⁻¹
        ∙ ap predℤ (ℤ-left-succ x (pos n) ⁻¹))
        (ℤ≤-refl (x +pos n)))
+
+ℤ-dich-succ : (x y : ℤ) 
+            → ((      x <ℤ y) + (y ≤ℤ       x))
+            → ((succℤ x <ℤ y) + (y ≤ℤ succℤ x))
+ℤ-dich-succ x y (inl (0 , refl)) = inr (ℤ≤-refl _)
+ℤ-dich-succ x y (inl (succ m , refl)) = inl (m , ℤ-left-succ-pos (succℤ x) m)
+ℤ-dich-succ x y (inr (m , refl)) = inr (succ m , refl)
+
+ℤ-trich-succ : (x y : ℤ) 
+             → ((      x <ℤ y) + (      x ≡ y) + (y <ℤ       x))
+             → ((succℤ x <ℤ y) + (succℤ x ≡ y) + (y <ℤ succℤ x))
+ℤ-trich-succ x y (inl (0           , sn+j≡i))
+ = (inr ∘ inl) sn+j≡i
+ℤ-trich-succ x y (inl (succ j      , sn+j≡i))
+ = inl (j , (ℤ-left-succ-pos (succℤ x) j ∙ sn+j≡i))
+ℤ-trich-succ x y (inr (inl              n≡i))
+ = (inr ∘ inr) (0 , ap succℤ (n≡i ⁻¹))
+ℤ-trich-succ x y (inr (inr (j      , sn+j≡i)))
+ = (inr ∘ inr) (succ j , ap succℤ sn+j≡i)
+
+ℤ-vert-trich-locate : ℤ → ℤ → ℤ → 𝓤₀ ̇
+ℤ-vert-trich-locate z a b = (z <ℤ a) + (a ≤ℤ z ≤ℤ b) + (b <ℤ z)
+
+ℤ-vert-trich-succ : (z a b : ℤ) → a <ℤ b
+                  → ℤ-vert-trich-locate        z  a b
+                  → ℤ-vert-trich-locate (succℤ z) a b
+ℤ-vert-trich-succ z a b (k , η) (inl (succ n , ε))
+ = inl         (n , (ℤ-left-succ-pos (succℤ z) n ∙ ε))
+ℤ-vert-trich-succ z a b (k , η) (inl (0      , refl))
+ = (inr ∘ inl) ((0 , refl) , (succ k , (ℤ-left-succ-pos (succℤ z) k ⁻¹ ∙ η)))
+ℤ-vert-trich-succ z a b (k , η) (inr (inl ((n₁ , ε₁) , succ n₂ , ε₂)))
+ = (inr ∘ inl) ((succ n₁ , (ap succℤ ε₁)) , (n₂ , (ℤ-left-succ-pos z n₂ ∙ ε₂)))
+ℤ-vert-trich-succ z a b (k , η) (inr (inl ((n₁ , ε₁) , zero , ε₂)))
+ = (inr ∘ inr) (0 , ap succℤ (ε₂ ⁻¹))
+ℤ-vert-trich-succ z a b (k , η) (inr (inr (n , refl)))
+ = (inr ∘ inr) (succ n , refl)
+
+ℤ-vert-trich-all : (z a b : ℤ) → ℤ-vert-trich-locate z a b
+ℤ-vert-trich-all z a b = Cases (ℤ-trichotomous z a) inl
+                 λ a≤z → Cases (ℤ-trichotomous b z) (inr ∘ inr)
+                 λ z≤b → (inr ∘ inl) (ℤ≤-attach _ _ a≤z , ℤ≤-attach _ _ z≤b)
+
+ℤ-vert-trich-is-prop : (z a b : ℤ) → a <ℤ b → is-prop (ℤ-vert-trich-locate z a b)
+ℤ-vert-trich-is-prop z a b a<b
+ = +-is-prop (ℤ<-is-prop z a) (+-is-prop (≤ℤ²-is-prop z) (ℤ<-is-prop b z)
+     (λ (_ , z≤b) → ℤ-bigger-or-equal-not-less z b z≤b))
+    (λ z<a → cases
+     (λ (a≤z , _) → ℤ-less-not-bigger-or-equal z a z<a a≤z)
+     (ℤ-bigger-or-equal-not-less z b (<-is-≤ z b (ℤ<-trans z a b z<a a<b))))
+
+ne : (a b c : ℤ)
+   → ((n , _) : a ≤ c) → ((n₁ , _) : a ≤ b) → ((n₂ , _) : b ≤ c)
+   → n₁ +ℕ n₂ ≡ n
+ne a b c a≤c a≤b b≤c = ℤ≤-same-witness a c (ℤ≤-trans a b c a≤b b≤c) a≤c
+
+ye : (a b c : ℤ) → ((n , _) : a ≤ c) → a ≤ b → ((n₂ , _) : b ≤ c) → n₂ <ℕ succ n
+ye a b c (n , q) (n₁ , r) (n₂ , s)
+ = transport (n₂ ≤ℕ_) (ne a b c (n , q) (n₁ , r) (n₂ , s)) (≤-+' n₁ n₂)
