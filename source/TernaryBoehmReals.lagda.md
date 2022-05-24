@@ -5,16 +5,11 @@ open import UF-Equiv
 open import UF-FunExt
 open import UF-Subsingletons
 open import SpartanMLTT
-open import Two-Properties hiding (zero-is-not-one)
 open import NaturalsOrder
 open import IntegersOrder
 open import IntegersB
 open import NaturalsAddition renaming (_+_ to _+ℕ_)
 open import IntegersAddition renaming (_+_ to _+ℤ_)
-open import IntegersNegation renaming (-_  to  −ℤ_)
-open import UF-Subsingletons
-open import NaturalsOrder
-open import DecidableAndDetachable
 open import OrderNotation
 
 module TernaryBoehmReals (fe : FunExt) (pe : PropExt) where
@@ -31,19 +26,20 @@ a ≤ b ≤ c = (a ≤ b) × (b ≤ c)
 
 ## Idea and Illustration
 
-We encode real numbers using the data type for ternary Boehm reals 𝕋.
+We encode real numbers using the data type for ternary Boehm reals `𝕋`.
 
-Each 𝕋 is a function x ꞉ ℤ → ℤ with a condition that ensures we only have
-our encodings of real numbers inside 𝕋, and not just any function of type ℤ → ℤ.
+Each `𝕋` is a function `x ꞉ ℤ → ℤ` with a condition that ensures we only have
+our encodings of real numbers inside `𝕋`, and not just any function of type
+`ℤ → ℤ`.
 
-The idea is that a function x : ℤ → ℤ takes a "precision-level" δ : ℤ and gives
-back an encoding x(δ) : ℤ of a real interval.
+The idea is that a function `x : ℤ → ℤ` takes a "precision-level" `δ : ℤ` and
+gives back an encoding `x(δ) : ℤ` of a real interval.
 
-The idea is that each precision-level δ : ℤ represents a "layer" in the
+The idea is that each precision-level `δ : ℤ` represents a "layer" in the
 following illustrative "brick pattern".
 
-Level δ+1 has bricks half the size of those on level δ.
-Here, segments of levels 0 and 1 are shown.
+Level `δ+1` has bricks half the size of those on level `δ`. Here, segments of
+levels `0` and `1` are shown.
 
 ```code
 -1        0         1         2
@@ -55,9 +51,9 @@ __________ _________ _________ ____
  _|_-3_|_-1_|__1_|__3_|__5_|__7_|__
 ```
 
-Then, x(δ) : ℤ refers to a precise labelled "brick" in the brick pattern.
+Then, `x(δ) : ℤ` refers to a precise labelled "brick" in the brick pattern.
 
-Each brick encodes a real interval; specifically the interval ⟪ x(δ) , δ ⟫ as
+Each brick encodes a real interval; specifically the interval `⟪ x(δ) , δ ⟫` as
 defined below.
 
 ```code
@@ -68,11 +64,11 @@ defined below.
 ## Below and above
 
 Therefore, an encoding of a real number is a sequence of encodings of real
-intervals -- the condition we add is that each brick x(δ) is "below" the brick
--- x(δ−1); meaning ⟪ x(δ+1) , δ+1 ⟫ ⊂ ⟪ x(δ) , δ ⟫.
+intervals -- the condition we add is that each brick `x(δ)` is "below" the brick
+-- `x(δ-1)`; meaning `⟪ x(δ+1) , δ+1 ⟫ ⊂ ⟪ x(δ) , δ ⟫`.
 
-Each brick on level δ has exactly three bricks below it on level δ+1 --
-i.e. brick δ has bricks 2δ, 2δ+1 and 2δ+2 below it.
+Each brick on level `δ` has exactly three bricks below it on level `δ+1` -- i.e.
+brick `δ` has bricks `2δ`, `2δ+1` and `2δ+2` below it.
 
 ```
 downLeft downMid downRight : ℤ → ℤ
@@ -81,9 +77,9 @@ downMid   k = (k +ℤ k) +pos 1
 downRight k = (k +ℤ k) +pos 2
 ```
 
-Furthermore, Each brick on level n also has either one or two bricks "above" it
-on level δ−1 -- i.e. even-numbered brick δ has bricks δ/2 and δ/2−1, whereas
-odd-numbered brick m only has brick δ/2, above it.
+Furthermore, Each brick on level `n` also has either one or two bricks "above" it
+on level `δ-1` -- i.e. even-numbered brick `δ` has bricks `δ/2` and `δ/2-1`,
+whereas odd-numbered brick `m` only has brick `δ/2`, above it.
 
 ```
 upRight upLeft : ℤ → ℤ
@@ -114,10 +110,10 @@ open import BelowAndAbove fe
   hiding (downLeft ; downMid ; downRight ; upLeft ; upRight ; _below_ ; _above_)
 ```
 
-## Formal definition of 𝕋
+## Formal definition of `𝕋`
 
-We now define 𝕋 as functions where each "brick" on "precision-level" n+1 is
-below that on n.
+We now define `𝕋` as functions where each "brick" on "precision-level" `n+1` is
+below that on `n`.
 
 ```
 𝕋 : 𝓤₀ ̇ 
@@ -129,9 +125,9 @@ below that on n.
 
 # Part II - Constructing Ternary Boehm Encodings
 
-## Building elements of 𝕋
+## Building elements of `𝕋`
 
-We can build simple elements of 𝕋 that go 'via' a given interval encoding, and
+We can build simple elements of `𝕋` that go 'via' a given interval encoding, and
 use `upRight` and `downLeft` to construct all other precision-levels.
 
 ```
@@ -178,9 +174,9 @@ integer `k : ℤ` itself, we can build a representation of any integer like so.
 
 ## Representing closed intervals
 
-Given any specific brick on a specific level, i.e. (k , δ) : ℤ × ℤ representing
-⟪ k , δ ⟫, we can define the type of real numbers in the closed interval
-⟪ k , δ ⟫.
+Given any specific brick on a specific level, i.e. `(k , δ) : ℤ × ℤ` representing
+`⟪ k , δ ⟫`, we can define the type of real numbers in the closed interval
+`⟪ k , δ ⟫`.
 
 ```
 CompactInterval : ℤ × ℤ → 𝓤₀ ̇
@@ -215,9 +211,9 @@ build-via-ci (k , i) = build-via (k , i)
 
 ## Replacement functions
 
-Given any x : 𝕋 and i : ℤ, we can replace all precision levels δ <ℤ i
-with (upRight ^ (i - δ)) (⟨ x ⟩ i) (or upLeft) and still represent the same
-real number.
+Given any `x : 𝕋` and `i : ℤ`, we can replace all precision levels `δ < i` with
+`(upRight ^ (i - δ)) (⟨ x ⟩ i)` (or `upLeft`) and still represent the same real
+number.
 
 ```
 replace-right' : (ℤ → ℤ) → (i : ℤ) → (δ : ℤ) → trich-locate δ i → ℤ
@@ -249,11 +245,11 @@ replace-right x i
  where r = replace-right' ⟨ x ⟩ i
 ```
 
-It is the case that for all α : 𝕋 and i : ℤ, ⟦ α ⟧ ≡ ⟦ replace-right α i ⟧.
+It is the case that for all `α : 𝕋` and `i : ℤ`, `⟦ α ⟧ ≡ ⟦ replace-right α i ⟧`.
 
-What this means is that all information held at x(δ) about locating ⟦ x ⟧ is
-also held at x(δ+1) -- once you consider a level, levels higher than that can be
-trivially reconstructed.
+What this means is that all information held at `x(δ)` about locating `⟦ x ⟧` is
+also held at `x(δ+1)` -- once you consider a level, levels higher than that can
+be trivially reconstructed.
 
 This will be further seen in the next section.
 
@@ -264,13 +260,15 @@ is the infinite intersection ⋂ᵢ ⟪ ⟨ x ⟩ i ⟫.
 
 ## Signed-digits are isomorphic to Ternary Boehm reals
 
-Recall that we previously represented numbers in the closed interval
-[-1,1] using signed-digit functions of type ℕ → 𝟛.
+Recall that we previously represented numbers in the closed interval `[-1,1]`
+using signed-digit functions of type `ℕ → 𝟛`.
 
+```code
 ⦉_⦊ : (ℕ → 𝟛) → ℝ
 ⦉ α ⦊ = Σᵢ (α i / 2^{i+1})
+```
 
-This interval is represented by the Boehm "brick" (-1 , -1) : ℕ × ℕ.
+This interval is represented by the Boehm "brick" `(-1 , -1) : ℤ × ℤ`.
 
 ```
 [−1,1]-code : ℤ × ℤ
@@ -281,9 +279,13 @@ The location structure of the signed-digit approach is actually
 isomorphic to the ternary Boehm approach.
 
 For example, the signed digit function
+```code
  α ≔     { −1            ,  O           , +1             , ...} : ℕ → 𝟛
+```
 follows the same location structure as
+```code
  x ≔ {-1 , downLeft x(0) , downMid x(1) , downRight x(2) , ...} : ℕ → ℤ
+```
 
 ```
 𝟛-to-down : 𝟛 → (ℤ → ℤ)
@@ -313,7 +315,7 @@ signed-to-boehm α
 Therefore, it should be the case that, for all `x : ℕ → 𝟛`,
 `⦉ x ⦊ = ⟦ signed-to-boehm x ⟧`.
 
-Recall that we used an interval object specification of the real numbers 𝕀.
+Recall that we used an interval object specification of the real numbers `𝕀`.
 
 We already defined the following realisability map,
 
@@ -339,17 +341,17 @@ Then, by setting `𝕣 = 𝕢 ∘ boehm-to-signed`, we get that for all `x : ℕ
 
 ## Using Dedekind reals instead
 
-Myself and Andrew Sneap define ⟦ x ⟧, and are developing a version of the above
+Myself and Andrew Sneap define `⟦ x ⟧`, and are developing a version of the above
 relationship using Dedekind reals rather than the interval object.
 
 ## The key difference
 
 The key difference between the signed digit approach and the Boehm approach is
 that,
- * With signed digit, the information kept in x(n) *depends on*
-                      the information in all x(i) such that i < n,
- * With Boehm codes,  the information kept in x(n) *includes*
-                      the information in all x(i) such that i < n.
+ * With signed digit, the information kept in `x(n)` *depends on*
+                      the information in all `x(i)` such that `i < n`,
+ * With Boehm codes,  the information kept in `x(n)` *includes*
+                      the information in all `x(i)` such that `i < n`.
 
 # Part IV - Recursive below/above and lower/upper bounds of compact intervals
 
@@ -363,11 +365,11 @@ What we mean is that for all `(k , i) : ℤ × ℤ` and `n : ℤ`, there are som
 integers `lower (k , i) n` and `upper (k , i) n` such that for all
 `x : CompactInterval (x , i)`, `lower (k , i) n ≤ x n ≤ upper (k , i) n`.
 
-At level n < i, the lower bound is (downLeft  ^ (i − n)) k
-            and the upper bound is (downRight ^ (i − n)) k.
-At level n = i, the lower and upper bounds are exactly k.
-At level n > i, the lower bound is (upLeft    ^ (i − n)) k
-            and the upper bound is (upRight   ^ (i − n)) k.
+At level `n < i`, the lower bound is `(downLeft  ^ (i − n)) k`
+              and the upper bound is `(downRight ^ (i − n)) k`.
+At level `n = i`, the lower and upper bounds are exactly `k`.
+At level `n > i`, the lower bound is `(upLeft    ^ (i − n)) k`
+              and the upper bound is `(upRight   ^ (i − n)) k`.
 
 ```
 lower upper : ℤ × ℤ → ℤ → ℤ
@@ -653,7 +655,8 @@ above-lower-upper = {!!}
 
 Given two interval encodings `(k , i), (c , δ) : ℤ × ℤ` where `c below/above k`,
 then we can construct a real encoding `x : CompactInterval (k , i)` that "goes
-via" `(c , δ) : ℤ × ℤ`. 
+via" `(c , δ) : ℤ × ℤ`.
+
 ```
 replace-below
          : ((k , i) (c , δ) : ℤ × ℤ)
