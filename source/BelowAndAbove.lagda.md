@@ -831,3 +831,26 @@ below-everything-in-vec a c (succ n) (b , η , θ) (succ k) k<sn
 aboveⁿ-implies-belowⁿ : (a c : ℤ) (n : ℕ) → (c aboveⁿ a) n → (a belowⁿ c) n
 aboveⁿ-implies-belowⁿ a c n
  = sigma-witness→inv _above_ _below_ above-implies-below c a n
+
+
+```
+
+```
+upRight≤upLeft-succ : (a : ℤ) → upRight a ≡ upLeft (succℤ a)
+upRight≤upLeft-succ a = ap upRight (predsuccℤ _ ⁻¹)
+
+upRight≤upLeft : (a b : ℤ) → a <ℤ b → upRight a ≤ℤ upLeft b
+upRight≤upLeft a b (n      , refl)
+ = transport (_≤ℤ upLeft (succℤ a +pos n)) (upRight≤upLeft-succ a ⁻¹)
+     (upLeft-monotone _ _ (n , refl))
+
+downRight≡downLeft : (a : ℤ) → downRight a ≡ downLeft (succℤ a)
+downRight≡downLeft a = ap succℤ (ℤ-left-succ a a ⁻¹ ∙ ℤ+-comm (succℤ a) a)
+                     ∙ ℤ-left-succ a (succℤ a) ⁻¹
+
+apparently : (k₁ k₂ c : ℤ)
+           → downRight (upLeft k₁) ≤ℤ c ≤ℤ downLeft (upRight k₂)
+           → k₁ ≤ℤ c ≤ℤ k₂
+apparently k₁ k₂ c (l≤c , c≤u)
+ = ℤ≤-trans _ _ _ (downRight-upLeft k₁) l≤c
+ , ℤ≤-trans _ _ _ c≤u (downLeft-upRight k₂) 

@@ -208,3 +208,11 @@ ne a b c a≤c a≤b b≤c = ℤ≤-same-witness a c (ℤ≤-trans a b c a≤b b
 ye : (a b c : ℤ) → ((n , _) : a ≤ c) → a ≤ b → ((n₂ , _) : b ≤ c) → n₂ <ℕ succ n
 ye a b c (n , q) (n₁ , r) (n₂ , s)
  = transport (n₂ ≤ℕ_) (ne a b c (n , q) (n₁ , r) (n₂ , s)) (≤-+' n₁ n₂)
+
+rec-f-≡ : {X : 𝓤 ̇ } → (f : X → X) (x : X) (n : ℕ)
+        → rec (f x) f n ≡ rec x f (succ n) 
+rec-f-≡ f x zero = refl
+rec-f-≡ f x (succ n) = ap f (rec-f-≡ f x n)
+
+ℤ≤²-refl : (k : ℤ) → k ≤ℤ k ≤ℤ k
+ℤ≤²-refl k = ℤ≤-refl k , ℤ≤-refl k
