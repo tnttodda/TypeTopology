@@ -11,10 +11,16 @@ open import IntegersB
 open import NaturalsAddition renaming (_+_ to _+ℕ_)
 open import IntegersAddition renaming (_+_ to _+ℤ_)
 open import OrderNotation
+open import UF-PropTrunc
+open import UF-Quotient
 
-module TernaryBoehmReals (fe : FunExt) (pe : PropExt) where
+module TernaryBoehmReals
+  (pt : propositional-truncations-exist)
+  (fe : FunExt)
+  (pe : PropExt)
+  (sq : set-quotients-exist)
+  where
 
-open import SearchableTypes fe pe
 open import TernaryBoehmRealsPrelude fe
 
 _≤_≤_ : ℤ → ℤ → ℤ → 𝓤₀ ̇ 
@@ -279,13 +285,12 @@ The location structure of the signed-digit approach is actually
 isomorphic to the ternary Boehm approach.
 
 For example, the signed digit function
-```code
- α ≔     { −1            ,  O           , +1             , ...} : ℕ → 𝟛
-```
+
+`α ≔     { −1            ,  O           , +1             , ...} : ℕ → 𝟛`
+
 follows the same location structure as
-```code
- x ≔ {-1 , downLeft x(0) , downMid x(1) , downRight x(2) , ...} : ℕ → ℤ
-```
+
+`x ≔ {-1 , downLeft x(0) , downMid x(1) , downRight x(2) , ...} : ℕ → ℤ`
 
 ```
 𝟛-to-down : 𝟛 → (ℤ → ℤ)
@@ -451,9 +456,27 @@ ci-lower-upper (k , i) ((x , γx) , refl) δ with ℤ-trichotomous i δ
 ... | inr (inr i>δ)  = ci-lower-upper-> (k , i) ((x , γx) , refl) δ i>δ
 ```
 
-## Recursive below
+## Recursively below/above
 
-TODO
+We now define what it means for an integer to be recursively below (`belowⁿ`)
+another integer.
+
+```code
+_belowⁿ_ : ℤ → ℤ → ℕ → 𝓤₀ ̇
+(a belowⁿ b) 0        =           a below b
+(a belowⁿ c) (succ n) = Σ b ꞉ ℤ , a below b × (b belowⁿ c) n
+```
+
+Recursively above (`aboveⁿ`) is defined similarly.
+
+Note that most of the properties and proof techniques required for recursively
+below and above are relegated to the file `BelowAndAbove.lagda.md`.
+
+We define a property on interval encodings `(k , i) , (c , δ) : ℤ × ℤ`
+called "recursively below or above" (`below/above`), which holds if either:
+  * `i + n ≡ δ` and `(c belowⁿ k) n`,
+  * `i ≡ δ` and `k ≡ c`,
+  * `i ≡ δ + n` and `(c aboveⁿ k) n`.
 
 ```
 _below/above_ : ℤ × ℤ → ℤ × ℤ → 𝓤₀ ̇
@@ -462,6 +485,10 @@ _below/above_ : ℤ × ℤ → ℤ × ℤ → 𝓤₀ ̇
 ... | inr (inl      i≡δ)  = k ≡ c
 ... | inr (inr (n , i>δ)) = (c aboveⁿ k) n
 ```
+
+We will use this property, along with the previously defined lower/upper bounds
+to construct encodings of reals in compact intervals that "go via" a specific
+interval encodings.
 
 ## Relationship between below/above and lower/upper
 
@@ -516,17 +543,18 @@ upLeft-or-upRight : (k₁ k₂ c : ℤ)
                   →         (k₁ ≤ upLeft  c ≤           k₂)
                   +         (k₁ ≤ upRight c ≤           k₂)
 upLeft-or-upRight k₁ k₂ c k₁≤k₂ ((m₁ , η₁) , (m₂ , η₂))
- = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂ (downLeft≤<downRight k₁ k₂ k₁≤k₂))
+ = Cases (upLeft-or-upRight' (downLeft k₁) (downRight k₂) c m₁ m₂ η₁ η₂
+           (downLeft≤<downRight k₁ k₂ k₁≤k₂))
      (λ l → inl (transport (_≤ upLeft c ≤ k₂) (upRight-downLeft k₁ ⁻¹)
        (transport (upRight (downLeft k₁) ≤ upLeft c ≤_) (upLeft-downRight k₂) l)))
      (λ r → inr (transport (_≤ upRight c ≤ k₂) (upRight-downLeft k₁ ⁻¹)
        (transport (upRight (downLeft k₁) ≤ upRight c ≤_) (upLeft-downRight k₂) r)))
 
 lower-upper-below k c 0 = id
-lower-upper-below k c (succ n) l≤c≤u
+lower-upper-below k c (succ n) l≤c≤u  
  = Cases (upLeft-or-upRight _ _ _ (downLeft≤downRight k (succ n)) l≤c≤u)
-     (λ η → (upLeft  c) , ((above-implies-below _ _ (upLeft-above  c)) , (IH-l η)))
-     (λ η → (upRight c) , ((above-implies-below _ _ (upRight-above c)) , (IH-r η)))
+     (λ η → upLeft  c , above-implies-below _ _ (upLeft-above  c) , IH-l η)
+     (λ η → upRight c , above-implies-below _ _ (upRight-above c) , IH-r η)
  where
    IH-l = lower-upper-below k (upLeft  c) n 
    IH-r = lower-upper-below k (upRight c) n
@@ -577,13 +605,10 @@ down-choices k₁ k₂ c k₁≤k₂ ((m₁ , η₁) , (m₂ , η₂)) with ℤ�
 lower-upper-above k c 0 = id
 lower-upper-above k c (succ n) l≤c≤u
  = Cases (down-choices _ _ _ (upLeft≤upRightⁿ k (succ n)) l≤c≤u)
-      (λ η → downLeft  c , below-implies-above _ _ (downLeft-below  c)
-                         , IH-l η)
+      (λ η → downLeft  c , below-implies-above _ _ (downLeft-below  c) , IH-l η)
      (cases
-      (λ η → downMid   c , below-implies-above _ _ (downMid-below   c)
-                         , IH-m η)
-      (λ η → downRight c , below-implies-above _ _ (downRight-below c)
-                         , IH-r η))
+      (λ η → downMid   c , below-implies-above _ _ (downMid-below   c) , IH-m η)
+      (λ η → downRight c , below-implies-above _ _ (downRight-below c) , IH-r η))
  where
    IH-l = lower-upper-above k (downLeft  c) n
    IH-m = lower-upper-above k (downMid   c) n
@@ -763,70 +788,94 @@ replace-above (k , i) (c , j) j<i b
    γ = replace-below (c , j) (k , i) j<i (aboveⁿ-implies-belowⁿ k c (pr₁ j<i) b)
 ```
 
--------------------------------------------------------------------
+# Part V - Searching Ternary Boehm Encodings
 
 ## Closeness function on 𝕋
 
-For every discrete-sequence type ℕ → X (where X is discrete), we have
-a canonical closeness function c : (ℕ → X) × (ℕ → X) → ℕ∞.
+For every discrete-sequence type `ℕ → X` (where `X` is discrete), we have a
+canonical closeness function `c : (ℕ → X) × (ℕ → X) → ℕ∞`.
 
-Recall that for x,y : ℕ → X and any δ : ℕ,
+Recall that for `x,y : ℕ → X` and any `δ : ℕ`,
 
-c (x , y) ≼ ι δ ⇔ (x ≈ y) δ,
+`c (x , y) ≼ ι δ ⇔ (x ≈ y) δ`,
 
-where c(x , y) : ℕ∞ is the value of the discrete-sequence closeness
-function for x and y.
+where `c(x , y) : ℕ∞` is the value of the discrete-sequence closeness function
+for `x` and `y`.
 
 ```
 _≈'_ : {X : 𝓤 ̇ } → (ℕ → X) → (ℕ → X) → ℕ → 𝓤 ̇
-(α ≈' β) n = (i : ℕ) → i <ℕ n → α n ≡ β n
+(α ≈' β) n = (i : ℕ) → i < n → α n ≡ β n
 ```
 
-From the canonical closeness function on (ℕ → ℤ), we can define one
-on 𝕋:
+From the canonical closeness function on `ℕ → ℤ`, we can define one on `𝕋`:
 
+```code
 c : 𝕋 × 𝕋 → ℕ∞
 c ((α , _) , (β , _)) = c (α ∘ pos , β ∘ pos)
+```
 
-Note that we only take into account positive precision-levels of
-object x : 𝕋; but, as we already said, for our purposes of encoding
-real numbers, the information kept in any ⟨ x ⟩ (pos n₁) : ℤ includes
-the information kept in any ⟨ x ⟩ (negsucc n₂) : ℤ.
+Note that we only take into account positive precision-levels of  `x : 𝕋`; but,
+as we already said, for our purposes of encoding real numbers, the information
+kept in any `⟨ x ⟩ (pos n₁) : ℤ` includes the information kept in any
+`⟨ x ⟩ (negsucc n₂) : ℤ`.
 
-This closeness function, like that on signed-digits, gives the
-closeness of *encodings* of real numbers; not the real numbers
-themselves. If we wish to determine the closeness of the numbers
-themselves, we can instead use the following pseudo-closeness
-function (BUT MAYBE NOT)
-
-pc : 𝕋 × 𝕋 → ℕ∞ 
-pc ((α , _) , (β , _))
- = λ n → dec-to-𝟚 (abs (α (pos n) −ℤ β (pos n)) ≤ 2)
+This closeness function, like that on signed-digits, gives the closeness of
+*encodings* of real numbers; not the real numbers themselves.
 
 ## Predicates we wish to search
 
-In our general regression framework, we search uniformly continuous
-decidable predicates on types equipped with closeness functions.
+In our general regression framework, we search uniformly continuous decidable
+predicates on types equipped with closeness functions.
 
-(Recall that there is no non-trivial uniformly continuous decidable
-predicate on the real numbers ℝ.)
+The above closeness function will give us a way to search uniformly continuous
+decidable predicates on `𝕋` -- but, recalling that there is no non-trivial
+uniformly continuous decidable predicate on the real numbers `ℝ` themselves,
+what are such predicates on encodings?
 
-When defining uniformly continuous predicates on signed-digits,
+They are those decidable predicates that can be decided by only examining a
+finite portion of the location information held in `𝕋`.
+
+TODO
+```
+```
+
+## Encoding types of compact intervals are equivalent to bounded integer types
+
+No, not equivalent, but the predicate types are
+
+```agda
+
+
+{- f (SE (k , i) δ) α           = ⟨ ι α ⟩ δ , ci-lower-upper (k , i) α δ
+g (SE (k , i) δ) (z , l≤z≤u) = pr₁ (replace (k , i) (z , δ) l≤z≤u)
+trans-A (SE (k , i) δ) α
+ = pr₂ (replace (k , i) (⟨ ι α ⟩ δ , δ) (ci-lower-upper (k , i) α δ)) ⁻¹
+trans-B (SE (k , i) δ) (z , l≤z≤u)
+ = to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (z , δ) l≤z≤u) ⁻¹)
+lift-AB (SE (k , i) δ) α β
+ = to-subtype-≡ ≤ℤ²-is-prop 
+lift-BA (SE (k , i) δ) (z , l≤z≤u) (z , l≤z≤u) refl
+ = refl -}
+
+```
+
+---------------------------------------------------------------------------------
+When defining uniformly continuous predicates on signed-digit encodings `ℕ → 𝟛`,
 we utilised the discrete-sequence closeness function.
 
 ```
+open import SearchableTypes fe pe
+
 uc-d-predicates-on-seqs : {𝓦 𝓤 : Universe} → {X : 𝓤 ̇ } → (δ : ℕ) → (𝓦 ⁺) ⊔ 𝓤 ̇
 uc-d-predicates-on-seqs {𝓦} {𝓤} {X} δ
- = decidable-predicate-informed-by {𝓦}
-     (sequence-relation-≈' (λ _ → X) δ)
+ = decidable-predicate-informed-by {𝓦} (sequence-relation-≈' (λ _ → X) δ)
 ```
 
-We call the δ : ℕ of such a predicate its 'modulus of continuity'.
+We call the `δ : ℕ` of such a predicate its "modulus of continuity".
 
-So for uniformly continuous decidable predicates p on signed-digit
-encodings x,y : ℕ → 𝟛, with modulus of continuity δ : ℕ, it is enough
-to know that (x ≈ y) δ to know that p(x) is logically equivalent
-to p(y).
+So for uniformly continuous decidable predicates `p` on signed-digit encodings
+`x,y : ℕ → 𝟛`, with modulus of continuity `δ : ℕ`, it is enough to know that
+`(x ≈ y) δ` to know that `p(x)` is logically equivalent to `p(y)`.
 
 (Reword ↓)
 But! With Boehm codes 𝕋, all the information is kept in the most recent
@@ -998,6 +1047,112 @@ via the setoid equivalence.
 ## Fuel
 
 ```
+open set-quotients-exist sq
+
+decidable-predicate! : {𝓤 𝓦 : Universe} → 𝓤 ̇ → 𝓤 ⊔ 𝓦 ⁺ ̇
+decidable-predicate! {𝓤} {𝓦} X
+ = Σ p ꞉ (X → Ω 𝓦) , ((x : X) → decidable (pr₁ (p x)))
+
+ℤ-is-set : is-set ℤ
+ℤ-is-set
+ = type-with-prop-valued-refl-antisym-rel-is-set _≤_ ℤ≤-is-prop ℤ≤-refl
+     (λ x y → curry (≤ℤ-antisym x y))
+
+CompEqRel : (δ : ℤ) ((k , i) : ℤ × ℤ) → EqRel {𝓤₀} {𝓤₀} (CompactInterval (k , i))
+CompEqRel δ (k , i) = _≣≣_ , u , r , s , t
+ where
+   _≣≣_ : CompactInterval (k , i) → CompactInterval (k , i) → 𝓤₀ ̇ 
+   (x ≣≣ y) = ⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ
+   u : is-prop-valued _≣≣_
+   u x y = ℤ-is-set
+   r : reflexive _≣≣_
+   r x = refl
+   s : symmetric _≣≣_
+   s x y = _⁻¹
+   t : transitive _≣≣_
+   t x y z = _∙_
+
+Conv→ : (δ : ℤ) → ((k , i) : ℤ × ℤ)
+      → CompactInterval (k , i) → ℤ[ lower (k , i) δ , upper (k , i) δ ]
+Conv→ δ (k , i) x = ⟨ ι x ⟩ δ , ci-lower-upper (k , i) x δ
+
+Conv← : (δ : ℤ) → ((k , i) : ℤ × ℤ)
+      → ℤ[ lower (k , i) δ , upper (k , i) δ ] → CompactInterval (k , i)
+Conv← δ (k , i) (z , l≤z≤u) = pr₁ (replace (k , i) (z , δ) l≤z≤u)
+
+CompReplace : (δ : ℤ) ((k , i) : ℤ × ℤ)
+            → (x : CompactInterval (k , i))
+            → x ≈[ CompEqRel δ (k , i) ] (Conv← δ (k , i) ∘ Conv→ δ (k , i)) x
+CompReplace δ (k , i) x = pr₂ (replace (k , i) (z , δ) l≤z≤u) ⁻¹
+ where
+   γ     = Conv→ δ (k , i) x
+   z     = pr₁ γ
+   l≤z≤u = pr₂ γ
+
+Conv→-identifies-related-points : (δ : ℤ) → ((k , i) : ℤ × ℤ)
+                                → identifies-related-points {𝓤₀} {𝓤₀} {𝓤₀} {CompactInterval (k , i)}
+                                    (CompEqRel δ (k , i)) (Conv→ δ (k , i))
+Conv→-identifies-related-points δ (k , i) = to-subtype-≡ {𝓤₀} {𝓤₀} {ℤ} {λ z → lower (k , i) δ ≤ℤ z ≤ℤ upper (k , i) δ} (λ z → ≤ℤ²-is-prop {lower (k , i) δ} {upper (k , i) δ} z)
+
+ℤ[_,_]-is-set : (a b : ℤ) → is-set (ℤ[ a , b ])
+ℤ[ a , b ]-is-set = subsets-of-sets-are-sets ℤ (λ z → a ≤ℤ z ≤ℤ b)
+                      ℤ-is-set (≤ℤ²-is-prop _)
+
+med-map/ : {A : 𝓤 ̇ } (δ : ℤ) ((k , i) : ℤ × ℤ)
+         → is-set A
+         → (f : CompactInterval (k , i) → A)
+         → identifies-related-points (CompEqRel δ (k , i)) f
+         → CompactInterval (k , i) / CompEqRel δ (k , i) → A
+med-map/ δ (k , i) s = mediating-map/ (CompEqRel δ (k , i)) s
+
+uni-tri/ : {A : 𝓤 ̇ } (δ : ℤ) ((k , i) : ℤ × ℤ)
+         → (s : is-set A)
+         → (f : CompactInterval (k , i) → A)
+         → (p : identifies-related-points (CompEqRel δ (k , i)) f)
+         → med-map/ δ (k , i) s f p ∘ η/ (CompEqRel δ (k , i)) ∼ f
+uni-tri/ δ (k , i) s f p = universality-triangle/ (CompEqRel δ (k , i)) s f p
+
+med-map : (δ : ℤ) ((k , i) : ℤ × ℤ)
+        → CompactInterval (k , i) / CompEqRel δ (k , i)
+        → ℤ[ lower (k , i) δ , upper (k , i) δ ]
+med-map δ (k , i) = med-map/ δ (k , i)
+                      (ℤ[ (lower (k , i) δ) , (upper (k , i) δ) ]-is-set)
+                      (Conv→ δ (k , i))
+                      (to-subtype-≡ ≤ℤ²-is-prop)
+
+uni-tri : (δ : ℤ) ((k , i) : ℤ × ℤ)
+        → (med-map δ (k , i) ∘ η/ (CompEqRel δ (k , i))) ∼ Conv→ δ (k , i)
+uni-tri δ (k , i) = uni-tri/ δ (k , i)
+                      (ℤ[ (lower (k , i) δ) , (upper (k , i) δ) ]-is-set)
+                      (Conv→ δ (k , i))
+                      (to-subtype-≡ ≤ℤ²-is-prop)
+           
+ISO : (δ : ℤ) ((k , i) : ℤ × ℤ)
+    → CompactInterval (k , i) / CompEqRel δ (k , i)
+    ≃ ℤ[ lower (k , i) δ , upper (k , i) δ ]
+ISO δ (k , i) = f' , ((g' , fg) , (g' , gf))
+ where
+  f' : CompactInterval (k , i) / CompEqRel δ (k , i)
+     → ℤ[ lower (k , i) δ , upper (k , i) δ ]
+  f' = med-map δ (k , i)
+  g' : ℤ[ lower (k , i) δ , upper (k , i) δ ]
+     → CompactInterval (k , i) / CompEqRel δ (k , i)
+  g' = η/ (CompEqRel δ (k , i)) ∘ Conv← δ (k , i)
+  fg : f' ∘ g' ∼ id
+  fg (z , l≤z≤u)
+   = uni-tri δ (k , i) (Conv← δ (k , i) (z , l≤z≤u))
+   ∙ to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (z , δ) l≤z≤u)) 
+  gf : g' ∘ f' ∼ id
+  gf = /-induction (CompEqRel δ (k , i)) (λ _ → /-is-set (CompEqRel δ (k , i)))
+         (λ y → η/-identifies-related-points (CompEqRel δ (k , i))
+           (ap (λ - → ⟨ ι (Conv← δ (k , i) -) ⟩ δ)
+             (uni-tri δ (k , i) y)
+           ∙ CompReplace δ (k , i) y ⁻¹))
+
+decidable-predicate!⌜_,_⌝ : {X Y : 𝓤 ̇ } → X ≃ Y
+                          → decidable-predicate! {𝓤} {𝓥} X
+                          → decidable-predicate! {𝓤} {𝓥} Y
+decidable-predicate!⌜ e , (p , d) ⌝ = (p ∘ ⌜ e ⌝⁻¹) , (d ∘ ⌜ e ⌝⁻¹)
 ```
 
 
