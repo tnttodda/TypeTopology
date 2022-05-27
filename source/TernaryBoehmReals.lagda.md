@@ -790,6 +790,26 @@ replace-above (k , i) (c , j) j<i b
 
 # Part V - Searching Ternary Boehm Encodings
 
+## Searchable types
+
+Recall that in our general regression framework, we define searchable types as
+follows:
+
+```agda
+decidable-predicate : {𝓤 𝓥 : Universe} → 𝓤 ̇ → 𝓤 ⊔ 𝓥 ⁺ ̇
+decidable-predicate {𝓤} {𝓥} X
+ = Σ p ꞉ (X → Ω 𝓥) , ((x : X) → decidable (pr₁ (p x)))
+
+searchable : {𝓤 𝓥 : Universe} (X : 𝓤 ̇ ) → 𝓤 ⊔ 𝓥 ⁺ ̇ 
+searchable {𝓤} {𝓥} X
+ = Π (p , _) ꞉ decidable-predicate {𝓤} {𝓥} X
+ , Σ x₀ ꞉ X , (Σ (pr₁ ∘ p) → pr₁ (p x₀))
+```
+
+We often search only uniformly continuous predicates, which are defined by using
+closeness functions and then quotienting the type up to a certain closeness
+function.
+
 ## Closeness function on 𝕋
 
 For every discrete-sequence type `ℕ → X` (where `X` is discrete), we have a
@@ -824,238 +844,68 @@ This closeness function, like that on signed-digits, gives the closeness of
 
 ## Predicates we wish to search
 
-In our general regression framework, we search uniformly continuous decidable
-predicates on types equipped with closeness functions.
-
 The above closeness function will give us a way to search uniformly continuous
-decidable predicates on `𝕋` -- but, recalling that there is no non-trivial
-uniformly continuous decidable predicate on the real numbers `ℝ` themselves,
-what are such predicates on encodings?
+decidable predicates on `𝕋`. These are those decidable predicates that can be
+decided by only examining a finite portion of the location information held in
+`𝕋`. We call the point `δ : ℤ` that we need to examine up to the "modulus of
+continuity" of the predicate.
 
-They are those decidable predicates that can be decided by only examining a
-finite portion of the location information held in `𝕋`.
-
-TODO
-```
-```
-
-## Encoding types of compact intervals are equivalent to bounded integer types
-
-No, not equivalent, but the predicate types are
+We could use the isomorphism between `𝕋` and `ℕ → 𝟛` to immediately give us a
+searcher on such unifoormly continuous predicates using the below properties:
 
 ```agda
+decidable-predicate⌜_,_⌝⁻¹ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → X ≃ Y
+                         → decidable-predicate {𝓤} {𝓦} X
+                         → decidable-predicate {𝓥} {𝓦} Y
+decidable-predicate⌜ e , (p , d) ⌝⁻¹ = (p ∘ ⌜ e ⌝⁻¹) , (d ∘ ⌜ e ⌝⁻¹)
 
+decidable-predicate⌜_,_⌝ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → X ≃ Y
+                         → decidable-predicate {𝓥} {𝓦} Y
+                         → decidable-predicate {𝓤} {𝓦} X
+decidable-predicate⌜ e , (p , d) ⌝ = (p ∘ ⌜ e ⌝) , (d ∘ ⌜ e ⌝)
 
-{- f (SE (k , i) δ) α           = ⟨ ι α ⟩ δ , ci-lower-upper (k , i) α δ
-g (SE (k , i) δ) (z , l≤z≤u) = pr₁ (replace (k , i) (z , δ) l≤z≤u)
-trans-A (SE (k , i) δ) α
- = pr₂ (replace (k , i) (⟨ ι α ⟩ δ , δ) (ci-lower-upper (k , i) α δ)) ⁻¹
-trans-B (SE (k , i) δ) (z , l≤z≤u)
- = to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (z , δ) l≤z≤u) ⁻¹)
-lift-AB (SE (k , i) δ) α β
- = to-subtype-≡ ≤ℤ²-is-prop 
-lift-BA (SE (k , i) δ) (z , l≤z≤u) (z , l≤z≤u) refl
- = refl -}
-
+decidable-predicate⌜_,_⌝-correct
+  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → (e : X ≃ Y)
+  → ((p , d) : decidable-predicate {𝓥} {𝓦} Y)
+  → (y : Y) → pr₁ (p y)
+  → pr₁ (pr₁ (decidable-predicate⌜ e , (p , d) ⌝) (⌜ e ⌝⁻¹ y))
+decidable-predicate⌜ e , (p , d) ⌝-correct y
+ = transport (λ - → pr₁ (p -)) (≃-sym-is-rinv e _ ⁻¹)
+              
+searchable⌜_,_⌝ : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } → X ≃ Y
+                → searchable {𝓤} {𝓦} X
+                → searchable {𝓥} {𝓦} Y
+searchable⌜ e , 𝓔 ⌝ (p , d)
+ = ⌜ e ⌝ (pr₁ p')
+ , λ (y₀ , py₀) → pr₂ p' ((⌜ e ⌝⁻¹ y₀)
+                , decidable-predicate⌜ e , (p , d) ⌝-correct y₀ py₀)
+ where p' = 𝓔 (decidable-predicate⌜ e , (p , d) ⌝)
 ```
 
----------------------------------------------------------------------------------
-When defining uniformly continuous predicates on signed-digit encodings `ℕ → 𝟛`,
-we utilised the discrete-sequence closeness function.
+However, the searcher given by this isomorphism (like that on signed-digits)
+would search the *entire* prefix of the stream from point `pos 0` to point
+`pos δ`; despite the fact that the location information at `pos δ` *includes*
+all of the location information previous to that.
 
-```
-open import SearchableTypes fe pe
+Therefore, we prefer to use a different isomorphism: the one induced by the
+`replace` function in Section IV.
 
-uc-d-predicates-on-seqs : {𝓦 𝓤 : Universe} → {X : 𝓤 ̇ } → (δ : ℕ) → (𝓦 ⁺) ⊔ 𝓤 ̇
-uc-d-predicates-on-seqs {𝓦} {𝓤} {X} δ
- = decidable-predicate-informed-by {𝓦} (sequence-relation-≈' (λ _ → X) δ)
-```
+## Searching quotiented encodings of compact intervals
 
-We call the `δ : ℕ` of such a predicate its "modulus of continuity".
+First, we define the equivalence relation needed to determine uniformly
+continuous decidable predicates on Ternary Boehm encodings of any compact
+interval `⟪ k , i ⟫`.
 
-So for uniformly continuous decidable predicates `p` on signed-digit encodings
-`x,y : ℕ → 𝟛`, with modulus of continuity `δ : ℕ`, it is enough to know that
-`(x ≈ y) δ` to know that `p(x)` is logically equivalent to `p(y)`.
-
-(Reword ↓)
-But! With Boehm codes 𝕋, all the information is kept in the most recent
-code. So an "equivalent" predicate should only need to satisfy the
-following.
-
-```
-open equivalence-relation
-
-ℤ→ℤ-equivalence-relation : (δ : ℤ) → equivalence-relation {𝓤₀} (ℤ → ℤ)
-_≣_     (ℤ→ℤ-equivalence-relation δ) x y   = x δ ≡ y δ
-≣-refl  (ℤ→ℤ-equivalence-relation δ) x     = refl
-≣-sym   (ℤ→ℤ-equivalence-relation δ) x y   = _⁻¹
-≣-trans (ℤ→ℤ-equivalence-relation δ) x y z = _∙_
-
-pr₁-equivalence-relation : {X : 𝓤 ̇ } {Y : X → 𝓤' ̇ }
-                         → equivalence-relation {𝓥} X
-                         → equivalence-relation {𝓥} (Σ Y)
-_≣_     (pr₁-equivalence-relation A) x y   = pr₁ x ≣⟨ A ⟩ pr₁ y
-≣-refl  (pr₁-equivalence-relation A) x     = ≣-refl  A (pr₁ x)
-≣-sym   (pr₁-equivalence-relation A) x y   = ≣-sym   A (pr₁ x) (pr₁ y)
-≣-trans (pr₁-equivalence-relation A) x y z = ≣-trans A (pr₁ x) (pr₁ y) (pr₁ z)
-
-𝕋-equivalence-relation : (δ : ℤ) → equivalence-relation {𝓤₀} 𝕋
-𝕋-equivalence-relation δ = pr₁-equivalence-relation (ℤ→ℤ-equivalence-relation δ)
-
-𝕋c-equivalence-relation : ((k , i) : ℤ × ℤ) (δ : ℤ)
-                        → equivalence-relation {𝓤₀} (CompactInterval (k , i))
-𝕋c-equivalence-relation (k , i) δ = pr₁-equivalence-relation (𝕋-equivalence-relation δ)
-
-special-predicate-on-𝕋 : {𝓦 : Universe} → (δ : ℤ) → (𝓦 ⁺) ̇ 
-special-predicate-on-𝕋 {𝓦} δ
- = decidable-predicate-informed-by {𝓦} (𝕋-equivalence-relation δ)
-```
-
-Relationships:
- * c (α , β) ≼ δ                 → pc (α , β) ≼ δ
- * c (α , β) ≼ (succ δ)          → ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ)
- * ⟨ α ⟩ (pos δ) ≡ ⟨ β ⟩ (pos δ) → pc (α , β) ≼ δ ?
-
-## Special predicates on K relate to predicates on ℤ × ℤ
-
-```
-special-predicate-on-I : {𝓦 : Universe} → (δ : ℤ) → (𝓦 ⁺) ̇
-special-predicate-on-I {𝓦} δ
- = decidable-predicate-informed-by {𝓦} (Identity ℤ)
-
-open equiv-of-setoids
-
-SE' : (δ : ℤ)
-    → equiv-of-setoids
-        (𝕋-equivalence-relation δ)
-        (Identity ℤ)
-f (SE' δ) = (λ α → α δ) ∘ ⟨_⟩
-g (SE' δ) = build-via ∘ (_, δ)
-trans-A (SE' δ) α = ap (λ - → build-via' (⟨ α ⟩ δ , δ) δ -) (ℤ-trichotomous-is-prop δ δ ((inr ∘ inl) refl) (ℤ-trichotomous δ δ))
-trans-B (SE' δ) z = ap (λ - → build-via' (  z     , δ) δ -) (ℤ-trichotomous-is-prop δ δ ((inr ∘ inl) refl) (ℤ-trichotomous δ δ))
-lift-AB (SE' δ) α β = id
-lift-BA (SE' δ) z z refl = refl
-
-special-predicate-𝕋-to-I
- : {𝓦 : Universe} → (δ : ℤ)
- →  (pdiϕ𝕋 : special-predicate-on-𝕋 {𝓦} δ)
- → Σ pdiϕI ꞉ special-predicate-on-I {𝓦} δ
- , ((x : 𝕋)
-       → p⟨ 𝕋-equivalence-relation _    - pdiϕ𝕋 ⟩ x
-       → p⟨ Identity _                   - pdiϕI ⟩ (f (SE' δ) x))
-special-predicate-𝕋-to-I δ
- = convert-predicates _ _ (SE' δ)
-
-special-predicate-I-to-𝕋
- : {𝓦 : Universe} → (δ : ℤ)
- →  (pdiϕI : special-predicate-on-I {𝓦} δ)
- → Σ pdiϕ𝕋 ꞉ special-predicate-on-𝕋 {𝓦} δ
- , ((x : ℤ)
-       → p⟨ Identity _                   - pdiϕI ⟩ x
-       → p⟨ 𝕋-equivalence-relation _     - pdiϕ𝕋 ⟩ (g (SE' δ) x))
-special-predicate-I-to-𝕋 δ
- = convert-predicates _ _ (equiv-of-setoids-sym _ _ (SE' δ))
-```
-
-But these are not searchable!
-
-## Special predicates on CompactIntervals relate to searchable predicates on I
-
-```
-
-special-predicate-on-𝕋c : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ) → (𝓦 ⁺) ̇ 
-special-predicate-on-𝕋c {𝓦} (k , i) δ
- = decidable-predicate-informed-by {𝓦} (𝕋c-equivalence-relation (k , i) δ)
-
-special-predicate-on-Ic : {𝓦 : Universe} → (δ l u : ℤ) → (𝓦 ⁺) ̇ 
-special-predicate-on-Ic {𝓦} δ l u
- = decidable-predicate-informed-by {𝓦} (Identity (ℤ[ l , u ]))
-```
-
-These are searchable.
-
-```
-{-
-η : (n : ℤ) → (x : 𝕋) → CompactInterval (⟨ x ⟩ n , n)
-η n = _, refl
--}
-```
-
-The Ic predicates are searchable, and are logically equivalent to the 𝕋c
-predicates.
-
-```
-SE : ((k , i) : ℤ × ℤ) (δ : ℤ)
-   → equiv-of-setoids
-       (𝕋c-equivalence-relation (k , i) δ)
-       (Identity ℤ[ (lower (k , i) δ) , (upper (k , i) δ) ])
-f (SE (k , i) δ) α           = ⟨ ι α ⟩ δ , ci-lower-upper (k , i) α δ
-g (SE (k , i) δ) (z , l≤z≤u) = pr₁ (replace (k , i) (z , δ) l≤z≤u)
-trans-A (SE (k , i) δ) α
- = pr₂ (replace (k , i) (⟨ ι α ⟩ δ , δ) (ci-lower-upper (k , i) α δ)) ⁻¹
-trans-B (SE (k , i) δ) (z , l≤z≤u)
- = to-subtype-≡ ≤ℤ²-is-prop (pr₂ (replace (k , i) (z , δ) l≤z≤u) ⁻¹)
-lift-AB (SE (k , i) δ) α β
- = to-subtype-≡ ≤ℤ²-is-prop 
-lift-BA (SE (k , i) δ) (z , l≤z≤u) (z , l≤z≤u) refl
- = refl
-
-special-predicate-𝕋c-to-Ic
- : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
- →  (pdiϕ𝕋c : special-predicate-on-𝕋c {𝓦} (k , i) δ)
- → Σ pdiϕIc ꞉ special-predicate-on-Ic {𝓦} δ (lower (k , i) δ) (upper (k , i) δ)
- , ((x : CompactInterval (k , i))
-       → p⟨ 𝕋c-equivalence-relation _ _ - pdiϕ𝕋c ⟩ x
-       → p⟨ Identity _                  - pdiϕIc ⟩ (f (SE (k , i) δ) x))
-special-predicate-𝕋c-to-Ic (k , i) δ
- = convert-predicates _ _ (SE (k , i) δ)
-
-special-predicate-Ic-to-𝕋c
- : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
- →  (pdiϕIc : special-predicate-on-Ic {𝓦} δ (lower (k , i) δ) (upper (k , i) δ))
- → Σ pdiϕ𝕋c ꞉ special-predicate-on-𝕋c {𝓦} (k , i) δ
- , ((x : ℤ[ _ , _ ])
-       → p⟨ Identity _                  - pdiϕIc ⟩ x
-       → p⟨ 𝕋c-equivalence-relation _ _ - pdiϕ𝕋c ⟩ (g (SE (k , i) δ) x))
-special-predicate-Ic-to-𝕋c (k , i) δ
- = convert-predicates _ _ (equiv-of-setoids-sym _ _ (SE (k , i) δ))
-```
-
-Therefore, 𝕋c predicates are searchable in two ways: directly, or
-via the setoid equivalence.
-
-```
-
-𝕋c-searchable-directly : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
-                       → Searchable {𝓦} (𝕋c-equivalence-relation (k , i) δ)
-𝕋c-searchable-directly = {!!}
-
-𝕋c-searchable-equiv : {𝓦 : Universe} → ((k , i) : ℤ × ℤ) → (δ : ℤ)
-                    → Searchable {𝓦} (𝕋c-equivalence-relation (k , i) δ)
-𝕋c-searchable-equiv (k , i) δ
- = convert-searchable _ _ (SE (k , i) δ) (ℤ[ l , u ]-searchable (pr₁ l≤u) (pr₂ l≤u))
- where
-   l = lower (k , i) δ
-   u = upper (k , i) δ
-   l≤u = lower≤upper(k , i) δ
-
-```
-
-
-## Predicates to test
-
-## Fuel
+This equivalence relation simply takes a modulus of continuity `δ : ℤ` and asks
+if `⟨ ι x ⟩ δ ≡ ⟨ ι y ⟩ δ` given `x,y : CompactInterval (k , i)`.
 
 ```
 open set-quotients-exist sq
 
-decidable-predicate! : {𝓤 𝓦 : Universe} → 𝓤 ̇ → 𝓤 ⊔ 𝓦 ⁺ ̇
-decidable-predicate! {𝓤} {𝓦} X
- = Σ p ꞉ (X → Ω 𝓦) , ((x : X) → decidable (pr₁ (p x)))
-
 ℤ-is-set : is-set ℤ
 ℤ-is-set
- = type-with-prop-valued-refl-antisym-rel-is-set _≤_ ℤ≤-is-prop ℤ≤-refl
+ = type-with-prop-valued-refl-antisym-rel-is-set
+     _≤_ ℤ≤-is-prop ℤ≤-refl
      (λ x y → curry (≤ℤ-antisym x y))
 
 CompEqRel : (δ : ℤ) ((k , i) : ℤ × ℤ) → EqRel {𝓤₀} {𝓤₀} (CompactInterval (k , i))
@@ -1071,7 +921,15 @@ CompEqRel δ (k , i) = _≣≣_ , u , r , s , t
    s x y = _⁻¹
    t : transitive _≣≣_
    t x y z = _∙_
+```
 
+Seen as we only need to look at level `δ : ℤ`, we can isolate the bricks on that
+level into the type `ℤ[ lower (k , i) δ , upper (k , i) δ ]`.
+
+Indeed, the quotient type `CompactInterval (k , i) / CompEqRel δ (k , i)` is
+*equivalent* to the type `ℤ[ lower (k , i) δ , upper (k , i) δ ]`
+
+```
 Conv→ : (δ : ℤ) → ((k , i) : ℤ × ℤ)
       → CompactInterval (k , i) → ℤ[ lower (k , i) δ , upper (k , i) δ ]
 Conv→ δ (k , i) x = ⟨ ι x ⟩ δ , ci-lower-upper (k , i) x δ
@@ -1089,10 +947,13 @@ CompReplace δ (k , i) x = pr₂ (replace (k , i) (z , δ) l≤z≤u) ⁻¹
    z     = pr₁ γ
    l≤z≤u = pr₂ γ
 
-Conv→-identifies-related-points : (δ : ℤ) → ((k , i) : ℤ × ℤ)
-                                → identifies-related-points {𝓤₀} {𝓤₀} {𝓤₀} {CompactInterval (k , i)}
-                                    (CompEqRel δ (k , i)) (Conv→ δ (k , i))
-Conv→-identifies-related-points δ (k , i) = to-subtype-≡ {𝓤₀} {𝓤₀} {ℤ} {λ z → lower (k , i) δ ≤ℤ z ≤ℤ upper (k , i) δ} (λ z → ≤ℤ²-is-prop {lower (k , i) δ} {upper (k , i) δ} z)
+Conv→-identifies-related-points
+  : (δ : ℤ) → ((k , i) : ℤ × ℤ)
+  → identifies-related-points {𝓤₀} {𝓤₀} {𝓤₀} {CompactInterval (k , i)}
+      (CompEqRel δ (k , i)) (Conv→ δ (k , i))
+Conv→-identifies-related-points δ (k , i)
+ = to-subtype-≡ {𝓤₀} {𝓤₀} {ℤ} {λ z → lower (k , i) δ ≤ℤ z ≤ℤ upper (k , i) δ}
+     (λ z → ≤ℤ²-is-prop {lower (k , i) δ} {upper (k , i) δ} z)
 
 ℤ[_,_]-is-set : (a b : ℤ) → is-set (ℤ[ a , b ])
 ℤ[ a , b ]-is-set = subsets-of-sets-are-sets ℤ (λ z → a ≤ℤ z ≤ℤ b)
@@ -1127,10 +988,10 @@ uni-tri δ (k , i) = uni-tri/ δ (k , i)
                       (Conv→ δ (k , i))
                       (to-subtype-≡ ≤ℤ²-is-prop)
            
-ISO : (δ : ℤ) ((k , i) : ℤ × ℤ)
-    → CompactInterval (k , i) / CompEqRel δ (k , i)
-    ≃ ℤ[ lower (k , i) δ , upper (k , i) δ ]
-ISO δ (k , i) = f' , ((g' , fg) , (g' , gf))
+compact-equiv : (δ : ℤ) ((k , i) : ℤ × ℤ)
+              → CompactInterval (k , i) / CompEqRel δ (k , i)
+              ≃ ℤ[ lower (k , i) δ , upper (k , i) δ ]
+compact-equiv δ (k , i) = f' , ((g' , fg) , (g' , gf))
  where
   f' : CompactInterval (k , i) / CompEqRel δ (k , i)
      → ℤ[ lower (k , i) δ , upper (k , i) δ ]
@@ -1148,46 +1009,46 @@ ISO δ (k , i) = f' , ((g' , fg) , (g' , gf))
            (ap (λ - → ⟨ ι (Conv← δ (k , i) -) ⟩ δ)
              (uni-tri δ (k , i) y)
            ∙ CompReplace δ (k , i) y ⁻¹))
-
-decidable-predicate!⌜_,_⌝ : {X Y : 𝓤 ̇ } → X ≃ Y
-                          → decidable-predicate! {𝓤} {𝓥} X
-                          → decidable-predicate! {𝓤} {𝓥} Y
-decidable-predicate!⌜ e , (p , d) ⌝ = (p ∘ ⌜ e ⌝⁻¹) , (d ∘ ⌜ e ⌝⁻¹)
 ```
 
+This gives us a much more efficient searcher for Ternary Boehm reals in compact
+intervals, because the searcher on finite subsets of `ℤ` does not need to check
+every element of the `𝕋` sequence.
 
----------------------------------------------------------------------
+```
+ℤ[_,_]-searchable' : (l u : ℤ) → (n : ℕ) → l +pos n ≡ u
+                  → searchable {𝓤₀} {𝓦} (ℤ[ l , u ])
+ℤ[ l , l ]-searchable' 0 refl (p , d)
+ = ((l , ℤ≤-refl l , ℤ≤-refl l))
+ , λ ((z , l≤z≤u) , pz)
+   → transport (pr₁ ∘ p) (to-subtype-≡ ≤ℤ²-is-prop ((≤ℤ-antisym l z l≤z≤u) ⁻¹)) pz
+ℤ[ l , .(succℤ (l +pos n)) ]-searchable' (succ n) refl (p , d)
+ = Cases (d u*) (λ pu → u* , (λ _ → pu))
+    (λ ¬pu → ans ,
+      (λ ((z , l≤z , z≤u) , pz)
+        → Cases (ℤ≤-split z u z≤u)
+            (λ z<u → sol ((z , l≤z
+                   , transport (z ≤_) (predsuccℤ _) (≤ℤ-back z u z<u))
+                   , transport (pr₁ ∘ p) (to-subtype-≡ ≤ℤ²-is-prop refl) pz))
+            (λ z≡u → 𝟘-elim (¬pu (transport (pr₁ ∘ p)
+                                   (to-subtype-≡ ≤ℤ²-is-prop z≡u) pz)))))
+ where
+   u = succℤ (l +pos n)
+   u* = u , (succ n , refl) , ℤ≤-refl u
+   γ : ℤ[ l , l +pos n ] → ℤ[ l , u ]
+   γ = ℤ[ l , l +pos n ]-succ
+   IH = ℤ[ l , l +pos n ]-searchable' n refl ((p ∘ γ) , (d ∘ γ))
+   ans = γ (pr₁ IH)
+   sol = pr₂ IH
 
-## Predicates on interval encodings
+ℤ[_,_]-searchable : (l u : ℤ) → l ≤ u → searchable {𝓤₀} {𝓦} (ℤ[ l , u ])
+ℤ[ l , u ]-searchable (n , p) = ℤ[ l , u ]-searchable' n p
 
-A uc-d predicate on an interval encoding is as follows:
-
-uc-d-predicate-on-I : (p : ℤ × ℤ → 𝓤 ̇ ) → 𝓤 ̇
-uc-d-predicate-on-I p
- = ((k , i) : ℤ × ℤ) → decidable (p (k , i)))
- × (((k , i) (c , j) : ℤ) → (k , i) ≡ (c , j) → p (k , i) ⇔ p (c , j))
-
-Of course, because ℤ × ℤ is discrete, such predicates are always
-uniformly continuous -- the second condition always holds. Therefore,
-we need only consider decidable predicates
-
-d-predicate-on-I : 𝓤 ⁺
-d-predicate-on-I p i l u
- = Σ p : (ℤ × ℤ → 𝓤 ̇ ) , Σ (i , l , u : ℤ) ̇
- , ((k : ℤ) → l ≤ k ≤ u → decidable (p (k , i)))
-
-"Beneath" each special predicate on 𝕋, is a decidable predicate on ℤ.
-
-construct-sp : d-predicate-on-I
-             → Σ p* : (𝕋 → 𝓤 ̇) , special-predicate p 
-construct-sp (p , i , l , u , d)
- = (λ (α , _) → p (α(i) , i))
- , (λ (α , _) → d (α(i) , i))
- , (i , λ (α , _) (β , _) αi≡βi →
-      (transport (λ - → p (- , i)) (αi≡βi ⁻¹))
-    , (transport (λ - → p (- , i))  αi≡βi    ))
-
-destruct-sp : (p* : 𝕋 → 𝓤 ̇ ) → special-predicate p*
-            → Σ p : (ℤ × ℤ) → 𝓤 ̇ , 
-
-## Subsets of ℤ are searchable
+𝕋-compact-searchable
+  : ((k , i) : ℤ × ℤ) (δ : ℤ)
+  → searchable {𝓤₀} {𝓦} (CompactInterval (k , i) / CompEqRel δ (k , i))
+𝕋-compact-searchable (k , i) δ
+ = searchable⌜ (≃-sym (compact-equiv δ (k , i)))
+ , (ℤ[ (lower (k , i) δ) , (upper (k , i) δ) ]-searchable
+     (lower≤upper (k , i) δ)) ⌝
+```
