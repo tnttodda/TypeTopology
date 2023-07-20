@@ -1,5 +1,74 @@
-# Global optimisation
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter4.GlobalOptimisation</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter4.GlobalOptimisation</h1>
+</header>
+<h1 id="global-optimisation">Global optimisation</h1>
 <pre class="Agda"><a id="32" class="Symbol">{-#</a> <a id="36" class="Keyword">OPTIONS</a> <a id="44" class="Pragma">--without-K</a> <a id="56" class="Pragma">--exact-split</a> <a id="70" class="Pragma">--safe</a> <a id="77" class="Symbol">#-}</a>
 
 <a id="82" class="Keyword">open</a> <a id="87" class="Keyword">import</a> <a id="94" href="MLTT.Spartan.html" class="Module">MLTT.Spartan</a>
@@ -14,8 +83,7 @@
 <a id="281" class="Keyword">open</a> <a id="286" class="Keyword">import</a> <a id="293" href="TWA.Thesis.Chapter3.ClosenessSpaces.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces</a> <a id="329" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#261" class="Bound">fe</a>
 <a id="332" class="Keyword">open</a> <a id="337" class="Keyword">import</a> <a id="344" href="TWA.Thesis.Chapter4.ApproxOrder.html" class="Module">TWA.Thesis.Chapter4.ApproxOrder</a> <a id="376" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#261" class="Bound">fe</a>
 </pre>
-## Absolute global optimisation
-
+<h2 id="absolute-global-optimisation">Absolute global optimisation</h2>
 <pre class="Agda"><a id="is-global-minimal"></a><a id="421" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#421" class="Function">is-global-minimal</a> <a id="439" class="Symbol">:</a> <a id="441" class="Symbol">{</a><a id="442" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#442" class="Bound">X</a> <a id="444" class="Symbol">:</a> <a id="446" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="448" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="450" class="Symbol">}</a> <a id="452" class="Symbol">{</a><a id="453" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#453" class="Bound">Y</a> <a id="455" class="Symbol">:</a> <a id="457" href="MLTT.Universes.html#267" class="Generalizable">𝓥</a> <a id="459" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="461" class="Symbol">}</a> <a id="463" class="Symbol">(</a><a id="464" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#464" class="Bound Operator">_≤_</a> <a id="468" class="Symbol">:</a> <a id="470" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#453" class="Bound">Y</a> <a id="472" class="Symbol">→</a> <a id="474" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#453" class="Bound">Y</a> <a id="476" class="Symbol">→</a> <a id="478" href="MLTT.Universes.html#269" class="Generalizable">𝓦</a> <a id="480" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="482" class="Symbol">)</a>
                   <a id="502" class="Symbol">→</a> <a id="504" class="Symbol">(</a><a id="505" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#442" class="Bound">X</a> <a id="507" class="Symbol">→</a> <a id="509" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#453" class="Bound">Y</a><a id="510" class="Symbol">)</a> <a id="512" class="Symbol">→</a> <a id="514" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#442" class="Bound">X</a> <a id="516" class="Symbol">→</a> <a id="518" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="520" href="Agda.Primitive.html#804" class="Primitive Operator">⊔</a> <a id="522" href="MLTT.Universes.html#269" class="Generalizable">𝓦</a>  <a id="525" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="527" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#421" class="Function">is-global-minimal</a> <a id="545" class="Symbol">{</a><a id="546" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#546" class="Bound">𝓤</a><a id="547" class="Symbol">}</a> <a id="549" class="Symbol">{</a><a id="550" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#550" class="Bound">𝓥</a><a id="551" class="Symbol">}</a> <a id="553" class="Symbol">{</a><a id="554" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#554" class="Bound">𝓦&#39;</a><a id="556" class="Symbol">}</a> <a id="558" class="Symbol">{</a><a id="559" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#559" class="Bound">X</a><a id="560" class="Symbol">}</a> <a id="562" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#562" class="Bound Operator">_≤_</a> <a id="566" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#566" class="Bound">f</a> <a id="568" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#568" class="Bound">x₀</a> <a id="571" class="Symbol">=</a> <a id="573" class="Symbol">(</a><a id="574" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#574" class="Bound">x</a> <a id="576" class="Symbol">:</a> <a id="578" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#559" class="Bound">X</a><a id="579" class="Symbol">)</a> <a id="581" class="Symbol">→</a> <a id="583" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#566" class="Bound">f</a> <a id="585" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#568" class="Bound">x₀</a> <a id="588" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#562" class="Bound Operator">≤</a> <a id="590" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#566" class="Bound">f</a> <a id="592" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#574" class="Bound">x</a>
@@ -64,8 +132,8 @@
 <a id="2100" class="Symbol">...</a> <a id="2104" class="Symbol">|</a> <a id="2106" class="Symbol">(</a><a id="2107" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2107" class="Bound">x₀</a> <a id="2110" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2112" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2112" class="Bound">γ₀</a><a id="2114" class="Symbol">)</a> <a id="2116" class="Symbol">=</a> <a id="2118" class="Bound">h</a> <a id="2120" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2107" class="Bound">x₀</a>
                 <a id="2139" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2141" class="Symbol">λ</a> <a id="2143" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2143" class="Bound">x</a> <a id="2145" class="Symbol">→</a> <a id="2147" href="MLTT.Id.html#750" class="Function">transport</a> <a id="2157" class="Symbol">(</a><a id="2158" class="Bound">f</a> <a id="2160" class="Symbol">(</a><a id="2161" class="Bound">h</a> <a id="2163" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2107" class="Bound">x₀</a><a id="2165" class="Symbol">)</a> <a id="2167" class="Bound Operator">≤_</a><a id="2169" class="Symbol">)</a> <a id="2171" class="Symbol">(</a><a id="2172" href="MLTT.Id.html#1151" class="Function">ap</a> <a id="2175" class="Bound">f</a> <a id="2177" class="Symbol">(</a><a id="2178" class="Bound">μ</a> <a id="2180" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2143" class="Bound">x</a><a id="2181" class="Symbol">))</a> <a id="2184" class="Symbol">(</a><a id="2185" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2112" class="Bound">γ₀</a> <a id="2188" class="Symbol">(</a><a id="2189" class="Bound">g</a> <a id="2191" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2143" class="Bound">x</a><a id="2192" class="Symbol">))</a>
 </pre>
-## Approximate global optimisation
-
+<h2 id="approximate-global-optimisation">Approximate global
+optimisation</h2>
 <pre class="Agda"><a id="is_global-minimal"></a><a id="2240" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2240" class="Function Operator">is_global-minimal</a> <a id="2258" class="Symbol">:</a> <a id="2260" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="2262" class="Symbol">→</a> <a id="2264" class="Symbol">{</a><a id="2265" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2265" class="Bound">𝓤</a> <a id="2267" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2267" class="Bound">𝓥</a> <a id="2269" class="Symbol">:</a> <a id="2271" href="Agda.Primitive.html#591" class="Postulate">Universe</a><a id="2279" class="Symbol">}</a>
                   <a id="2299" class="Symbol">→</a> <a id="2301" class="Symbol">{</a><a id="2302" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2302" class="Bound">X</a> <a id="2304" class="Symbol">:</a> <a id="2306" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2265" class="Bound">𝓤</a> <a id="2308" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="2310" class="Symbol">}</a> <a id="2312" class="Symbol">{</a><a id="2313" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2313" class="Bound">Y</a> <a id="2315" class="Symbol">:</a> <a id="2317" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2267" class="Bound">𝓥</a> <a id="2319" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="2321" class="Symbol">}</a>
                   <a id="2341" class="Symbol">→</a> <a id="2343" class="Symbol">(</a><a id="2344" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2344" class="Bound Operator">_≤ⁿ_</a> <a id="2349" class="Symbol">:</a> <a id="2351" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2313" class="Bound">Y</a> <a id="2353" class="Symbol">→</a> <a id="2355" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2313" class="Bound">Y</a> <a id="2357" class="Symbol">→</a> <a id="2359" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="2361" class="Symbol">→</a> <a id="2363" href="MLTT.Universes.html#269" class="Generalizable">𝓦</a> <a id="2365" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="2367" class="Symbol">)</a>
@@ -125,8 +193,7 @@
  <a id="4264" class="Symbol">=</a> <a id="4266" class="Bound">h</a> <a id="4268" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4255" class="Bound">x₀</a>
  <a id="4272" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4274" class="Symbol">λ</a> <a id="4276" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4276" class="Bound">x</a> <a id="4278" class="Symbol">→</a> <a id="4280" href="MLTT.Id.html#750" class="Function">transport</a> <a id="4290" class="Symbol">(λ</a> <a id="4293" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4293" class="Bound">-</a> <a id="4295" class="Symbol">→</a> <a id="4297" class="Symbol">(</a><a id="4298" class="Bound">f</a> <a id="4300" class="Symbol">(</a><a id="4301" class="Bound">h</a> <a id="4303" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4255" class="Bound">x₀</a><a id="4305" class="Symbol">)</a> <a id="4307" class="Bound Operator">≤ⁿ</a> <a id="4310" class="Bound">f</a> <a id="4312" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4293" class="Bound">-</a><a id="4313" class="Symbol">)</a> <a id="4315" class="Bound">ϵ</a><a id="4316" class="Symbol">)</a> <a id="4318" class="Symbol">(</a><a id="4319" class="Bound">μ</a> <a id="4321" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4276" class="Bound">x</a><a id="4322" class="Symbol">)</a> <a id="4324" class="Symbol">(</a><a id="4325" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4260" class="Bound">m</a> <a id="4327" class="Symbol">(</a><a id="4328" class="Bound">g</a> <a id="4330" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4276" class="Bound">x</a><a id="4331" class="Symbol">))</a>
 </pre>
-## Global optimisation theorem
-
+<h2 id="global-optimisation-theorem">Global optimisation theorem</h2>
 <pre class="Agda"><a id="cover-continuity-lemma"></a><a id="4375" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4375" class="Function">cover-continuity-lemma</a>
  <a id="4399" class="Symbol">:</a> <a id="4401" class="Symbol">(</a><a id="4402" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4402" class="Bound">X</a> <a id="4404" class="Symbol">:</a> <a id="4406" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2292" class="Function">ClosenessSpace</a> <a id="4421" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a><a id="4422" class="Symbol">)</a> <a id="4424" class="Symbol">{</a><a id="4425" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4425" class="Bound">X&#39;</a> <a id="4428" class="Symbol">:</a> <a id="4430" href="MLTT.Universes.html#273" class="Generalizable">𝓤&#39;</a> <a id="4433" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="4435" class="Symbol">}</a> <a id="4437" class="Symbol">(</a><a id="4438" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4438" class="Bound">Y</a> <a id="4440" class="Symbol">:</a> <a id="4442" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2292" class="Function">ClosenessSpace</a> <a id="4457" href="MLTT.Universes.html#267" class="Generalizable">𝓥</a><a id="4458" class="Symbol">)</a>
  <a id="4461" class="Symbol">→</a> <a id="4463" class="Symbol">(</a><a id="4464" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4464" class="Bound Operator">_≤ⁿ_</a> <a id="4469" class="Symbol">:</a> <a id="4471" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟨</a> <a id="4473" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4438" class="Bound">Y</a> <a id="4475" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟩</a> <a id="4477" class="Symbol">→</a> <a id="4479" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟨</a> <a id="4481" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#4438" class="Bound">Y</a> <a id="4483" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟩</a> <a id="4485" class="Symbol">→</a> <a id="4487" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="4489" class="Symbol">→</a> <a id="4491" href="MLTT.Universes.html#279" class="Generalizable">𝓦&#39;</a>  <a id="4495" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="4497" class="Symbol">)</a>
@@ -182,3 +249,5 @@
   <a id="6046" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#6046" class="Function">m</a>  <a id="6049" class="Symbol">:</a> <a id="6051" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2240" class="Function Operator">is</a> <a id="6054" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#5282" class="Bound">ϵ</a> <a id="6056" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#2240" class="Function Operator">global-minimal</a> <a id="6071" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#5275" class="Bound Operator">_≤ⁿ_</a> <a id="6076" class="Symbol">(</a><a id="6077" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#5284" class="Bound">f</a> <a id="6079" href="MLTT.Pi.html#527" class="Function Operator">∘</a> <a id="6081" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#5600" class="Function">g</a><a id="6082" class="Symbol">)</a> <a id="6084" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#6017" class="Function">x&#39;₀</a>
   <a id="6090" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#6046" class="Function">m</a>  <a id="6093" class="Symbol">=</a> <a id="6095" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="6099" href="TWA.Thesis.Chapter4.GlobalOptimisation.html#5901" class="Function">first</a>
 </pre>
+</body>
+</html>

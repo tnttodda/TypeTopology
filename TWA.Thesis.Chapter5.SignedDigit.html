@@ -1,5 +1,75 @@
-# Ternary signed-digit encodings
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter5.SignedDigit</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter5.SignedDigit</h1>
+</header>
+<h1 id="ternary-signed-digit-encodings">Ternary signed-digit
+encodings</h1>
 <pre class="Agda"><a id="43" class="Symbol">{-#</a> <a id="47" class="Keyword">OPTIONS</a> <a id="55" class="Pragma">--without-K</a> <a id="67" class="Pragma">--exact-split</a> <a id="81" class="Pragma">--safe</a> <a id="88" class="Symbol">#-}</a>
 
 <a id="93" class="Keyword">open</a> <a id="98" class="Keyword">import</a> <a id="105" href="MLTT.Spartan.html" class="Module">MLTT.Spartan</a>
@@ -14,8 +84,7 @@
 
 <a id="341" class="Keyword">module</a> <a id="348" href="TWA.Thesis.Chapter5.SignedDigit.html" class="Module">TWA.Thesis.Chapter5.SignedDigit</a> <a id="380" class="Keyword">where</a>
 </pre>
-## Definition
-
+<h2 id="definition">Definition</h2>
 <pre class="Agda"><a id="410" class="Keyword">data</a> <a id="𝟛"></a><a id="415" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a> <a id="417" class="Symbol">:</a> <a id="419" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a> <a id="422" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="424" class="Keyword">where</a>
   <a id="𝟛.−1"></a><a id="432" href="TWA.Thesis.Chapter5.SignedDigit.html#432" class="InductiveConstructor">−1</a> <a id="𝟛.O"></a><a id="435" href="TWA.Thesis.Chapter5.SignedDigit.html#435" class="InductiveConstructor">O</a> <a id="𝟛.+1"></a><a id="437" href="TWA.Thesis.Chapter5.SignedDigit.html#437" class="InductiveConstructor">+1</a> <a id="440" class="Symbol">:</a> <a id="442" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a>
 
@@ -48,8 +117,7 @@
 <a id="𝟛ᴺ"></a><a id="879" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="882" class="Symbol">:</a> <a id="884" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a> <a id="887" href="MLTT.Universes.html#408" class="Function Operator">̇</a> 
 <a id="890" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="893" class="Symbol">=</a> <a id="895" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="897" class="Symbol">→</a> <a id="899" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a>
 </pre>
-## Negation
-
+<h2 id="negation">Negation</h2>
 <pre class="Agda"><a id="flip"></a><a id="923" href="TWA.Thesis.Chapter5.SignedDigit.html#923" class="Function">flip</a> <a id="928" class="Symbol">:</a> <a id="930" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a> <a id="932" class="Symbol">→</a> <a id="934" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a>
 <a id="936" href="TWA.Thesis.Chapter5.SignedDigit.html#923" class="Function">flip</a> <a id="941" href="TWA.Thesis.Chapter5.SignedDigit.html#432" class="InductiveConstructor">−1</a> <a id="944" class="Symbol">=</a> <a id="946" href="TWA.Thesis.Chapter5.SignedDigit.html#437" class="InductiveConstructor">+1</a>
 <a id="949" href="TWA.Thesis.Chapter5.SignedDigit.html#923" class="Function">flip</a>  <a id="955" href="TWA.Thesis.Chapter5.SignedDigit.html#435" class="InductiveConstructor">O</a> <a id="957" class="Symbol">=</a>  <a id="960" href="TWA.Thesis.Chapter5.SignedDigit.html#435" class="InductiveConstructor">O</a>
@@ -58,8 +126,7 @@
 <a id="neg"></a><a id="976" href="TWA.Thesis.Chapter5.SignedDigit.html#976" class="Function">neg</a> <a id="980" class="Symbol">:</a> <a id="982" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="985" class="Symbol">→</a> <a id="987" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a>
 <a id="990" href="TWA.Thesis.Chapter5.SignedDigit.html#976" class="Function">neg</a> <a id="994" class="Symbol">=</a> <a id="996" href="TWA.Thesis.Chapter2.Sequences.html#461" class="Function">map</a> <a id="1000" href="TWA.Thesis.Chapter5.SignedDigit.html#923" class="Function">flip</a>
 </pre>
-## Binary midpoint
-
+<h2 id="binary-midpoint">Binary midpoint</h2>
 <pre class="Agda"><a id="1034" class="Keyword">data</a> <a id="𝟝"></a><a id="1039" href="TWA.Thesis.Chapter5.SignedDigit.html#1039" class="Datatype">𝟝</a> <a id="1041" class="Symbol">:</a> <a id="1043" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a> <a id="1046" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="1048" class="Keyword">where</a>
   <a id="𝟝.−2"></a><a id="1056" href="TWA.Thesis.Chapter5.SignedDigit.html#1056" class="InductiveConstructor">−2</a> <a id="𝟝.−1"></a><a id="1059" href="TWA.Thesis.Chapter5.SignedDigit.html#1059" class="InductiveConstructor">−1</a> <a id="𝟝.O"></a><a id="1062" href="TWA.Thesis.Chapter5.SignedDigit.html#1062" class="InductiveConstructor">O</a> <a id="𝟝.+1"></a><a id="1064" href="TWA.Thesis.Chapter5.SignedDigit.html#1064" class="InductiveConstructor">+1</a> <a id="𝟝.+2"></a><a id="1067" href="TWA.Thesis.Chapter5.SignedDigit.html#1067" class="InductiveConstructor">+2</a> <a id="1070" class="Symbol">:</a> <a id="1072" href="TWA.Thesis.Chapter5.SignedDigit.html#1039" class="Datatype">𝟝</a>
 
@@ -107,8 +174,7 @@
 <a id="mid"></a><a id="1813" href="TWA.Thesis.Chapter5.SignedDigit.html#1813" class="Function">mid</a> <a id="1817" class="Symbol">:</a> <a id="1819" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="1822" class="Symbol">→</a> <a id="1824" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="1827" class="Symbol">→</a> <a id="1829" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a>
 <a id="1832" href="TWA.Thesis.Chapter5.SignedDigit.html#1813" class="Function">mid</a> <a id="1836" href="TWA.Thesis.Chapter5.SignedDigit.html#1836" class="Bound">α</a> <a id="1838" href="TWA.Thesis.Chapter5.SignedDigit.html#1838" class="Bound">β</a> <a id="1840" class="Symbol">=</a> <a id="1842" href="TWA.Thesis.Chapter5.SignedDigit.html#1651" class="Function">div2</a> <a id="1847" class="Symbol">(</a><a id="1848" href="TWA.Thesis.Chapter5.SignedDigit.html#1259" class="Function">add2</a> <a id="1853" href="TWA.Thesis.Chapter5.SignedDigit.html#1836" class="Bound">α</a> <a id="1855" href="TWA.Thesis.Chapter5.SignedDigit.html#1838" class="Bound">β</a><a id="1856" class="Symbol">)</a>
 </pre>
-## Infinitary midpoint
-
+<h2 id="infinitary-midpoint">Infinitary midpoint</h2>
 <pre class="Agda"><a id="1891" class="Keyword">data</a> <a id="𝟡"></a><a id="1896" href="TWA.Thesis.Chapter5.SignedDigit.html#1896" class="Datatype">𝟡</a> <a id="1898" class="Symbol">:</a> <a id="1900" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a> <a id="1903" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="1905" class="Keyword">where</a>
   <a id="𝟡.−4"></a><a id="1913" href="TWA.Thesis.Chapter5.SignedDigit.html#1913" class="InductiveConstructor">−4</a> <a id="𝟡.−3"></a><a id="1916" href="TWA.Thesis.Chapter5.SignedDigit.html#1916" class="InductiveConstructor">−3</a> <a id="𝟡.−2"></a><a id="1919" href="TWA.Thesis.Chapter5.SignedDigit.html#1919" class="InductiveConstructor">−2</a> <a id="𝟡.−1"></a><a id="1922" href="TWA.Thesis.Chapter5.SignedDigit.html#1922" class="InductiveConstructor">−1</a> <a id="𝟡.O"></a><a id="1925" href="TWA.Thesis.Chapter5.SignedDigit.html#1925" class="InductiveConstructor">O</a> <a id="𝟡.+1"></a><a id="1927" href="TWA.Thesis.Chapter5.SignedDigit.html#1927" class="InductiveConstructor">+1</a> <a id="𝟡.+2"></a><a id="1930" href="TWA.Thesis.Chapter5.SignedDigit.html#1930" class="InductiveConstructor">+2</a> <a id="𝟡.+3"></a><a id="1933" href="TWA.Thesis.Chapter5.SignedDigit.html#1933" class="InductiveConstructor">+3</a> <a id="𝟡.+4"></a><a id="1936" href="TWA.Thesis.Chapter5.SignedDigit.html#1936" class="InductiveConstructor">+4</a> <a id="1939" class="Symbol">:</a> <a id="1941" href="TWA.Thesis.Chapter5.SignedDigit.html#1896" class="Datatype">𝟡</a>
 
@@ -221,8 +287,7 @@
 <a id="bigMid"></a><a id="4202" href="TWA.Thesis.Chapter5.SignedDigit.html#4202" class="Function">bigMid</a> <a id="4209" class="Symbol">:</a> <a id="4211" class="Symbol">(</a><a id="4212" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="4214" class="Symbol">→</a> <a id="4216" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a><a id="4218" class="Symbol">)</a> <a id="4220" class="Symbol">→</a> <a id="4222" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a>
 <a id="4225" href="TWA.Thesis.Chapter5.SignedDigit.html#4202" class="Function">bigMid</a> <a id="4232" class="Symbol">=</a> <a id="4234" href="TWA.Thesis.Chapter5.SignedDigit.html#3825" class="Function">div4</a> <a id="4239" href="MLTT.Pi.html#527" class="Function Operator">∘</a> <a id="4241" href="TWA.Thesis.Chapter5.SignedDigit.html#3987" class="Function">bigMid&#39;</a>
 </pre>
-## Multiplication
-
+<h2 id="multiplication">Multiplication</h2>
 <pre class="Agda"><a id="_*𝟛_"></a><a id="4277" href="TWA.Thesis.Chapter5.SignedDigit.html#4277" class="Function Operator">_*𝟛_</a> <a id="4282" class="Symbol">:</a> <a id="4284" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a> <a id="4286" class="Symbol">→</a> <a id="4288" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a> <a id="4290" class="Symbol">→</a> <a id="4292" href="TWA.Thesis.Chapter5.SignedDigit.html#415" class="Datatype">𝟛</a>
 <a id="4294" class="Symbol">(</a><a id="4295" href="TWA.Thesis.Chapter5.SignedDigit.html#432" class="InductiveConstructor">−1</a> <a id="4298" href="TWA.Thesis.Chapter5.SignedDigit.html#4277" class="Function Operator">*𝟛</a> <a id="4301" href="TWA.Thesis.Chapter5.SignedDigit.html#4301" class="Bound">x</a><a id="4302" class="Symbol">)</a> <a id="4304" class="Symbol">=</a> <a id="4306" href="TWA.Thesis.Chapter5.SignedDigit.html#923" class="Function">flip</a> <a id="4311" href="TWA.Thesis.Chapter5.SignedDigit.html#4301" class="Bound">x</a>
 <a id="4313" class="Symbol">(</a> <a id="4315" href="TWA.Thesis.Chapter5.SignedDigit.html#435" class="InductiveConstructor">O</a> <a id="4317" href="TWA.Thesis.Chapter5.SignedDigit.html#4277" class="Function Operator">*𝟛</a> <a id="4320" href="TWA.Thesis.Chapter5.SignedDigit.html#4320" class="Bound">x</a><a id="4321" class="Symbol">)</a> <a id="4323" class="Symbol">=</a> <a id="4325" href="TWA.Thesis.Chapter5.SignedDigit.html#435" class="InductiveConstructor">O</a>
@@ -234,3 +299,5 @@
 <a id="mul"></a><a id="4391" href="TWA.Thesis.Chapter5.SignedDigit.html#4391" class="Function">mul</a> <a id="4395" class="Symbol">:</a> <a id="4397" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="4400" class="Symbol">→</a> <a id="4402" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a> <a id="4405" class="Symbol">→</a> <a id="4407" href="TWA.Thesis.Chapter5.SignedDigit.html#879" class="Function">𝟛ᴺ</a>
 <a id="4410" href="TWA.Thesis.Chapter5.SignedDigit.html#4391" class="Function">mul</a> <a id="4414" href="TWA.Thesis.Chapter5.SignedDigit.html#4414" class="Bound">x</a> <a id="4416" href="TWA.Thesis.Chapter5.SignedDigit.html#4416" class="Bound">y</a> <a id="4418" class="Symbol">=</a> <a id="4420" href="TWA.Thesis.Chapter5.SignedDigit.html#4202" class="Function">bigMid</a> <a id="4427" class="Symbol">(</a><a id="4428" href="TWA.Thesis.Chapter2.Sequences.html#544" class="Function">zipWith</a> <a id="4436" href="TWA.Thesis.Chapter5.SignedDigit.html#4342" class="Function">digitMul</a> <a id="4445" href="TWA.Thesis.Chapter5.SignedDigit.html#4414" class="Bound">x</a> <a id="4447" class="Symbol">(</a><a id="4448" href="TWA.Thesis.Chapter2.Sequences.html#413" class="Function">repeat</a> <a id="4455" href="TWA.Thesis.Chapter5.SignedDigit.html#4416" class="Bound">y</a><a id="4456" class="Symbol">))</a>
 </pre>
+</body>
+</html>

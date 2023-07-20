@@ -1,5 +1,74 @@
-# Closeness spaces
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter3.ClosenessSpaces</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter3.ClosenessSpaces</h1>
+</header>
+<h1 id="closeness-spaces">Closeness spaces</h1>
 <pre class="Agda"><a id="29" class="Symbol">{-#</a> <a id="33" class="Keyword">OPTIONS</a> <a id="41" class="Pragma">--without-K</a> <a id="53" class="Pragma">--exact-split</a> <a id="67" class="Pragma">--safe</a> <a id="74" class="Symbol">#-}</a>
 
 <a id="79" class="Keyword">open</a> <a id="84" class="Keyword">import</a> <a id="91" href="MLTT.Spartan.html" class="Module">MLTT.Spartan</a>
@@ -42,8 +111,7 @@
                                    <a id="1363" class="Symbol">(</a><a id="1364" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#931" class="Function">positive-below-n</a> <a id="1381" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1297" class="Bound">i</a> <a id="1383" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1232" class="Bound">n</a> <a id="1385" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1299" class="Bound">snᵢ=1</a><a id="1390" class="Symbol">)</a> <a id="1392" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1283" class="Bound">vₙ=1</a><a id="1396" class="Symbol">))</a>
      <a id="1404" class="Symbol">(λ</a> <a id="1407" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1407" class="Bound">¬vₙ=1</a> <a id="1413" class="Symbol">→</a> <a id="1415" href="MLTT.Plus-Type.html#201" class="InductiveConstructor">inr</a> <a id="1419" class="Symbol">(λ</a> <a id="1422" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1422" class="Bound">sn≼v</a> <a id="1427" class="Symbol">→</a> <a id="1429" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1407" class="Bound">¬vₙ=1</a> <a id="1435" class="Symbol">(</a><a id="1436" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1422" class="Bound">sn≼v</a> <a id="1441" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1232" class="Bound">n</a> <a id="1443" class="Symbol">(</a><a id="1444" href="CoNaturals.GenericConvergentSequence.html#7802" class="Function">ℕ-to-ℕ∞-diagonal₁</a> <a id="1462" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1232" class="Bound">n</a><a id="1463" class="Symbol">))))</a>
 </pre>
-## (Pseudo)closeness spaces
-
+<h2 id="pseudocloseness-spaces">(Pseudo)closeness spaces</h2>
 <pre class="Agda"><a id="is-ultra"></a><a id="1506" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1506" class="Function">is-ultra</a> <a id="is-closeness"></a><a id="1515" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1515" class="Function">is-closeness</a> <a id="1528" class="Symbol">:</a> <a id="1530" class="Symbol">{</a><a id="1531" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1531" class="Bound">X</a> <a id="1533" class="Symbol">:</a> <a id="1535" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="1537" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="1539" class="Symbol">}</a> <a id="1541" class="Symbol">→</a> <a id="1543" class="Symbol">(</a><a id="1544" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1531" class="Bound">X</a> <a id="1546" class="Symbol">→</a> <a id="1548" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1531" class="Bound">X</a> <a id="1550" class="Symbol">→</a> <a id="1552" href="CoNaturals.GenericConvergentSequence.html#1404" class="Function">ℕ∞</a><a id="1554" class="Symbol">)</a> <a id="1556" class="Symbol">→</a> <a id="1558" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="1560" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="1562" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1506" class="Function">is-ultra</a> <a id="1571" class="Symbol">{</a><a id="1572" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1572" class="Bound">𝓤</a><a id="1573" class="Symbol">}</a> <a id="1575" class="Symbol">{</a><a id="1576" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1576" class="Bound">X</a><a id="1577" class="Symbol">}</a> <a id="1579" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1579" class="Bound">c</a> <a id="1581" class="Symbol">=</a> <a id="1583" class="Symbol">(</a><a id="1584" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1584" class="Bound">x</a> <a id="1586" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1586" class="Bound">y</a> <a id="1588" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1588" class="Bound">z</a> <a id="1590" class="Symbol">:</a> <a id="1592" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1576" class="Bound">X</a><a id="1593" class="Symbol">)</a> <a id="1595" class="Symbol">→</a> <a id="1597" href="CoNaturals.GenericConvergentSequence.html#17736" class="Function">min</a> <a id="1601" class="Symbol">(</a><a id="1602" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1579" class="Bound">c</a> <a id="1604" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1584" class="Bound">x</a> <a id="1606" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1586" class="Bound">y</a><a id="1607" class="Symbol">)</a> <a id="1609" class="Symbol">(</a><a id="1610" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1579" class="Bound">c</a> <a id="1612" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1586" class="Bound">y</a> <a id="1614" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1588" class="Bound">z</a><a id="1615" class="Symbol">)</a> <a id="1617" href="Notation.Order.html#1506" class="Field Operator">≼</a> <a id="1619" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1579" class="Bound">c</a> <a id="1621" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1584" class="Bound">x</a> <a id="1623" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1588" class="Bound">z</a>
 <a id="1625" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1515" class="Function">is-closeness</a> <a id="1638" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1638" class="Bound">c</a>
@@ -103,8 +171,7 @@
      <a id="2927" class="Symbol">→</a> <a id="2929" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1506" class="Function">is-ultra</a> <a id="2938" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2509" class="Function Operator">c⟨</a> <a id="2941" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2900" class="Bound">X</a> <a id="2943" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2509" class="Function Operator">⟩</a>
 <a id="2945" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2892" class="Function Operator">u⟨</a> <a id="2948" class="Symbol">(</a><a id="2949" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2949" class="Bound">X</a> <a id="2951" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2953" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2953" class="Bound">c</a> <a id="2955" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2957" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2957" class="Bound">e</a> <a id="2959" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2961" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2961" class="Bound">i</a> <a id="2963" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2965" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2965" class="Bound">s</a> <a id="2967" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2969" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2969" class="Bound">u</a><a id="2970" class="Symbol">)</a> <a id="2972" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2892" class="Function Operator">⟩</a> <a id="2974" class="Symbol">=</a> <a id="2976" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2969" class="Bound">u</a>
 </pre>
-## Closeness relations
-
+<h2 id="closeness-relations">Closeness relations</h2>
 <pre class="Agda"><a id="c&#39;⟨_⟩"></a><a id="3011" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3011" class="Function Operator">c&#39;⟨_⟩</a> <a id="3017" class="Symbol">:</a> <a id="3019" class="Symbol">(</a><a id="3020" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3020" class="Bound">X</a> <a id="3022" class="Symbol">:</a> <a id="3024" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1986" class="Function">PseudoClosenessSpace</a> <a id="3045" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a><a id="3046" class="Symbol">)</a> <a id="3048" class="Symbol">→</a> <a id="3050" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟪</a> <a id="3052" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3020" class="Bound">X</a> <a id="3054" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟫</a> <a id="3056" class="Symbol">→</a> <a id="3058" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟪</a> <a id="3060" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3020" class="Bound">X</a> <a id="3062" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟫</a> <a id="3064" class="Symbol">→</a> <a id="3066" href="CoNaturals.GenericConvergentSequence.html#1404" class="Function">ℕ∞</a>
 <a id="3069" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3011" class="Function Operator">c&#39;⟨</a> <a id="3073" class="Symbol">(</a><a id="3074" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3074" class="Bound">X</a> <a id="3076" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="3078" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3078" class="Bound">c</a> <a id="3080" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="3082" class="Symbol">_)</a> <a id="3085" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3011" class="Function Operator">⟩</a> <a id="3087" class="Symbol">=</a> <a id="3089" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3078" class="Bound">c</a>
 
@@ -209,8 +276,7 @@
      <a id="6163" class="Symbol">→</a> <a id="6165" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#3994" class="Function">C</a> <a id="6167" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6087" class="Bound">X</a> <a id="6169" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6117" class="Bound">n</a> <a id="6171" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6132" class="Bound">x</a> <a id="6173" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6134" class="Bound">y</a>
 <a id="6175" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6079" class="Function">C-id</a> <a id="6180" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6180" class="Bound">X</a> <a id="6182" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6182" class="Bound">n</a> <a id="6184" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6184" class="Bound">x</a> <a id="6186" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6184" class="Bound">x</a> <a id="6188" href="MLTT.Identity-Type.html#172" class="InductiveConstructor">refl</a> <a id="6193" class="Symbol">=</a> <a id="6195" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#4150" class="Function">C-refl</a> <a id="6202" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6180" class="Bound">X</a> <a id="6204" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6182" class="Bound">n</a> <a id="6206" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6184" class="Bound">x</a>
 </pre>
-## Continuity definitions
-
+<h2 id="continuity-definitions">Continuity definitions</h2>
 <pre class="Agda"><a id="f-continuous&#39;"></a><a id="6244" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6244" class="Function">f-continuous&#39;</a>
  <a id="6259" class="Symbol">:</a> <a id="6261" class="Symbol">(</a><a id="6262" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6262" class="Bound">X</a> <a id="6264" class="Symbol">:</a> <a id="6266" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1986" class="Function">PseudoClosenessSpace</a> <a id="6287" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a><a id="6288" class="Symbol">)</a> <a id="6290" class="Symbol">(</a><a id="6291" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6291" class="Bound">Y</a> <a id="6293" class="Symbol">:</a> <a id="6295" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#1986" class="Function">PseudoClosenessSpace</a> <a id="6316" href="MLTT.Universes.html#267" class="Generalizable">𝓥</a><a id="6317" class="Symbol">)</a>
  <a id="6320" class="Symbol">→</a> <a id="6322" class="Symbol">(</a><a id="6323" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6323" class="Bound">f</a> <a id="6325" class="Symbol">:</a> <a id="6327" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟪</a> <a id="6329" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6262" class="Bound">X</a> <a id="6331" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟫</a> <a id="6333" class="Symbol">→</a> <a id="6335" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟪</a> <a id="6337" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6291" class="Bound">Y</a> <a id="6339" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2100" class="Function Operator">⟫</a><a id="6340" class="Symbol">)</a>
@@ -263,8 +329,7 @@
 <a id="7824" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7753" class="Function">p-ucontinuous</a> <a id="7838" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7838" class="Bound">X</a> <a id="7840" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7840" class="Bound">p</a> 
  <a id="7844" class="Symbol">=</a> <a id="7846" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="7848" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7848" class="Bound">δ</a> <a id="7850" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="7852" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="7854" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="7856" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7603" class="Function">p-ucontinuous-with-mod</a> <a id="7879" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7838" class="Bound">X</a> <a id="7881" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7840" class="Bound">p</a> <a id="7883" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7848" class="Bound">δ</a>
 </pre>
-## Continuity lemmas
-
+<h2 id="continuity-lemmas">Continuity lemmas</h2>
 <pre class="Agda"><a id="id-ucontinuous"></a><a id="7916" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7916" class="Function">id-ucontinuous</a> <a id="7931" class="Symbol">:</a> <a id="7933" class="Symbol">(</a><a id="7934" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7934" class="Bound">X</a> <a id="7936" class="Symbol">:</a> <a id="7938" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2292" class="Function">ClosenessSpace</a> <a id="7953" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a><a id="7954" class="Symbol">)</a> <a id="7956" class="Symbol">→</a> <a id="7958" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#6837" class="Function">f-ucontinuous</a> <a id="7972" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7934" class="Bound">X</a> <a id="7974" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7934" class="Bound">X</a> <a id="7976" href="MLTT.Pi.html#458" class="Function">id</a>
 <a id="7979" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7916" class="Function">id-ucontinuous</a> <a id="7994" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7994" class="Bound">X</a> <a id="7996" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7996" class="Bound">ϵ</a> <a id="7998" class="Symbol">=</a> <a id="8000" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#7996" class="Bound">ϵ</a> <a id="8002" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="8004" class="Symbol">λ</a> <a id="8006" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#8006" class="Bound">_</a> <a id="8008" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#8008" class="Bound">_</a> <a id="8010" class="Symbol">→</a> <a id="8012" href="MLTT.Pi.html#458" class="Function">id</a>
 
@@ -375,8 +440,7 @@
      <a id="11905" class="Symbol">(λ</a> <a id="11908" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11908" class="Bound">x</a> <a id="11910" class="Symbol">→</a> <a id="11912" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#4800" class="Function">CΩ</a> <a id="11915" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11796" class="Bound">Y</a> <a id="11917" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11802" class="Bound">ϵ</a> <a id="11919" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11804" class="Bound">y</a> <a id="11921" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11908" class="Bound">x</a><a id="11922" class="Symbol">)</a>
      <a id="11929" class="Symbol">(</a><a id="11930" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#9794" class="Function">C-ucontinuous-r</a> <a id="11946" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11796" class="Bound">Y</a> <a id="11948" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11802" class="Bound">ϵ</a> <a id="11950" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11804" class="Bound">y</a><a id="11951" class="Symbol">)</a>
 </pre>
-## Totally bounded
-
+<h2 id="totally-bounded">Totally bounded</h2>
 <pre class="Agda"><a id="_is_net-of_"></a><a id="11982" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11982" class="Function Operator">_is_net-of_</a> <a id="11994" class="Symbol">:</a> <a id="11996" class="Symbol">(</a><a id="11997" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11997" class="Bound">X&#39;</a> <a id="12000" class="Symbol">:</a> <a id="12002" href="MLTT.Universes.html#273" class="Generalizable">𝓤&#39;</a>  <a id="12006" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="12008" class="Symbol">)</a> <a id="12010" class="Symbol">→</a> <a id="12012" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="12014" class="Symbol">→</a> <a id="12016" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2292" class="Function">ClosenessSpace</a> <a id="12031" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="12033" class="Symbol">→</a> <a id="12035" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="12037" href="Agda.Primitive.html#804" class="Primitive Operator">⊔</a> <a id="12039" href="MLTT.Universes.html#273" class="Generalizable">𝓤&#39;</a>  <a id="12043" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="12045" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12045" class="Bound">X&#39;</a> <a id="12048" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11982" class="Function Operator">is</a> <a id="12051" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12051" class="Bound">ϵ</a> <a id="12053" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11982" class="Function Operator">net-of</a> <a id="12060" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12060" class="Bound">X</a>
  <a id="12063" class="Symbol">=</a> <a id="12065" class="Symbol">(</a><a id="12066" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="12068" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12068" class="Bound">g</a> <a id="12070" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="12072" class="Symbol">(</a>  <a id="12075" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12045" class="Bound">X&#39;</a>  <a id="12079" class="Symbol">→</a> <a id="12081" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟨</a> <a id="12083" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12060" class="Bound">X</a> <a id="12085" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟩</a><a id="12086" class="Symbol">)</a>
@@ -387,3 +451,5 @@
 <a id="totally-bounded"></a><a id="12178" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12178" class="Function">totally-bounded</a> <a id="12194" class="Symbol">:</a> <a id="12196" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2292" class="Function">ClosenessSpace</a> <a id="12211" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="12213" class="Symbol">→</a> <a id="12215" class="Symbol">(</a><a id="12216" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12216" class="Bound">𝓤&#39;</a> <a id="12219" class="Symbol">:</a> <a id="12221" href="Agda.Primitive.html#591" class="Postulate">Universe</a><a id="12229" class="Symbol">)</a> <a id="12231" class="Symbol">→</a> <a id="12233" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="12235" href="Agda.Primitive.html#804" class="Primitive Operator">⊔</a> <a id="12237" class="Symbol">(</a><a id="12238" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12216" class="Bound">𝓤&#39;</a> <a id="12241" href="Agda.Primitive.html#774" class="Primitive Operator">⁺</a><a id="12242" class="Symbol">)</a>  <a id="12245" href="MLTT.Universes.html#408" class="Function Operator">̇</a> 
 <a id="12248" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12178" class="Function">totally-bounded</a> <a id="12264" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12264" class="Bound">X</a> <a id="12266" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12266" class="Bound">𝓤&#39;</a> <a id="12269" class="Symbol">=</a> <a id="12271" class="Symbol">(</a><a id="12272" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12272" class="Bound">ϵ</a> <a id="12274" class="Symbol">:</a> <a id="12276" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a><a id="12277" class="Symbol">)</a> <a id="12279" class="Symbol">→</a> <a id="12281" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="12283" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12283" class="Bound">X&#39;</a> <a id="12286" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="12288" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12266" class="Bound">𝓤&#39;</a> <a id="12291" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="12293" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="12295" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12283" class="Bound">X&#39;</a> <a id="12298" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11982" class="Function Operator">is</a> <a id="12301" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12272" class="Bound">ϵ</a> <a id="12303" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#11982" class="Function Operator">net-of</a> <a id="12310" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#12264" class="Bound">X</a>
 </pre>
+</body>
+</html>

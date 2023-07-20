@@ -1,5 +1,75 @@
-# Uniform continuity of sequence functions
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter6.SequenceContinuity</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter6.SequenceContinuity</h1>
+</header>
+<h1 id="uniform-continuity-of-sequence-functions">Uniform continuity of
+sequence functions</h1>
 <pre class="Agda"><a id="53" class="Symbol">{-#</a> <a id="57" class="Keyword">OPTIONS</a> <a id="65" class="Pragma">--without-K</a> <a id="77" class="Pragma">--exact-split</a> <a id="91" class="Pragma">--safe</a> <a id="98" class="Symbol">#-}</a>
 
 <a id="103" class="Keyword">open</a> <a id="108" class="Keyword">import</a> <a id="115" href="MLTT.Spartan.html" class="Module">MLTT.Spartan</a>
@@ -194,3 +264,5 @@
   <a id="6485" href="TWA.Thesis.Chapter6.SequenceContinuity.html#6451" class="Function">δβ</a> <a id="6488" class="Symbol">=</a> <a id="6490" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="6494" class="Symbol">(</a><a id="6495" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="6499" class="Symbol">(</a><a id="6500" href="TWA.Thesis.Chapter6.SequenceContinuity.html#5912" class="Bound">ϕ</a> <a id="6502" href="TWA.Thesis.Chapter6.SequenceContinuity.html#5914" class="Bound">ε</a><a id="6503" class="Symbol">))</a>
   <a id="6508" href="TWA.Thesis.Chapter6.SequenceContinuity.html#6454" class="Function">δ</a>  <a id="6511" class="Symbol">=</a> <a id="6513" href="Naturals.Order.html#10025" class="Function">max</a> <a id="6517" href="TWA.Thesis.Chapter6.SequenceContinuity.html#6448" class="Function">δα</a> <a id="6520" href="TWA.Thesis.Chapter6.SequenceContinuity.html#6451" class="Function">δβ</a>
 </pre>
+</body>
+</html>

@@ -1,5 +1,75 @@
-# Uniformly continuously searchable closeness spaces
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter3.SearchableTypes</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter3.SearchableTypes</h1>
+</header>
+<h1 id="uniformly-continuously-searchable-closeness-spaces">Uniformly
+continuously searchable closeness spaces</h1>
 <pre class="Agda"><a id="63" class="Symbol">{-#</a> <a id="67" class="Keyword">OPTIONS</a> <a id="75" class="Pragma">--without-K</a> <a id="87" class="Pragma">--exact-split</a> <a id="101" class="Pragma">--safe</a> <a id="108" class="Symbol">#-}</a>
 
 <a id="113" class="Keyword">open</a> <a id="118" class="Keyword">import</a> <a id="125" href="MLTT.Spartan.html" class="Module">MLTT.Spartan</a>
@@ -21,8 +91,7 @@
  <a id="562" class="Keyword">hiding</a> <a id="569" class="Symbol">(</a><a id="570" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#10080" class="Function">decidable-predicate</a><a id="589" class="Symbol">;</a><a id="590" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#10218" class="Function">decidable-uc-predicate</a><a id="612" class="Symbol">)</a>
 <a id="614" class="Keyword">open</a> <a id="619" class="Keyword">import</a> <a id="626" href="TWA.Thesis.Chapter3.ClosenessSpaces-Examples.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces-Examples</a> <a id="671" href="TWA.Thesis.Chapter3.SearchableTypes.html#490" class="Bound">fe</a>
 </pre>
-## Searchable types
-
+<h2 id="searchable-types">Searchable types</h2>
 <pre class="Agda"><a id="decidable-predicate"></a><a id="704" href="TWA.Thesis.Chapter3.SearchableTypes.html#704" class="Function">decidable-predicate</a> <a id="724" class="Symbol">:</a> <a id="726" class="Symbol">(</a><a id="727" href="TWA.Thesis.Chapter3.SearchableTypes.html#727" class="Bound">𝓦</a> <a id="729" class="Symbol">:</a> <a id="731" href="Agda.Primitive.html#591" class="Postulate">Universe</a><a id="739" class="Symbol">)</a> <a id="741" class="Symbol">→</a> <a id="743" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="745" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="747" class="Symbol">→</a> <a id="749" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="751" href="Agda.Primitive.html#804" class="Primitive Operator">⊔</a> <a id="753" href="TWA.Thesis.Chapter3.SearchableTypes.html#727" class="Bound">𝓦</a> <a id="755" href="Agda.Primitive.html#774" class="Primitive Operator">⁺</a>  <a id="758" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="760" href="TWA.Thesis.Chapter3.SearchableTypes.html#704" class="Function">decidable-predicate</a> <a id="780" href="TWA.Thesis.Chapter3.SearchableTypes.html#780" class="Bound">𝓦</a> <a id="782" href="TWA.Thesis.Chapter3.SearchableTypes.html#782" class="Bound">X</a>
  <a id="785" class="Symbol">=</a> <a id="787" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="789" href="TWA.Thesis.Chapter3.SearchableTypes.html#789" class="Bound">p</a> <a id="791" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="793" class="Symbol">(</a><a id="794" href="TWA.Thesis.Chapter3.SearchableTypes.html#782" class="Bound">X</a> <a id="796" class="Symbol">→</a> <a id="798" href="UF.Subsingletons.html#19970" class="Function">Ω</a> <a id="800" href="TWA.Thesis.Chapter3.SearchableTypes.html#780" class="Bound">𝓦</a><a id="801" class="Symbol">)</a> <a id="803" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="805" href="NotionsOfDecidability.Complemented.html#500" class="Function">is-complemented</a> <a id="821" class="Symbol">(λ</a> <a id="824" href="TWA.Thesis.Chapter3.SearchableTypes.html#824" class="Bound">x</a> <a id="826" class="Symbol">→</a> <a id="828" class="Symbol">(</a><a id="829" href="TWA.Thesis.Chapter3.SearchableTypes.html#789" class="Bound">p</a> <a id="831" href="TWA.Thesis.Chapter3.SearchableTypes.html#824" class="Bound">x</a><a id="832" class="Symbol">)</a> <a id="834" href="UF.Subsingletons.html#20026" class="Function Operator">holds</a><a id="839" class="Symbol">)</a>
@@ -149,8 +218,7 @@
   <a id="4368" href="TWA.Thesis.Chapter3.SearchableTypes.html#4368" class="Function">γ</a> <a id="4370" class="Symbol">:</a> <a id="4372" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="4374" href="TWA.Thesis.Chapter3.SearchableTypes.html#4374" class="Bound">(</a><a id="4375" href="TWA.Thesis.Chapter3.SearchableTypes.html#4375" class="Bound">x</a> <a id="4377" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4379" href="TWA.Thesis.Chapter3.SearchableTypes.html#4379" class="Bound">y</a><a id="4380" href="TWA.Thesis.Chapter3.SearchableTypes.html#4374" class="Bound">)</a> <a id="4382" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="4384" href="TWA.Thesis.Chapter3.SearchableTypes.html#3907" class="Bound">X</a> <a id="4386" href="MLTT.Sigma.html#572" class="Function Operator">×</a> <a id="4388" href="TWA.Thesis.Chapter3.SearchableTypes.html#3911" class="Bound">Y</a> <a id="4390" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="4392" href="TWA.Thesis.Chapter3.SearchableTypes.html#3921" class="Bound">p</a> <a id="4394" class="Symbol">(</a><a id="4395" href="TWA.Thesis.Chapter3.SearchableTypes.html#4375" class="Bound">x</a> <a id="4397" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4399" href="TWA.Thesis.Chapter3.SearchableTypes.html#4379" class="Bound">y</a><a id="4400" class="Symbol">)</a> <a id="4402" href="UF.Subsingletons.html#20026" class="Function Operator">holds</a> <a id="4408" class="Symbol">→</a> <a id="4410" href="TWA.Thesis.Chapter3.SearchableTypes.html#3921" class="Bound">p</a> <a id="4412" class="Symbol">(</a><a id="4413" href="TWA.Thesis.Chapter3.SearchableTypes.html#4229" class="Function">x₀</a> <a id="4416" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4418" href="TWA.Thesis.Chapter3.SearchableTypes.html#4018" class="Function">y₀</a> <a id="4421" href="TWA.Thesis.Chapter3.SearchableTypes.html#4229" class="Function">x₀</a><a id="4423" class="Symbol">)</a> <a id="4425" href="UF.Subsingletons.html#20026" class="Function Operator">holds</a>
   <a id="4433" href="TWA.Thesis.Chapter3.SearchableTypes.html#4368" class="Function">γ</a> <a id="4435" class="Symbol">((</a><a id="4437" href="TWA.Thesis.Chapter3.SearchableTypes.html#4437" class="Bound">x</a> <a id="4439" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4441" href="TWA.Thesis.Chapter3.SearchableTypes.html#4441" class="Bound">y</a><a id="4442" class="Symbol">)</a> <a id="4444" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4446" href="TWA.Thesis.Chapter3.SearchableTypes.html#4446" class="Bound">pxy</a><a id="4449" class="Symbol">)</a> <a id="4451" class="Symbol">=</a> <a id="4453" href="TWA.Thesis.Chapter3.SearchableTypes.html#4257" class="Function">γx</a> <a id="4456" class="Symbol">(</a><a id="4457" href="TWA.Thesis.Chapter3.SearchableTypes.html#4437" class="Bound">x</a> <a id="4459" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4461" class="Symbol">(</a><a id="4462" href="TWA.Thesis.Chapter3.SearchableTypes.html#4057" class="Function">γy</a> <a id="4465" href="TWA.Thesis.Chapter3.SearchableTypes.html#4437" class="Bound">x</a> <a id="4467" class="Symbol">(</a><a id="4468" href="TWA.Thesis.Chapter3.SearchableTypes.html#4441" class="Bound">y</a> <a id="4470" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="4472" href="TWA.Thesis.Chapter3.SearchableTypes.html#4446" class="Bound">pxy</a><a id="4475" class="Symbol">)))</a>
 </pre>
-## Cantor searchability is LPO
-
+<h2 id="cantor-searchability-is-lpo">Cantor searchability is LPO</h2>
 <pre class="Agda"><a id="LPO"></a><a id="4520" href="TWA.Thesis.Chapter3.SearchableTypes.html#4520" class="Function">LPO</a> <a id="4524" class="Symbol">:</a> <a id="4526" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a>  <a id="4530" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="4532" href="TWA.Thesis.Chapter3.SearchableTypes.html#4520" class="Function">LPO</a> <a id="4536" class="Symbol">=</a> <a id="4538" class="Symbol">(</a><a id="4539" href="TWA.Thesis.Chapter3.SearchableTypes.html#4539" class="Bound">α</a> <a id="4541" class="Symbol">:</a> <a id="4543" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="4545" class="Symbol">→</a> <a id="4547" href="MLTT.Two.html#138" class="Datatype">𝟚</a><a id="4548" class="Symbol">)</a> <a id="4550" class="Symbol">→</a> <a id="4552" class="Symbol">((</a><a id="4554" href="TWA.Thesis.Chapter3.SearchableTypes.html#4554" class="Bound">n</a> <a id="4556" class="Symbol">:</a> <a id="4558" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a><a id="4559" class="Symbol">)</a> <a id="4561" class="Symbol">→</a> <a id="4563" href="TWA.Thesis.Chapter3.SearchableTypes.html#4539" class="Bound">α</a> <a id="4565" href="TWA.Thesis.Chapter3.SearchableTypes.html#4554" class="Bound">n</a> <a id="4567" href="MLTT.Id.html#207" class="Datatype Operator">＝</a> <a id="4569" href="MLTT.Two.html#154" class="InductiveConstructor">₀</a><a id="4570" class="Symbol">)</a> <a id="4572" href="MLTT.Plus-Type.html#134" class="Datatype Operator">+</a> <a id="4574" class="Symbol">(</a><a id="4575" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="4577" href="TWA.Thesis.Chapter3.SearchableTypes.html#4577" class="Bound">n</a> <a id="4579" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="4581" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="4583" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="4585" href="TWA.Thesis.Chapter3.SearchableTypes.html#4539" class="Bound">α</a> <a id="4587" href="TWA.Thesis.Chapter3.SearchableTypes.html#4577" class="Bound">n</a> <a id="4589" href="MLTT.Id.html#207" class="Datatype Operator">＝</a> <a id="4591" href="MLTT.Two.html#161" class="InductiveConstructor">₁</a><a id="4592" class="Symbol">)</a>
 
@@ -201,8 +269,8 @@
               <a id="5973" class="Symbol">(</a><a id="5974" href="TWA.Thesis.Chapter3.SearchableTypes.html#5926" class="Bound">Πα₀</a> <a id="5978" class="Bound">n</a> <a id="5980" href="MLTT.Id.html#1070" class="Function Operator">⁻¹</a> <a id="5983" href="MLTT.Id.html#983" class="Function Operator">∙</a> <a id="5985" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="5989" class="Symbol">(</a><a id="5990" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="5994" class="Symbol">(</a><a id="5995" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="5999" class="Symbol">(</a><a id="6000" href="TWA.Thesis.Chapter3.SearchableTypes.html#5284" class="Function">decidable-to-𝟚</a> <a id="6015" class="Symbol">(</a><a id="6016" href="TWA.Thesis.Chapter3.SearchableTypes.html#5724" class="Bound">d</a> <a id="6018" class="Bound">n</a><a id="6019" class="Symbol">))))</a> <a id="6024" class="Bound">pn</a><a id="6026" class="Symbol">))</a>
   <a id="6031" class="Symbol">...</a> <a id="6035" class="Symbol">|</a> <a id="6037" href="MLTT.Plus-Type.html#201" class="InductiveConstructor">inr</a> <a id="6041" class="Symbol">(</a><a id="6042" href="TWA.Thesis.Chapter3.SearchableTypes.html#6042" class="Bound">i</a> <a id="6044" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="6046" href="TWA.Thesis.Chapter3.SearchableTypes.html#6046" class="Bound">αi＝₁</a><a id="6050" class="Symbol">)</a> <a id="6052" class="Symbol">=</a> <a id="6054" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="6058" class="Symbol">(</a><a id="6059" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="6063" class="Symbol">(</a><a id="6064" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="6068" class="Symbol">(</a><a id="6069" href="TWA.Thesis.Chapter3.SearchableTypes.html#5284" class="Function">decidable-to-𝟚</a> <a id="6084" class="Symbol">(</a><a id="6085" href="TWA.Thesis.Chapter3.SearchableTypes.html#5724" class="Bound">d</a> <a id="6087" href="TWA.Thesis.Chapter3.SearchableTypes.html#6042" class="Bound">i</a><a id="6088" class="Symbol">))))</a> <a id="6093" href="TWA.Thesis.Chapter3.SearchableTypes.html#6046" class="Bound">αi＝₁</a>
 </pre>
-## Uniformly continuously searchable closeness spaces
-
+<h2 id="uniformly-continuously-searchable-closeness-spaces-1">Uniformly
+continuously searchable closeness spaces</h2>
 <pre class="Agda"><a id="decidable-uc-predicate-with-mod"></a><a id="6162" href="TWA.Thesis.Chapter3.SearchableTypes.html#6162" class="Function">decidable-uc-predicate-with-mod</a>
  <a id="6195" class="Symbol">:</a> <a id="6197" class="Symbol">(</a><a id="6198" href="TWA.Thesis.Chapter3.SearchableTypes.html#6198" class="Bound">𝓦</a> <a id="6200" class="Symbol">:</a> <a id="6202" href="Agda.Primitive.html#591" class="Postulate">Universe</a><a id="6210" class="Symbol">)</a> <a id="6212" class="Symbol">→</a> <a id="6214" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2292" class="Function">ClosenessSpace</a> <a id="6229" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="6231" class="Symbol">→</a> <a id="6233" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="6235" class="Symbol">→</a> <a id="6237" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="6239" href="Agda.Primitive.html#804" class="Primitive Operator">⊔</a> <a id="6241" href="TWA.Thesis.Chapter3.SearchableTypes.html#6198" class="Bound">𝓦</a> <a id="6243" href="Agda.Primitive.html#774" class="Primitive Operator">⁺</a>  <a id="6246" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="6248" href="TWA.Thesis.Chapter3.SearchableTypes.html#6162" class="Function">decidable-uc-predicate-with-mod</a> <a id="6280" href="TWA.Thesis.Chapter3.SearchableTypes.html#6280" class="Bound">𝓦</a> <a id="6282" href="TWA.Thesis.Chapter3.SearchableTypes.html#6282" class="Bound">X</a> <a id="6284" href="TWA.Thesis.Chapter3.SearchableTypes.html#6284" class="Bound">δ</a>
@@ -287,3 +355,5 @@
   <a id="8741" href="TWA.Thesis.Chapter3.SearchableTypes.html#8741" class="Function">γ</a> <a id="8743" class="Symbol">:</a> <a id="8745" class="Symbol">(</a><a id="8746" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="8748" href="TWA.Thesis.Chapter3.SearchableTypes.html#8748" class="Bound">x</a> <a id="8750" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="8752" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟨</a> <a id="8754" href="TWA.Thesis.Chapter3.SearchableTypes.html#8195" class="Bound">X</a> <a id="8756" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟩</a> <a id="8758" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="8760" href="TWA.Thesis.Chapter3.SearchableTypes.html#8203" class="Bound">p</a> <a id="8762" href="TWA.Thesis.Chapter3.SearchableTypes.html#8748" class="Bound">x</a> <a id="8764" href="UF.Subsingletons.html#20026" class="Function Operator">holds</a><a id="8769" class="Symbol">)</a> <a id="8771" class="Symbol">→</a> <a id="8773" href="TWA.Thesis.Chapter3.SearchableTypes.html#8203" class="Bound">p</a> <a id="8775" href="TWA.Thesis.Chapter3.SearchableTypes.html#8713" class="Function">x₀</a> <a id="8778" href="UF.Subsingletons.html#20026" class="Function Operator">holds</a>
   <a id="8786" href="TWA.Thesis.Chapter3.SearchableTypes.html#8741" class="Function">γ</a> <a id="8788" class="Symbol">(</a><a id="8789" href="TWA.Thesis.Chapter3.SearchableTypes.html#8789" class="Bound">x</a> <a id="8791" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="8793" href="TWA.Thesis.Chapter3.SearchableTypes.html#8793" class="Bound">px</a><a id="8795" class="Symbol">)</a> <a id="8797" class="Symbol">=</a> <a id="8799" href="TWA.Thesis.Chapter3.SearchableTypes.html#8640" class="Function">γ&#39;</a> <a id="8802" class="Symbol">(</a><a id="8803" href="TWA.Thesis.Chapter3.SearchableTypes.html#8318" class="Function">h</a> <a id="8805" href="TWA.Thesis.Chapter3.SearchableTypes.html#8789" class="Bound">x</a> <a id="8807" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="8809" class="Symbol">(</a><a id="8810" href="TWA.Thesis.Chapter3.SearchableTypes.html#8216" class="Bound">ϕ</a> <a id="8812" href="TWA.Thesis.Chapter3.SearchableTypes.html#8789" class="Bound">x</a> <a id="8814" class="Symbol">(</a><a id="8815" href="TWA.Thesis.Chapter3.SearchableTypes.html#8268" class="Function">g</a> <a id="8817" class="Symbol">(</a><a id="8818" href="TWA.Thesis.Chapter3.SearchableTypes.html#8318" class="Function">h</a> <a id="8820" href="TWA.Thesis.Chapter3.SearchableTypes.html#8789" class="Bound">x</a><a id="8821" class="Symbol">))</a> <a id="8824" class="Symbol">(</a><a id="8825" href="TWA.Thesis.Chapter3.SearchableTypes.html#8373" class="Function">η</a> <a id="8827" href="TWA.Thesis.Chapter3.SearchableTypes.html#8789" class="Bound">x</a><a id="8828" class="Symbol">)</a> <a id="8830" href="TWA.Thesis.Chapter3.SearchableTypes.html#8793" class="Bound">px</a><a id="8832" class="Symbol">))</a>
 </pre>
+</body>
+</html>

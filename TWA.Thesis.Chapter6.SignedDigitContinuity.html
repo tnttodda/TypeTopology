@@ -1,5 +1,75 @@
-# Uniform continuity of signed-digit operations
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter6.SignedDigitContinuity</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter6.SignedDigitContinuity</h1>
+</header>
+<h1 id="uniform-continuity-of-signed-digit-operations">Uniform
+continuity of signed-digit operations</h1>
 <pre class="Agda"><a id="58" class="Symbol">{-#</a> <a id="62" class="Keyword">OPTIONS</a> <a id="70" class="Pragma">--without-K</a> <a id="82" class="Pragma">--exact-split</a> <a id="96" class="Pragma">--safe</a> <a id="103" class="Symbol">#-}</a>
 
 <a id="108" class="Keyword">open</a> <a id="113" class="Keyword">import</a> <a id="120" href="MLTT.Spartan.html" class="Module">MLTT.Spartan</a>
@@ -23,8 +93,7 @@
 <a id="656" class="Keyword">open</a> <a id="661" class="Keyword">import</a> <a id="668" href="TWA.Thesis.Chapter3.SearchableTypes.html" class="Module">TWA.Thesis.Chapter3.SearchableTypes</a> <a id="704" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#525" class="Bound">fe</a>
 <a id="707" class="Keyword">open</a> <a id="712" class="Keyword">import</a> <a id="719" href="TWA.Thesis.Chapter6.SequenceContinuity.html" class="Module">TWA.Thesis.Chapter6.SequenceContinuity</a> <a id="758" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#525" class="Bound">fe</a>
 </pre>
-## Negation
-
+<h2 id="negation">Negation</h2>
 <pre class="Agda"><a id="neg-ucontinuous&#39;"></a><a id="783" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#783" class="Function">neg-ucontinuous&#39;</a> <a id="800" class="Symbol">:</a> <a id="802" href="TWA.Thesis.Chapter6.SequenceContinuity.html#669" class="Function">seq-f-ucontinuous¹</a> <a id="821" href="TWA.Thesis.Chapter5.SignedDigit.html#976" class="Function">neg</a>
 <a id="825" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#783" class="Function">neg-ucontinuous&#39;</a> <a id="842" class="Symbol">=</a> <a id="844" href="TWA.Thesis.Chapter6.SequenceContinuity.html#1217" class="Function">map-ucontinuous&#39;</a> <a id="861" href="TWA.Thesis.Chapter5.SignedDigit.html#923" class="Function">flip</a>
 
@@ -35,8 +104,7 @@
      <a id="996" href="TWA.Thesis.Chapter5.SignedDigit.html#743" class="Function">𝟛-is-discrete</a> <a id="1010" href="TWA.Thesis.Chapter5.SignedDigit.html#743" class="Function">𝟛-is-discrete</a>
      <a id="1029" href="TWA.Thesis.Chapter5.SignedDigit.html#976" class="Function">neg</a> <a id="1033" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#783" class="Function">neg-ucontinuous&#39;</a>
 </pre>
-## Binary midpoint
-
+<h2 id="binary-midpoint">Binary midpoint</h2>
 <pre class="Agda"><a id="div2-ucontinuous&#39;"></a><a id="1079" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1079" class="Function">div2-ucontinuous&#39;</a> <a id="1097" class="Symbol">:</a> <a id="1099" href="TWA.Thesis.Chapter6.SequenceContinuity.html#669" class="Function">seq-f-ucontinuous¹</a> <a id="1118" href="TWA.Thesis.Chapter5.SignedDigit.html#1651" class="Function">div2</a>
 <a id="1123" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1079" class="Function">div2-ucontinuous&#39;</a> <a id="1141" href="MLTT.Natural-Numbers-Type.html#127" class="InductiveConstructor">zero</a> <a id="1146" class="Symbol">=</a> <a id="1148" class="Number">0</a> <a id="1150" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="1152" class="Symbol">λ</a> <a id="1154" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1154" class="Bound">α</a> <a id="1156" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1156" class="Bound">β</a> <a id="1158" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1158" class="Bound">_</a> <a id="1160" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1160" class="Bound">k</a> <a id="1162" class="Symbol">()</a>
 <a id="1165" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1079" class="Function">div2-ucontinuous&#39;</a> <a id="1183" class="Symbol">(</a><a id="1184" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="1189" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1189" class="Bound">ε</a><a id="1190" class="Symbol">)</a> <a id="1192" class="Symbol">=</a> <a id="1194" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="1199" class="Symbol">(</a><a id="1200" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="1205" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1189" class="Bound">ε</a><a id="1206" class="Symbol">)</a> <a id="1208" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="1210" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1222" class="Function">γ</a> <a id="1212" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1189" class="Bound">ε</a> <a id="1214" class="Keyword">where</a>
@@ -84,8 +152,7 @@
      <a id="2691" class="Symbol">(λ</a> <a id="2694" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2694" class="Bound">y</a> <a id="2696" class="Symbol">→</a> <a id="2698" href="TWA.Thesis.Chapter5.SignedDigit.html#1813" class="Function">mid</a> <a id="2702" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2616" class="Bound">x</a> <a id="2704" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2694" class="Bound">y</a><a id="2705" class="Symbol">)</a>
      <a id="2712" class="Symbol">(</a><a id="2713" href="TWA.Thesis.Chapter6.SequenceContinuity.html#2027" class="Function">seq-f-ucontinuous²-right</a> <a id="2738" href="TWA.Thesis.Chapter5.SignedDigit.html#1813" class="Function">mid</a> <a id="2742" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#1819" class="Function">mid-ucontinuous&#39;</a> <a id="2759" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2616" class="Bound">x</a><a id="2760" class="Symbol">)</a>
 </pre>
-## Infinitary midpoint
-
+<h2 id="infinitary-midpoint">Infinitary midpoint</h2>
 <pre class="Agda"><a id="bigMid&#39;-ucontinuous&#39;"></a><a id="2795" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2795" class="Function">bigMid&#39;-ucontinuous&#39;</a> <a id="2816" class="Symbol">:</a> <a id="2818" href="TWA.Thesis.Chapter6.SequenceContinuity.html#4839" class="Function">seq-f-ucontinuousᴺ</a> <a id="2837" href="TWA.Thesis.Chapter5.SignedDigit.html#3987" class="Function">bigMid&#39;</a>
 <a id="2845" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2795" class="Function">bigMid&#39;-ucontinuous&#39;</a> <a id="2866" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2866" class="Bound">ε</a> <a id="2868" class="Symbol">=</a> <a id="2870" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#3002" class="Function">dδ</a> <a id="2873" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2866" class="Bound">ε</a> <a id="2875" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="2877" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#3123" class="Function">γ</a> <a id="2879" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2866" class="Bound">ε</a> <a id="2881" class="Keyword">where</a>
   <a id="2889" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2889" class="Function">d</a> <a id="2891" class="Symbol">:</a> <a id="2893" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="2895" class="Symbol">→</a> <a id="2897" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a>
@@ -155,8 +222,7 @@
        <a id="5398" class="Symbol">(</a><a id="5399" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="5403" class="Symbol">(</a><a id="5404" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#2795" class="Function">bigMid&#39;-ucontinuous&#39;</a> <a id="5425" class="Symbol">(</a><a id="5426" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="5430" class="Symbol">(</a><a id="5431" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#4296" class="Function">div4-ucontinuous&#39;</a> <a id="5449" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5102" class="Bound">ε</a><a id="5450" class="Symbol">)))</a>
          <a id="5463" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5314" class="Bound">αs</a> <a id="5466" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5317" class="Bound">βs</a> <a id="5469" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5320" class="Bound">αs∼ⁿβs</a><a id="5475" class="Symbol">)</a>
 </pre>
-## Multiplication
-
+<h2 id="multiplication">Multiplication</h2>
 <pre class="Agda"><a id="mul-ucontinuous&#39;"></a><a id="5505" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5505" class="Function">mul-ucontinuous&#39;</a> <a id="5522" class="Symbol">:</a> <a id="5524" href="TWA.Thesis.Chapter6.SequenceContinuity.html#898" class="Function">seq-f-ucontinuous²</a> <a id="5543" href="TWA.Thesis.Chapter5.SignedDigit.html#4391" class="Function">mul</a>
 <a id="5547" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5505" class="Function">mul-ucontinuous&#39;</a> <a id="5564" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5564" class="Bound">ε</a> <a id="5566" class="Symbol">=</a> <a id="5568" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5586" class="Function">δ</a> <a id="5570" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5564" class="Bound">ε</a> <a id="5572" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="5574" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5638" class="Function">γ</a> <a id="5576" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5564" class="Bound">ε</a> <a id="5578" class="Keyword">where</a>
   <a id="5586" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5586" class="Function">δ</a> <a id="5588" class="Symbol">:</a> <a id="5590" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="5592" class="Symbol">→</a> <a id="5594" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="5596" href="MLTT.Sigma.html#572" class="Function Operator">×</a> <a id="5598" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a>
@@ -197,3 +263,5 @@
      <a id="6698" class="Symbol">(λ</a> <a id="6701" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#6701" class="Bound">x</a> <a id="6703" class="Symbol">→</a> <a id="6705" href="TWA.Thesis.Chapter5.SignedDigit.html#4391" class="Function">mul</a> <a id="6709" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#6701" class="Bound">x</a> <a id="6711" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#6701" class="Bound">x</a><a id="6712" class="Symbol">)</a>
      <a id="6719" class="Symbol">(</a><a id="6720" href="TWA.Thesis.Chapter6.SequenceContinuity.html#2388" class="Function">seq-f-ucontinuous²-both</a> <a id="6744" href="TWA.Thesis.Chapter5.SignedDigit.html#4391" class="Function">mul</a> <a id="6748" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html#5505" class="Function">mul-ucontinuous&#39;</a><a id="6764" class="Symbol">)</a>
 </pre>
+</body>
+</html>

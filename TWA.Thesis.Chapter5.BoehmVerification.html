@@ -1,5 +1,75 @@
-# Ternary Boehm encodings of real numbers
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter5.BoehmVerification</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter5.BoehmVerification</h1>
+</header>
+<h1 id="ternary-boehm-encodings-of-real-numbers">Ternary Boehm encodings
+of real numbers</h1>
 <pre class="Agda"><a id="52" class="Symbol">{-#</a> <a id="56" class="Keyword">OPTIONS</a> <a id="64" class="Pragma">--exact-split</a> <a id="78" class="Pragma">--without-K</a> <a id="90" class="Pragma">--safe</a> <a id="97" class="Symbol">#-}</a>
 
 <a id="102" class="Keyword">open</a> <a id="107" class="Keyword">import</a> <a id="114" href="Integers.Addition.html" class="Module">Integers.Addition</a> <a id="132" class="Keyword">renaming</a> <a id="141" class="Symbol">(</a><a id="142" href="Integers.Addition.html#755" class="Function Operator">_+_</a> <a id="146" class="Symbol">to</a> <a id="149" class="Function Operator">_ℤ+_</a><a id="153" class="Symbol">;</a>  <a id="156" href="Integers.Addition.html#826" class="Function Operator">_-_</a> <a id="160" class="Symbol">to</a> <a id="163" class="Function Operator">_ℤ-_</a><a id="167" class="Symbol">)</a>
@@ -45,8 +115,8 @@
 <a id="1421" class="Keyword">open</a> <a id="1426" class="Keyword">import</a> <a id="1433" href="TWA.Thesis.Chapter3.ClosenessSpaces.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces</a> <a id="1469" href="TWA.Thesis.Chapter5.BoehmVerification.html#1158" class="Bound">fe</a> <a id="1472" class="Keyword">hiding</a> <a id="1479" class="Symbol">(</a><a id="1480" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2465" class="Function Operator">⟨_⟩</a> <a id="1484" class="Symbol">;</a> <a id="1486" href="TWA.Thesis.Chapter3.ClosenessSpaces.html#2388" class="Function">ι</a><a id="1487" class="Symbol">)</a>
 <a id="1489" class="Keyword">open</a> <a id="1494" class="Keyword">import</a> <a id="1501" href="TWA.Thesis.Chapter3.ClosenessSpaces-Examples.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces-Examples</a> <a id="1546" href="TWA.Thesis.Chapter5.BoehmVerification.html#1158" class="Bound">fe</a>
 </pre>
-## Structural operations and properties
-
+<h2 id="structural-operations-and-properties">Structural operations and
+properties</h2>
 <pre class="Agda"><a id="downLeft"></a><a id="1599" href="TWA.Thesis.Chapter5.BoehmVerification.html#1599" class="Function">downLeft</a> <a id="downMid"></a><a id="1608" href="TWA.Thesis.Chapter5.BoehmVerification.html#1608" class="Function">downMid</a> <a id="downRight"></a><a id="1616" href="TWA.Thesis.Chapter5.BoehmVerification.html#1616" class="Function">downRight</a> <a id="1626" class="Symbol">:</a> <a id="1628" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="1630" class="Symbol">→</a> <a id="1632" href="Integers.Type.html#776" class="Datatype">ℤ</a>
 <a id="1634" href="TWA.Thesis.Chapter5.BoehmVerification.html#1599" class="Function">downLeft</a>  <a id="1644" href="TWA.Thesis.Chapter5.BoehmVerification.html#1644" class="Bound">k</a> <a id="1646" class="Symbol">=</a> <a id="1648" class="Symbol">(</a><a id="1649" href="TWA.Thesis.Chapter5.BoehmVerification.html#1644" class="Bound">k</a> <a id="1651" href="TWA.Thesis.Chapter5.BoehmVerification.html#149" class="Function Operator">ℤ+</a> <a id="1654" href="TWA.Thesis.Chapter5.BoehmVerification.html#1644" class="Bound">k</a><a id="1655" class="Symbol">)</a>
 <a id="1657" href="TWA.Thesis.Chapter5.BoehmVerification.html#1608" class="Function">downMid</a>   <a id="1667" href="TWA.Thesis.Chapter5.BoehmVerification.html#1667" class="Bound">k</a> <a id="1669" class="Symbol">=</a> <a id="1671" class="Symbol">(</a><a id="1672" href="TWA.Thesis.Chapter5.BoehmVerification.html#1667" class="Bound">k</a> <a id="1674" href="TWA.Thesis.Chapter5.BoehmVerification.html#149" class="Function Operator">ℤ+</a> <a id="1677" href="TWA.Thesis.Chapter5.BoehmVerification.html#1667" class="Bound">k</a><a id="1678" class="Symbol">)</a> <a id="1680" href="Integers.Addition.html#591" class="Function Operator">+pos</a> <a id="1685" class="Number">1</a>
@@ -109,8 +179,8 @@
 <a id="3330" href="TWA.Thesis.Chapter5.BoehmVerification.html#3253" class="Function">nested-implies-fully-nested</a> <a id="3358" href="TWA.Thesis.Chapter5.BoehmVerification.html#3358" class="Bound">ζ</a> <a id="3360" href="TWA.Thesis.Chapter5.BoehmVerification.html#3360" class="Bound">ρ</a> <a id="3362" href="TWA.Thesis.Chapter5.BoehmVerification.html#3362" class="Bound">n</a> <a id="3364" href="TWA.Thesis.Chapter5.BoehmVerification.html#3364" class="Bound">m</a> <a id="3366" class="Symbol">(</a><a id="3367" href="TWA.Thesis.Chapter5.BoehmVerification.html#3367" class="Bound">k</a> <a id="3369" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="3371" href="MLTT.Identity-Type.html#172" class="InductiveConstructor">refl</a><a id="3375" class="Symbol">)</a>
  <a id="3378" class="Symbol">=</a> <a id="3380" href="TWA.Thesis.Chapter5.BoehmVerification.html#2933" class="Function">nested-implies-fully-nested&#39;</a> <a id="3409" href="TWA.Thesis.Chapter5.BoehmVerification.html#3358" class="Bound">ζ</a> <a id="3411" href="TWA.Thesis.Chapter5.BoehmVerification.html#3360" class="Bound">ρ</a> <a id="3413" href="TWA.Thesis.Chapter5.BoehmVerification.html#3367" class="Bound">k</a> <a id="3415" href="TWA.Thesis.Chapter5.BoehmVerification.html#3362" class="Bound">n</a>
 </pre>
-## Verification of the structure of ternary Boehm encodings
-
+<h2 id="verification-of-the-structure-of-ternary-boehm-encodings">Verification
+of the structure of ternary Boehm encodings</h2>
 <pre class="Agda"><a id="3487" class="Comment">-- By Andrew Sneap</a>
 <a id="⦅_⦆"></a><a id="3506" href="TWA.Thesis.Chapter5.BoehmVerification.html#3506" class="Function Operator">⦅_⦆</a> <a id="3510" class="Symbol">:</a> <a id="3512" class="Symbol">(</a><a id="3513" href="TWA.Thesis.Chapter5.BoehmVerification.html#3513" class="Bound">χ</a> <a id="3515" class="Symbol">:</a> <a id="3517" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="3519" class="Symbol">→</a> <a id="3521" href="TWA.Thesis.Chapter5.BoehmVerification.html#1979" class="Function">ℤ[1/2]ᴵ</a><a id="3528" class="Symbol">)</a> <a id="3530" class="Symbol">→</a> <a id="3532" href="TWA.Thesis.Chapter5.BoehmVerification.html#2545" class="Function">nested</a> <a id="3539" href="TWA.Thesis.Chapter5.BoehmVerification.html#3513" class="Bound">χ</a> <a id="3541" class="Symbol">→</a> <a id="3543" href="TWA.Thesis.Chapter5.BoehmVerification.html#2552" class="Function">positioned</a> <a id="3554" href="TWA.Thesis.Chapter5.BoehmVerification.html#3513" class="Bound">χ</a> <a id="3556" class="Symbol">→</a> <a id="3558" href="TWA.Thesis.AndrewSneap.DyadicReals.html#1925" class="Function">ℝ-d</a>
 <a id="3562" href="TWA.Thesis.Chapter5.BoehmVerification.html#3506" class="Function Operator">⦅_⦆</a> <a id="3566" href="TWA.Thesis.Chapter5.BoehmVerification.html#3566" class="Bound">χ</a> <a id="3568" href="TWA.Thesis.Chapter5.BoehmVerification.html#3568" class="Bound">τ</a> <a id="3570" href="TWA.Thesis.Chapter5.BoehmVerification.html#3570" class="Bound">π</a> <a id="3572" class="Symbol">=</a> <a id="3574" class="Symbol">(</a><a id="3575" href="TWA.Thesis.Chapter5.BoehmVerification.html#3702" class="Function">L</a> <a id="3577" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="3579" href="TWA.Thesis.Chapter5.BoehmVerification.html#3704" class="Function">R</a><a id="3580" class="Symbol">)</a>
@@ -472,8 +542,8 @@
   <a id="15607" href="TWA.Thesis.Chapter5.BoehmVerification.html#15607" class="Function">τ</a>  <a id="15610" class="Symbol">=</a> <a id="15612" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="15616" class="Symbol">(</a><a id="15617" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="15621" href="TWA.Thesis.Chapter5.BoehmVerification.html#15565" class="Function">γ</a><a id="15622" class="Symbol">)</a>
   <a id="15626" href="TWA.Thesis.Chapter5.BoehmVerification.html#15626" class="Function">π</a>  <a id="15629" class="Symbol">=</a> <a id="15631" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="15635" class="Symbol">(</a><a id="15636" href="MLTT.Sigma-Type.html#224" class="Field">pr₂</a> <a id="15640" href="TWA.Thesis.Chapter5.BoehmVerification.html#15565" class="Function">γ</a><a id="15641" class="Symbol">)</a>
 </pre>
-## Representing compact intervals
-
+<h2 id="representing-compact-intervals">Representing compact
+intervals</h2>
 <pre class="Agda"><a id="CompactInterval"></a><a id="15688" href="TWA.Thesis.Chapter5.BoehmVerification.html#15688" class="Function">CompactInterval</a> <a id="15704" class="Symbol">:</a> <a id="15706" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="15708" href="MLTT.Sigma.html#572" class="Function Operator">×</a> <a id="15710" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="15712" class="Symbol">→</a> <a id="15714" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a> <a id="15717" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="15719" href="TWA.Thesis.Chapter5.BoehmVerification.html#15688" class="Function">CompactInterval</a> <a id="15735" class="Symbol">(</a><a id="15736" href="TWA.Thesis.Chapter5.BoehmVerification.html#15736" class="Bound">k</a> <a id="15738" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="15740" href="TWA.Thesis.Chapter5.BoehmVerification.html#15740" class="Bound">δ</a><a id="15741" class="Symbol">)</a> <a id="15743" class="Symbol">=</a> <a id="15745" href="MLTT.Sigma.html#437" class="Function">Σ</a> <a id="15747" href="TWA.Thesis.Chapter5.BoehmVerification.html#15747" class="Bound">(</a><a id="15748" href="TWA.Thesis.Chapter5.BoehmVerification.html#15748" class="Bound">x</a> <a id="15750" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="15752" href="TWA.Thesis.Chapter5.BoehmVerification.html#15747" class="Bound">_)</a> <a id="15755" href="MLTT.Sigma.html#437" class="Function">꞉</a> <a id="15757" href="TWA.Thesis.Chapter5.BoehmVerification.html#1938" class="Function">𝕋</a> <a id="15759" href="MLTT.Sigma.html#437" class="Function">,</a> <a id="15761" href="TWA.Thesis.Chapter5.BoehmVerification.html#15748" class="Bound">x</a><a id="15762" class="Symbol">(</a><a id="15763" href="TWA.Thesis.Chapter5.BoehmVerification.html#15740" class="Bound">δ</a><a id="15764" class="Symbol">)</a> <a id="15766" href="MLTT.Id.html#207" class="Datatype Operator">＝</a> <a id="15768" href="TWA.Thesis.Chapter5.BoehmVerification.html#15736" class="Bound">k</a>
 
@@ -839,3 +909,5 @@
      <a id="28428" class="Symbol">=</a> <a id="28430" href="MLTT.Empty.html#370" class="Function">𝟘-elim</a> <a id="28437" class="Symbol">(</a><a id="28438" href="TWA.Thesis.Chapter5.BelowAndAbove.html#4224" class="Function">downLeft≠downRight</a> <a id="28457" class="Symbol">(</a><a id="28458" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="28462" href="TWA.Thesis.Chapter5.BoehmVerification.html#27647" class="Function">α&#39;</a> <a id="28465" class="Bound">n</a><a id="28466" class="Symbol">)</a> <a id="28468" class="Symbol">(</a><a id="28469" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="28473" href="TWA.Thesis.Chapter5.BoehmVerification.html#27647" class="Function">α&#39;</a> <a id="28476" class="Bound">n</a><a id="28477" class="Symbol">)</a> <a id="28479" href="MLTT.Identity-Type.html#172" class="InductiveConstructor">refl</a>
          <a id="28493" class="Symbol">(</a><a id="28494" href="MLTT.Id.html#1151" class="Function">ap</a> <a id="28497" class="Symbol">(λ</a> <a id="28500" href="TWA.Thesis.Chapter5.BoehmVerification.html#28500" class="Bound">a</a> <a id="28502" class="Symbol">→</a> <a id="28504" href="TWA.Thesis.Chapter5.BoehmVerification.html#26133" class="Function">𝟚-to-down</a> <a id="28514" href="TWA.Thesis.Chapter5.BoehmVerification.html#28500" class="Bound">a</a> <a id="28516" class="Symbol">(</a><a id="28517" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="28521" href="TWA.Thesis.Chapter5.BoehmVerification.html#27647" class="Function">α&#39;</a> <a id="28524" class="Bound">n</a><a id="28525" class="Symbol">))</a> <a id="28528" class="Symbol">(</a><a id="28529" href="TWA.Thesis.Chapter5.BoehmVerification.html#28420" class="Bound">₀&#39;</a> <a id="28532" href="MLTT.Id.html#1070" class="Function Operator">⁻¹</a><a id="28534" class="Symbol">)</a> <a id="28536" href="MLTT.Id.html#983" class="Function Operator">∙</a> <a id="28538" href="TWA.Thesis.Chapter5.BoehmVerification.html#28411" class="Bound">dR</a><a id="28540" class="Symbol">))</a>
 </pre>
+</body>
+</html>

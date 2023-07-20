@@ -1,5 +1,75 @@
-# Additional integer properties
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TWA.Thesis.Chapter5.Integers</title>
+  <style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">
+.Agda .Comment { color: #B22222 }
+.Agda .Background {}
+.Agda .Markup { color: #000000 }
+.Agda .Keyword { color: #CD6600 }
+.Agda .String { color: #B22222 }
+.Agda .Number { color: #A020F0 }
+.Agda .Symbol { color: #404040 }
+.Agda .PrimitiveType { color: #0000CD }
+.Agda .Pragma { color: black }
+.Agda .Operator {}
+.Agda .Hole { background: #B4EEB4 }
+
+.Agda .Bound { color: black }
+.Agda .Generalizable { color: black }
+.Agda .InductiveConstructor { color: #008B00 }
+.Agda .CoinductiveConstructor { color: #8B7500 }
+.Agda .Datatype { color: #0000CD }
+.Agda .Field { color: #EE1289 }
+.Agda .Function { color: #0000CD }
+.Agda .Module { color: #A020F0 }
+.Agda .Postulate { color: #0000CD }
+.Agda .Primitive { color: #0000CD }
+.Agda .Record { color: #0000CD }
+
+.Agda .DottedPattern {}
+.Agda .UnsolvedMeta { color: black; background: yellow }
+.Agda .UnsolvedConstraint { color: black; background: yellow }
+.Agda .TerminationProblem { color: black; background: #FFA07A }
+.Agda .IncompletePattern { color: black; background: #F5DEB3 }
+.Agda .Error { color: red; text-decoration: underline }
+.Agda .TypeChecks { color: black; background: #ADD8E6 }
+.Agda .Deadcode { color: black; background: #808080 }
+.Agda .ShadowingInTelescope { color: black; background: #808080 }
+
+.Agda a { text-decoration: none }
+.Agda a[href]:hover { background-color: #B4EEB4 }
+.Agda [href].hover-highlight { background-color: #B4EEB4; }
+</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">TWA.Thesis.Chapter5.Integers</h1>
+</header>
+<h1 id="additional-integer-properties">Additional integer
+properties</h1>
 <pre class="Agda"><a id="38" class="Symbol">{-#</a> <a id="42" class="Keyword">OPTIONS</a> <a id="50" class="Pragma">--without-K</a> <a id="62" class="Pragma">--exact-split</a> <a id="76" class="Pragma">--safe</a> <a id="83" class="Symbol">#-}</a>
             
 <a id="100" class="Keyword">open</a> <a id="105" class="Keyword">import</a> <a id="112" href="Integers.Addition.html" class="Module">Integers.Addition</a> <a id="130" class="Keyword">renaming</a> <a id="139" class="Symbol">(</a><a id="140" href="Integers.Addition.html#755" class="Function Operator">_+_</a> <a id="144" class="Symbol">to</a> <a id="147" class="Function Operator">_+ℤ_</a> <a id="152" class="Symbol">;</a> <a id="154" href="Integers.Addition.html#826" class="Function Operator">_-_</a> <a id="158" class="Symbol">to</a> <a id="161" class="Function Operator">_ℤ-_</a><a id="165" class="Symbol">)</a>
@@ -17,16 +87,14 @@
 
 <a id="586" class="Keyword">module</a> <a id="593" href="TWA.Thesis.Chapter5.Integers.html" class="Module">TWA.Thesis.Chapter5.Integers</a> <a id="622" class="Keyword">where</a>
 </pre>
-## ℤ-elimination
-
+<h2 id="ℤ-elimination">ℤ-elimination</h2>
 <pre class="Agda"><a id="ℤ-elim"></a><a id="659" href="TWA.Thesis.Chapter5.Integers.html#659" class="Function">ℤ-elim</a> <a id="666" class="Symbol">:</a> <a id="668" class="Symbol">(</a><a id="669" href="TWA.Thesis.Chapter5.Integers.html#669" class="Bound">P</a> <a id="671" class="Symbol">:</a> <a id="673" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="675" class="Symbol">→</a> <a id="677" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="679" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="681" class="Symbol">)</a>
        <a id="690" class="Symbol">→</a> <a id="692" class="Symbol">((</a><a id="694" href="TWA.Thesis.Chapter5.Integers.html#694" class="Bound">n</a> <a id="696" class="Symbol">:</a> <a id="698" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a><a id="699" class="Symbol">)</a> <a id="701" class="Symbol">→</a> <a id="703" href="TWA.Thesis.Chapter5.Integers.html#669" class="Bound">P</a> <a id="705" class="Symbol">(</a><a id="706" href="Integers.Type.html#792" class="InductiveConstructor">pos</a> <a id="710" href="TWA.Thesis.Chapter5.Integers.html#694" class="Bound">n</a><a id="711" class="Symbol">))</a> <a id="714" class="Symbol">→</a> <a id="716" class="Symbol">((</a><a id="718" href="TWA.Thesis.Chapter5.Integers.html#718" class="Bound">n</a> <a id="720" class="Symbol">:</a> <a id="722" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a><a id="723" class="Symbol">)</a> <a id="725" class="Symbol">→</a> <a id="727" href="TWA.Thesis.Chapter5.Integers.html#669" class="Bound">P</a> <a id="729" class="Symbol">(</a><a id="730" href="Integers.Type.html#809" class="InductiveConstructor">negsucc</a> <a id="738" href="TWA.Thesis.Chapter5.Integers.html#718" class="Bound">n</a><a id="739" class="Symbol">))</a>
        <a id="749" class="Symbol">→</a> <a id="751" href="MLTT.Pi.html#178" class="Function">Π</a> <a id="753" href="TWA.Thesis.Chapter5.Integers.html#669" class="Bound">P</a>
 <a id="755" href="TWA.Thesis.Chapter5.Integers.html#659" class="Function">ℤ-elim</a> <a id="762" href="TWA.Thesis.Chapter5.Integers.html#762" class="Bound">P</a> <a id="764" href="TWA.Thesis.Chapter5.Integers.html#764" class="Bound">Pp</a> <a id="767" href="TWA.Thesis.Chapter5.Integers.html#767" class="Bound">Pn</a> <a id="770" class="Symbol">(</a><a id="771" href="Integers.Type.html#792" class="InductiveConstructor">pos</a>     <a id="779" href="TWA.Thesis.Chapter5.Integers.html#779" class="Bound">n</a><a id="780" class="Symbol">)</a> <a id="782" class="Symbol">=</a> <a id="784" href="TWA.Thesis.Chapter5.Integers.html#764" class="Bound">Pp</a> <a id="787" href="TWA.Thesis.Chapter5.Integers.html#779" class="Bound">n</a>
 <a id="789" href="TWA.Thesis.Chapter5.Integers.html#659" class="Function">ℤ-elim</a> <a id="796" href="TWA.Thesis.Chapter5.Integers.html#796" class="Bound">P</a> <a id="798" href="TWA.Thesis.Chapter5.Integers.html#798" class="Bound">Pp</a> <a id="801" href="TWA.Thesis.Chapter5.Integers.html#801" class="Bound">Pn</a> <a id="804" class="Symbol">(</a><a id="805" href="Integers.Type.html#809" class="InductiveConstructor">negsucc</a> <a id="813" href="TWA.Thesis.Chapter5.Integers.html#813" class="Bound">n</a><a id="814" class="Symbol">)</a> <a id="816" class="Symbol">=</a> <a id="818" href="TWA.Thesis.Chapter5.Integers.html#801" class="Bound">Pn</a> <a id="821" href="TWA.Thesis.Chapter5.Integers.html#813" class="Bound">n</a>
 </pre>
-## Monotone and rec properties
-
+<h2 id="monotone-and-rec-properties">Monotone and rec properties</h2>
 <pre class="Agda"><a id="succ-to-monotone&#39;"></a><a id="868" href="TWA.Thesis.Chapter5.Integers.html#868" class="Function">succ-to-monotone&#39;</a> <a id="886" class="Symbol">:</a> <a id="888" class="Symbol">(</a><a id="889" href="TWA.Thesis.Chapter5.Integers.html#889" class="Bound">P</a> <a id="891" class="Symbol">:</a> <a id="893" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="895" class="Symbol">→</a> <a id="897" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="899" class="Symbol">→</a> <a id="901" href="MLTT.Universes.html#265" class="Generalizable">𝓤</a> <a id="903" href="MLTT.Universes.html#408" class="Function Operator">̇</a> <a id="905" class="Symbol">)</a>
                   <a id="925" class="Symbol">→</a> <a id="927" class="Symbol">((</a><a id="929" href="TWA.Thesis.Chapter5.Integers.html#929" class="Bound">a</a> <a id="931" class="Symbol">:</a> <a id="933" href="Integers.Type.html#776" class="Datatype">ℤ</a><a id="934" class="Symbol">)</a> <a id="936" class="Symbol">→</a> <a id="938" href="TWA.Thesis.Chapter5.Integers.html#889" class="Bound">P</a> <a id="940" href="TWA.Thesis.Chapter5.Integers.html#929" class="Bound">a</a> <a id="942" href="TWA.Thesis.Chapter5.Integers.html#929" class="Bound">a</a><a id="943" class="Symbol">)</a>
                   <a id="963" class="Symbol">→</a> <a id="965" class="Symbol">((</a><a id="967" href="TWA.Thesis.Chapter5.Integers.html#967" class="Bound">a</a> <a id="969" href="TWA.Thesis.Chapter5.Integers.html#969" class="Bound">b</a> <a id="971" href="TWA.Thesis.Chapter5.Integers.html#971" class="Bound">c</a> <a id="973" class="Symbol">:</a> <a id="975" href="Integers.Type.html#776" class="Datatype">ℤ</a><a id="976" class="Symbol">)</a> <a id="978" class="Symbol">→</a> <a id="980" href="TWA.Thesis.Chapter5.Integers.html#889" class="Bound">P</a> <a id="982" href="TWA.Thesis.Chapter5.Integers.html#967" class="Bound">a</a> <a id="984" href="TWA.Thesis.Chapter5.Integers.html#969" class="Bound">b</a> <a id="986" class="Symbol">→</a> <a id="988" href="TWA.Thesis.Chapter5.Integers.html#889" class="Bound">P</a> <a id="990" href="TWA.Thesis.Chapter5.Integers.html#969" class="Bound">b</a> <a id="992" href="TWA.Thesis.Chapter5.Integers.html#971" class="Bound">c</a> <a id="994" class="Symbol">→</a> <a id="996" href="TWA.Thesis.Chapter5.Integers.html#889" class="Bound">P</a> <a id="998" href="TWA.Thesis.Chapter5.Integers.html#967" class="Bound">a</a> <a id="1000" href="TWA.Thesis.Chapter5.Integers.html#971" class="Bound">c</a><a id="1001" class="Symbol">)</a>
@@ -64,8 +132,7 @@
 <a id="2292" href="TWA.Thesis.Chapter5.Integers.html#2197" class="Function">rec-f-＝</a> <a id="2300" href="TWA.Thesis.Chapter5.Integers.html#2300" class="Bound">f</a> <a id="2302" href="TWA.Thesis.Chapter5.Integers.html#2302" class="Bound">x</a> <a id="2304" href="MLTT.Natural-Numbers-Type.html#127" class="InductiveConstructor">zero</a> <a id="2309" class="Symbol">=</a> <a id="2311" href="MLTT.Identity-Type.html#172" class="InductiveConstructor">refl</a>
 <a id="2316" href="TWA.Thesis.Chapter5.Integers.html#2197" class="Function">rec-f-＝</a> <a id="2324" href="TWA.Thesis.Chapter5.Integers.html#2324" class="Bound">f</a> <a id="2326" href="TWA.Thesis.Chapter5.Integers.html#2326" class="Bound">x</a> <a id="2328" class="Symbol">(</a><a id="2329" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="2334" href="TWA.Thesis.Chapter5.Integers.html#2334" class="Bound">n</a><a id="2335" class="Symbol">)</a> <a id="2337" class="Symbol">=</a> <a id="2339" href="MLTT.Id.html#1151" class="Function">ap</a> <a id="2342" href="TWA.Thesis.Chapter5.Integers.html#2324" class="Bound">f</a> <a id="2344" class="Symbol">(</a><a id="2345" href="TWA.Thesis.Chapter5.Integers.html#2197" class="Function">rec-f-＝</a> <a id="2353" href="TWA.Thesis.Chapter5.Integers.html#2324" class="Bound">f</a> <a id="2355" href="TWA.Thesis.Chapter5.Integers.html#2326" class="Bound">x</a> <a id="2357" href="TWA.Thesis.Chapter5.Integers.html#2334" class="Bound">n</a><a id="2358" class="Symbol">)</a>
 </pre>
-## Sign and num for integers
-
+<h2 id="sign-and-num-for-integers">Sign and num for integers</h2>
 <pre class="Agda"><a id="sign"></a><a id="2403" href="TWA.Thesis.Chapter5.Integers.html#2403" class="Function">sign</a> <a id="2408" class="Symbol">:</a> <a id="2410" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="2412" class="Symbol">→</a> <a id="2414" class="Symbol">(</a><a id="2415" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="2417" class="Symbol">→</a> <a id="2419" href="Integers.Type.html#776" class="Datatype">ℤ</a><a id="2420" class="Symbol">)</a>
 <a id="2422" href="TWA.Thesis.Chapter5.Integers.html#2403" class="Function">sign</a> <a id="2427" class="Symbol">(</a><a id="2428" href="Integers.Type.html#792" class="InductiveConstructor">pos</a>     <a id="2436" class="Symbol">_)</a> <a id="2439" class="Symbol">=</a> <a id="2441" href="Integers.Type.html#792" class="InductiveConstructor">pos</a>
 <a id="2445" href="TWA.Thesis.Chapter5.Integers.html#2403" class="Function">sign</a> <a id="2450" class="Symbol">(</a><a id="2451" href="Integers.Type.html#809" class="InductiveConstructor">negsucc</a> <a id="2459" class="Symbol">_)</a> <a id="2462" class="Symbol">=</a> <a id="2464" href="Integers.Type.html#809" class="InductiveConstructor">negsucc</a>
@@ -74,8 +141,8 @@
 <a id="2485" href="TWA.Thesis.Chapter5.Integers.html#2473" class="Function">num</a>  <a id="2490" class="Symbol">(</a><a id="2491" href="Integers.Type.html#792" class="InductiveConstructor">pos</a>     <a id="2499" href="TWA.Thesis.Chapter5.Integers.html#2499" class="Bound">n</a><a id="2500" class="Symbol">)</a> <a id="2502" class="Symbol">=</a> <a id="2504" href="TWA.Thesis.Chapter5.Integers.html#2499" class="Bound">n</a>
 <a id="2506" href="TWA.Thesis.Chapter5.Integers.html#2473" class="Function">num</a>  <a id="2511" class="Symbol">(</a><a id="2512" href="Integers.Type.html#809" class="InductiveConstructor">negsucc</a> <a id="2520" href="TWA.Thesis.Chapter5.Integers.html#2520" class="Bound">n</a><a id="2521" class="Symbol">)</a> <a id="2523" class="Symbol">=</a> <a id="2525" href="TWA.Thesis.Chapter5.Integers.html#2520" class="Bound">n</a>
 </pre>
-## Natural number functions definitions and properties
-
+<h2 id="natural-number-functions-definitions-and-properties">Natural
+number functions definitions and properties</h2>
 <pre class="Agda"><a id="_/2"></a><a id="2596" href="TWA.Thesis.Chapter5.Integers.html#2596" class="Function Operator">_/2</a> <a id="2600" class="Symbol">:</a> <a id="2602" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a> <a id="2604" class="Symbol">→</a> <a id="2606" href="MLTT.Natural-Numbers-Type.html#110" class="Datatype">ℕ</a>
 <a id="2608" class="Number">0</a> <a id="2610" href="TWA.Thesis.Chapter5.Integers.html#2596" class="Function Operator">/2</a> <a id="2613" class="Symbol">=</a> <a id="2615" class="Number">0</a>
 <a id="2617" class="Number">1</a> <a id="2619" href="TWA.Thesis.Chapter5.Integers.html#2596" class="Function Operator">/2</a> <a id="2622" class="Symbol">=</a> <a id="2624" class="Number">0</a>
@@ -143,8 +210,8 @@
    <a id="4445" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="4450" class="Symbol">((</a><a id="4452" href="TWA.Thesis.Chapter5.Integers.html#4336" class="Bound">k</a> <a id="4454" href="TWA.Thesis.Chapter5.Integers.html#402" class="Primitive Operator">+ℕ</a> <a id="4457" href="TWA.Thesis.Chapter5.Integers.html#4336" class="Bound">k</a><a id="4458" class="Symbol">)</a> <a id="4460" href="TWA.Thesis.Chapter5.Integers.html#2596" class="Function Operator">/2</a><a id="4462" class="Symbol">)</a>        <a id="4471" href="MLTT.Id.html#1942" class="Function Operator">＝⟨</a> <a id="4474" href="MLTT.Id.html#1151" class="Function">ap</a> <a id="4477" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="4482" class="Symbol">(</a><a id="4483" href="TWA.Thesis.Chapter5.Integers.html#4259" class="Function">div-by-two&#39;</a> <a id="4495" href="TWA.Thesis.Chapter5.Integers.html#4336" class="Bound">k</a><a id="4496" class="Symbol">)</a> <a id="4498" href="MLTT.Id.html#1942" class="Function Operator">⟩</a>
    <a id="4503" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="4508" href="TWA.Thesis.Chapter5.Integers.html#4336" class="Bound">k</a>                    <a id="4529" href="MLTT.Id.html#2024" class="Function Operator">∎</a>
 </pre>
-## Integer order definitions and properties
-
+<h2 id="integer-order-definitions-and-properties">Integer order
+definitions and properties</h2>
 <pre class="Agda"><a id="pred-shift"></a><a id="4585" href="TWA.Thesis.Chapter5.Integers.html#4585" class="Function">pred-shift</a> <a id="4596" class="Symbol">:</a> <a id="4598" class="Symbol">(</a><a id="4599" href="TWA.Thesis.Chapter5.Integers.html#4599" class="Bound">a</a> <a id="4601" href="TWA.Thesis.Chapter5.Integers.html#4601" class="Bound">b</a> <a id="4603" class="Symbol">:</a> <a id="4605" href="Integers.Type.html#776" class="Datatype">ℤ</a><a id="4606" class="Symbol">)</a> <a id="4608" class="Symbol">→</a> <a id="4610" href="Integers.Type.html#1097" class="Function">predℤ</a> <a id="4616" href="TWA.Thesis.Chapter5.Integers.html#4599" class="Bound">a</a> <a id="4618" href="TWA.Thesis.Chapter5.Integers.html#161" class="Function Operator">ℤ-</a> <a id="4621" href="TWA.Thesis.Chapter5.Integers.html#4601" class="Bound">b</a> <a id="4623" href="MLTT.Id.html#207" class="Datatype Operator">＝</a> <a id="4625" href="TWA.Thesis.Chapter5.Integers.html#4599" class="Bound">a</a> <a id="4627" href="TWA.Thesis.Chapter5.Integers.html#161" class="Function Operator">ℤ-</a> <a id="4630" href="Integers.Type.html#1214" class="Function">succℤ</a> <a id="4636" href="TWA.Thesis.Chapter5.Integers.html#4601" class="Bound">b</a>
 <a id="4638" href="TWA.Thesis.Chapter5.Integers.html#4585" class="Function">pred-shift</a> <a id="4649" href="TWA.Thesis.Chapter5.Integers.html#4649" class="Bound">a</a> <a id="4651" href="TWA.Thesis.Chapter5.Integers.html#4651" class="Bound">b</a> <a id="4653" class="Symbol">=</a> <a id="4655" href="Integers.Addition.html#3164" class="Function">ℤ-left-pred</a> <a id="4667" href="TWA.Thesis.Chapter5.Integers.html#4649" class="Bound">a</a> <a id="4669" class="Symbol">(</a><a id="4670" href="TWA.Thesis.Chapter5.Integers.html#272" class="Function Operator">ℤ-</a> <a id="4673" href="TWA.Thesis.Chapter5.Integers.html#4651" class="Bound">b</a><a id="4674" class="Symbol">)</a>
                <a id="4691" href="MLTT.Id.html#983" class="Function Operator">∙</a> <a id="4693" href="Integers.Addition.html#3319" class="Function">ℤ-right-pred</a> <a id="4706" href="TWA.Thesis.Chapter5.Integers.html#4649" class="Bound">a</a> <a id="4708" class="Symbol">(</a><a id="4709" href="TWA.Thesis.Chapter5.Integers.html#272" class="Function Operator">ℤ-</a> <a id="4712" href="TWA.Thesis.Chapter5.Integers.html#4651" class="Bound">b</a><a id="4713" class="Symbol">)</a> <a id="4715" href="MLTT.Id.html#1070" class="Function Operator">⁻¹</a>
@@ -280,8 +347,8 @@
         <a id="9457" class="Symbol">→</a> <a id="9459" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="9463" href="TWA.Thesis.Chapter5.Integers.html#9424" class="Bound">p</a> <a id="9465" href="MLTT.Id.html#207" class="Datatype Operator">＝</a> <a id="9467" href="MLTT.Sigma-Type.html#213" class="Field">pr₁</a> <a id="9471" href="TWA.Thesis.Chapter5.Integers.html#9438" class="Bound">q</a>
 <a id="9473" href="TWA.Thesis.Chapter5.Integers.html#9391" class="Function">≥-lemma</a> <a id="9481" href="TWA.Thesis.Chapter5.Integers.html#9481" class="Bound">a</a> <a id="9483" href="TWA.Thesis.Chapter5.Integers.html#9481" class="Bound">a</a> <a id="9485" href="TWA.Thesis.Chapter5.Integers.html#9485" class="Bound">c</a> <a id="9487" href="MLTT.Identity-Type.html#172" class="InductiveConstructor">refl</a> <a id="9492" class="Symbol">(</a><a id="9493" href="TWA.Thesis.Chapter5.Integers.html#9493" class="Bound">n</a> <a id="9495" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="9497" href="MLTT.Identity-Type.html#172" class="InductiveConstructor">refl</a><a id="9501" class="Symbol">)</a> <a id="9503" class="Symbol">(</a><a id="9504" href="TWA.Thesis.Chapter5.Integers.html#9504" class="Bound">m</a> <a id="9506" href="MLTT.Sigma.html#409" class="InductiveConstructor Operator">,</a> <a id="9508" href="TWA.Thesis.Chapter5.Integers.html#9508" class="Bound">γ</a><a id="9509" class="Symbol">)</a> <a id="9511" class="Symbol">=</a> <a id="9513" href="Integers.Type.html#3126" class="Function">pos-lc</a> <a id="9520" class="Symbol">(</a><a id="9521" href="Integers.Addition.html#6562" class="Function">ℤ+-lc</a> <a id="9527" class="Symbol">_</a> <a id="9529" class="Symbol">_</a> <a id="9531" class="Symbol">_</a> <a id="9533" class="Symbol">(</a><a id="9534" href="TWA.Thesis.Chapter5.Integers.html#9508" class="Bound">γ</a> <a id="9536" href="MLTT.Id.html#1070" class="Function Operator">⁻¹</a><a id="9538" class="Symbol">))</a>
 </pre>
-## Parity definitions and properties
-
+<h2 id="parity-definitions-and-properties">Parity definitions and
+properties</h2>
 <pre class="Agda"><a id="odd"></a><a id="9592" href="TWA.Thesis.Chapter5.Integers.html#9592" class="Function">odd</a> <a id="even"></a><a id="9596" href="TWA.Thesis.Chapter5.Integers.html#9596" class="Function">even</a> <a id="9601" class="Symbol">:</a> <a id="9603" href="Integers.Type.html#776" class="Datatype">ℤ</a> <a id="9605" class="Symbol">→</a> <a id="9607" href="Agda.Primitive.html#758" class="Primitive">𝓤₀</a> <a id="9610" href="MLTT.Universes.html#408" class="Function Operator">̇</a>
 <a id="9612" href="TWA.Thesis.Chapter5.Integers.html#9592" class="Function">odd</a> <a id="9616" class="Symbol">(</a><a id="9617" href="Integers.Type.html#792" class="InductiveConstructor">pos</a>                   <a id="9639" class="Number">0</a><a id="9640" class="Symbol">)</a> <a id="9642" class="Symbol">=</a> <a id="9644" href="MLTT.Empty-Type.html#135" class="Datatype">𝟘</a>
 <a id="9646" href="TWA.Thesis.Chapter5.Integers.html#9592" class="Function">odd</a> <a id="9650" class="Symbol">(</a><a id="9651" href="Integers.Type.html#792" class="InductiveConstructor">pos</a>                   <a id="9673" class="Number">1</a><a id="9674" class="Symbol">)</a> <a id="9676" class="Symbol">=</a> <a id="9678" href="MLTT.Unit.html#143" class="Record">𝟙</a>
@@ -447,3 +514,5 @@
      <a id="15872" href="MLTT.Id.html#1942" class="Function Operator">＝⟨</a> <a id="15875" href="MLTT.Id.html#1151" class="Function">ap</a> <a id="15878" class="Symbol">(λ</a> <a id="15881" href="TWA.Thesis.Chapter5.Integers.html#15881" class="Bound">z</a> <a id="15883" class="Symbol">→</a> <a id="15885" href="TWA.Thesis.Chapter5.Integers.html#272" class="Function Operator">ℤ-</a> <a id="15888" href="Integers.Type.html#792" class="InductiveConstructor">pos</a> <a id="15892" href="TWA.Thesis.Chapter5.Integers.html#15881" class="Bound">z</a><a id="15893" class="Symbol">)</a> <a id="15895" class="Symbol">(</a><a id="15896" href="TWA.Thesis.Chapter5.Integers.html#4259" class="Function">div-by-two&#39;</a> <a id="15908" class="Symbol">(</a><a id="15909" href="MLTT.Natural-Numbers-Type.html#137" class="InductiveConstructor">succ</a> <a id="15914" href="TWA.Thesis.Chapter5.Integers.html#15623" class="Bound">x</a><a id="15915" class="Symbol">))</a> <a id="15918" href="MLTT.Id.html#1942" class="Function Operator">⟩</a>
    <a id="15923" href="Integers.Type.html#809" class="InductiveConstructor">negsucc</a> <a id="15931" href="TWA.Thesis.Chapter5.Integers.html#15623" class="Bound">x</a> <a id="15933" href="MLTT.Id.html#2024" class="Function Operator">∎</a>
 </pre>
+</body>
+</html>
