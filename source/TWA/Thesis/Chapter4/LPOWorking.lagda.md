@@ -27,7 +27,7 @@ module TWA.Thesis.Chapter4.LPOWorking (fe : FunExt) where
 
 fe₀ = fe 𝓤₀ 𝓤₀
 
-open import Taboos.BasicDiscontinuity fe
+open import Taboos.BasicDiscontinuity fe₀
 open import Taboos.WLPO
 
 
