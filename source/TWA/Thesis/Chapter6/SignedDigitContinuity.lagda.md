@@ -10,7 +10,7 @@ open import MLTT.Spartan
 open import UF.FunExt 
 open import Notation.Order
 open import Naturals.Order
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import CoNaturals.GenericConvergentSequence
  hiding (max)
  renaming (ℕ-to-ℕ∞ to _↑)

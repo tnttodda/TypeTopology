@@ -9,6 +9,7 @@ open import UF.FunExt
 open import MLTT.Spartan
 open import Naturals.Addition renaming (_+_ to _+ℕ_)
 open import UF.Subsingletons
+open import UF.Sets
 
 module TWA.Thesis.Chapter5.IntervalObject (fe : FunExt) where
 

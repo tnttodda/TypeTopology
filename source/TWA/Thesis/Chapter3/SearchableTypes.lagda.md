@@ -9,9 +9,9 @@ open import MLTT.Spartan
 open import UF.FunExt
 open import NotionsOfDecidability.Complemented
 open import UF.Subsingletons
+open import UF.SubtypeClassifier
 open import UF.Equiv
-open import TypeTopology.DiscreteAndSeparated
-open import UF.Miscelanea
+open import UF.DiscreteAndSeparated
 open import MLTT.Two-Properties
 open import Fin.Type
 open import Fin.Bishop
@@ -41,7 +41,7 @@ searchable 𝓦 X
 
 searchable-pointed
  : (𝓦 : Universe) → (X : 𝓤 ̇ ) → searchable 𝓦 X → X
-searchable-pointed 𝓦 X Sx = pr₁ (Sx ((λ _ → ⊤Ω) , (λ _ → inl ⋆)))
+searchable-pointed 𝓦 X Sx = pr₁ (Sx ((λ _ → ⊤) , (λ _ → inl ⋆)))
 
 𝟙-searchable : searchable 𝓦 (𝟙 {𝓤})
 𝟙-searchable {𝓦} {𝓤} (p , d) = ⋆ , S
@@ -181,7 +181,7 @@ no-ones-means-all-zero α f n
   γ = pr₂ (S p)
 
 decidable-to-𝟚 : {X : 𝓤 ̇ } → is-decidable X
-               → Σ b ꞉ 𝟚 , ((b ＝ ₁ ⇔ X) × (b ＝ ₀ ⇔ ¬ X))
+               → Σ b ꞉ 𝟚 , ((b ＝ ₁ ↔ X) × (b ＝ ₀ ↔ ¬ X))
 decidable-to-𝟚 (inl  x)
  = ₁ , (((λ _ → x) , (λ _ → refl))
      , (𝟘-elim ∘ zero-is-not-one ∘ _⁻¹) , (λ ¬x → 𝟘-elim (¬x x)))
@@ -261,7 +261,7 @@ csearchable-pointed
  → csearchable 𝓦 X
  → ⟨ X ⟩ 
 csearchable-pointed 𝓦 X Sx
- = pr₁ (Sx (((λ _ → ⊤Ω) , (λ _ → inl ⋆)) , 0 , λ _ _ _ → id))
+ = pr₁ (Sx (((λ _ → ⊤) , (λ _ → inl ⋆)) , 0 , λ _ _ _ → id))
 
 totally-bounded-csearchable : (X : ClosenessSpace 𝓤)
                             → ⟨ X ⟩

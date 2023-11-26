@@ -10,10 +10,9 @@ open import CoNaturals.GenericConvergentSequence
  renaming (ℕ-to-ℕ∞ to _↑) hiding (max)
 open import Notation.Order
 open import Naturals.Order
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.Subsingletons
 open import UF.FunExt
-open import UF.Miscelanea
 open import UF.Equiv
 
 module TWA.Thesis.Chapter6.SequenceContinuity (fe : FunExt) where

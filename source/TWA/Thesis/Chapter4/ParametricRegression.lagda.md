@@ -7,7 +7,8 @@
 
 open import UF.FunExt
 open import UF.Subsingletons
-open import UF.Quotient
+open import Quotient.Type
+  using (is-prop-valued;is-equiv-relation;EqRel)
 open import MLTT.Spartan
 open import Notation.Order
 open import Naturals.Order
@@ -16,8 +17,9 @@ open import CoNaturals.GenericConvergentSequence
   renaming (ℕ-to-ℕ∞ to _↑
          ; Zero-smallest to zero-minimal
          ; ∞-largest to ∞-maximal)
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import MLTT.Two-Properties
+open import UF.SubtypeClassifier
 
 open import TWA.Thesis.Chapter2.Sequences
 

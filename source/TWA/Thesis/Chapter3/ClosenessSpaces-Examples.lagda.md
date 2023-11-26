@@ -12,7 +12,7 @@ open import CoNaturals.GenericConvergentSequence
 open import Notation.Order
 open import Naturals.Order
 open import NotionsOfDecidability.Complemented
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.FunExt
 open import UF.Subsingletons
 open import UF.Embeddings

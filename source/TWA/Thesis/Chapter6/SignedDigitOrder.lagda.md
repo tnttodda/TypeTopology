@@ -9,7 +9,7 @@ open import MLTT.Spartan
 open import Naturals.Order
 open import UF.FunExt
 open import UF.PropTrunc
-open import UF.Quotient
+open import Quotient.Type using (is-prop-valued)
 open import Integers.Type
 open import Notation.Order
 open import Integers.Order

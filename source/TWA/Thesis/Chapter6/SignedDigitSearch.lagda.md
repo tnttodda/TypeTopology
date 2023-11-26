@@ -6,11 +6,11 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
 open import MLTT.Spartan
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.Subsingletons
 open import UF.FunExt
-open import UF.Miscelanea
 open import MLTT.Two-Properties
+open import UF.SubtypeClassifier
 
 module TWA.Thesis.Chapter6.SignedDigitSearch
   (fe : FunExt) (pe : PropExt) where

@@ -8,7 +8,7 @@
 open import MLTT.Spartan
 open import Notation.Order
 open import Naturals.Order
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import NotionsOfDecidability.Complemented
 
 module TWA.Thesis.Chapter2.Sequences where

@@ -8,12 +8,13 @@
 
 open import MLTT.Spartan
 open import UF.FunExt
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import Notation.Order
 open import Naturals.Order
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
-open import UF.Quotient
+open import UF.Sets
+open import Quotient.Type using (is-prop-valued;is-equiv-relation)
 open import UF.Embeddings
 open import CoNaturals.GenericConvergentSequence
   renaming (ℕ-to-ℕ∞ to _↑
@@ -21,7 +22,6 @@ open import CoNaturals.GenericConvergentSequence
          ; ∞-largest to ∞-maximal)
 open import NotionsOfDecidability.Decidable
 open import MLTT.Two-Properties
-open import UF.Miscelanea
 open import Fin.Type
 open import Fin.Bishop
 open import UF.PropTrunc

@@ -6,11 +6,12 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
 open import MLTT.Spartan
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.Equiv
 open import Fin.Type
 open import Fin.Bishop
 open import UF.Subsingletons
+open import UF.Sets
 
 open import TWA.Thesis.Chapter2.Finite
 open import TWA.Thesis.Chapter2.Sequences

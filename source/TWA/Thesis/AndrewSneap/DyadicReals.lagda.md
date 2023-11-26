@@ -47,10 +47,10 @@ a real satisfies.
  inhabited-right R = ∃ q ꞉ ℤ[1/2] , q ∈ R
 
  rounded-left : (L : 𝓟 ℤ[1/2]) → 𝓤₀ ̇
- rounded-left L = (x : ℤ[1/2]) → (x ∈ L ⇔ (∃ p ꞉ ℤ[1/2] , (x < p) × p ∈ L))
+ rounded-left L = (x : ℤ[1/2]) → (x ∈ L ↔ (∃ p ꞉ ℤ[1/2] , (x < p) × p ∈ L))
 
  rounded-right : (R : 𝓟 ℤ[1/2]) → 𝓤₀ ̇
- rounded-right R = (x : ℤ[1/2]) → x ∈ R ⇔ (∃ q ꞉ ℤ[1/2] , (q < x) × q ∈ R)
+ rounded-right R = (x : ℤ[1/2]) → x ∈ R ↔ (∃ q ꞉ ℤ[1/2] , (q < x) × q ∈ R)
 
  disjoint : (L R : 𝓟 ℤ[1/2]) → 𝓤₀ ̇
  disjoint L R = (p q : ℤ[1/2]) → p ∈ L × q ∈ R → p < q

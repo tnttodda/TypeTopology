@@ -7,9 +7,10 @@
 
 open import MLTT.Spartan
 open import UF.FunExt
-open import UF.Quotient
 open import UF.Subsingletons
 open import UF.PropTrunc
+open import Quotient.Type
+ using (is-prop-valued;is-equiv-relation;EqRel)
 open import Notation.Order
 open import Naturals.Order
 

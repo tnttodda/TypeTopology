@@ -17,6 +17,7 @@ open import UF.Powerset hiding (𝕋)
 open import UF.PropTrunc
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
+open import UF.SubtypeClassifier
 
 open import TWA.Thesis.Chapter5.BelowAndAbove
  hiding (downLeft; downMid; downRight; upRight; upLeft; _below_)
@@ -310,7 +311,7 @@ downLeft-downRight-2 a
 ternary-nested : (χ : ℤ → ℤ²)
                → normalised χ
                → ternary (pr₁ ∘ χ)
-               ⇔ nested (ℤ²-to-ℤ[1/2]ᴵ ∘ χ)
+               ↔ nested (ℤ²-to-ℤ[1/2]ᴵ ∘ χ)
 pr₁ (pr₁ (ternary-nested χ η) f n) = γ
  where
   γ' : ι (pr₁ (χ n) , n) ≤ ι (pr₁ (χ (succℤ n)) , succℤ n)

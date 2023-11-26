@@ -11,7 +11,8 @@ open import UF.FunExt
 open import NotionsOfDecidability.Complemented
 open import UF.Subsingletons
 open import UF.Equiv
-open import TypeTopology.DiscreteAndSeparated
+open import UF.SubtypeClassifier
+open import UF.DiscreteAndSeparated
 open import Fin.Bishop
 
 open import TWA.Thesis.Chapter2.Finite
@@ -115,7 +116,7 @@ finite-csearchable X f x
   pyϕ : (x₁ x₂ : ⟨ X ⟩)
       → C X δ x₁ x₂
       → (y : ⟨ Y ⟩)
-      → p (x₁ , y) holds ⇔ p (x₂ , y) holds
+      → p (x₁ , y) holds ↔ p (x₂ , y) holds
   pyϕ x₁ x₂ Cδx₁x₂ y
    = ϕ (x₁ , y) (x₂ , y)
          (×-C-combine X Y x₁ x₂ y y δ Cδx₁x₂ (C-refl Y δ y))
@@ -331,7 +332,7 @@ head-predicate-tych {𝓤} {𝓦} T S δ ((p , d) , ϕ)
      χ : (xs : Π (⟨_⟩ ∘ T ∘ succ))
        → (pr₁ (pr₁ (tail-predicate-tych T δ x₁ ((p , d) , ϕ))) xs
            holds)
-       ⇔ (pr₁ (pr₁ (tail-predicate-tych T δ x₂ ((p , d) , ϕ))) xs
+       ↔ (pr₁ (pr₁ (tail-predicate-tych T δ x₂ ((p , d) , ϕ))) xs
            holds)
      χ xs = ϕ (x₁ ∷ xs) (x₂ ∷ xs)
               (Π-C-combine T x₁ x₂ xs xs δ
@@ -355,7 +356,7 @@ head-predicate-tych {𝓤} {𝓦} T S δ ((p , d) , ϕ)
           (C-refl (Π-ClosenessSpace (T ∘ succ)) δ (xs→ x₁ ∘ succ))
 
 tychonoff' T S 0 ((p , d) , ϕ)
- = (λ n → pr₁ (S n (((λ _ → ⊤Ω) , (λ _ → inl ⋆))
+ = (λ n → pr₁ (S n (((λ _ → ⊤) , (λ _ → inl ⋆))
  , (0 , (λ x₁ x₂ _ _ → ⋆)))) )
  , (λ (α , pα) → ϕ α _ (λ _ ()) pα)
 tychonoff' T S (succ δ) ((p , d) , ϕ) 

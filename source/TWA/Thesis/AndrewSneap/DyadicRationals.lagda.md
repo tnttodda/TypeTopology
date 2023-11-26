@@ -9,13 +9,14 @@ open import Integers.Type
 open import MLTT.Spartan
 open import Naturals.Addition renaming (_+_ to _+ℕ_)
 open import Naturals.Multiplication renaming (_*_ to _ℕ*_)
-open import Naturals.Properties
+open import Naturals.Properties hiding (double)
 open import Notation.Order 
 open import UF.Base
 open import UF.FunExt
-open import UF.Miscelanea
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
+open import UF.Sets
+open import UF.DiscreteAndSeparated
 
 open import TWA.Thesis.Chapter5.Integers
 

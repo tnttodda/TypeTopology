@@ -10,6 +10,7 @@ open import UF.FunExt
 open import NotionsOfDecidability.Complemented
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
+open import UF.SubtypeClassifier
 
 module TWA.Thesis.Chapter3.PredicateEquality
   (fe : FunExt) (pe : PropExt) where
@@ -20,7 +21,7 @@ open import TWA.Thesis.Chapter3.ClosenessSpaces fe
 
 predicate-＝ : {X : 𝓤 ̇ }
              → (p₁ p₂ : X → Ω 𝓦)
-             → ((x : X) → p₁ x holds ⇔ p₂ x holds)
+             → ((x : X) → p₁ x holds ↔ p₂ x holds)
              → p₁ ＝ p₂
 predicate-＝ p₁ p₂ f
  = dfunext (fe _ _)
@@ -67,7 +68,7 @@ decidable-uc-predicate-＝'
  → (d₂ : is-complemented (λ x → p₂ x holds))
  → (ϕ₁ : p-ucontinuous-with-mod X p₁ δ)
  → (ϕ₂ : p-ucontinuous-with-mod X p₂ δ)
- → ((x : ⟨ X ⟩) → p₁ x holds ⇔ p₂ x holds)
+ → ((x : ⟨ X ⟩) → p₁ x holds ↔ p₂ x holds)
  → _＝_ {_} {decidable-uc-predicate 𝓦 X}
      ((p₁ , d₁) , δ , ϕ₁) ((p₂ , d₂) , δ , ϕ₂)
 decidable-uc-predicate-＝' X δ p₁ p₂ d₁ d₂ ϕ₁ ϕ₂ f
@@ -79,7 +80,7 @@ decidable-uc-predicate-＝
  → (p@((p₁ , d₁) , δ₁ , ϕ₁) q@((p₂ , d₂) , δ₂ , ϕ₂)
     : decidable-uc-predicate 𝓦 X)
  → δ₁ ＝ δ₂
- → ((x : ⟨ X ⟩) → p₁ x holds ⇔ p₂ x holds)
+ → ((x : ⟨ X ⟩) → p₁ x holds ↔ p₂ x holds)
  → p ＝ q
 decidable-uc-predicate-＝
  X ((p₁ , d₁) , δ , ϕ₁) ((p₂ , d₂) , δ , ϕ₂) refl f
@@ -90,7 +91,7 @@ decidable-uc-predicate-with-mod-＝
  → (δ : ℕ)
  → (p@((p₁ , d₁) , ϕ₁) q@((p₂ , d₂) , ϕ₂)
     : decidable-uc-predicate-with-mod 𝓦 X δ)
- → ((x : ⟨ X ⟩) → p₁ x holds ⇔ p₂ x holds)
+ → ((x : ⟨ X ⟩) → p₁ x holds ↔ p₂ x holds)
  → p ＝ q
 decidable-uc-predicate-with-mod-＝
  X δ ((p₁ , d₁) , ϕ₁) ((p₂ , d₂) , ϕ₂) f

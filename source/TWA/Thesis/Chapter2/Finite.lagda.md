@@ -6,9 +6,10 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
 open import MLTT.Spartan
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.Subsingletons
-open import UF.Miscelanea
+open import UF.Sets
+open import UF.Sets-Properties
 open import UF.Equiv
 open import UF.EquivalenceExamples
 open import Fin.Type
