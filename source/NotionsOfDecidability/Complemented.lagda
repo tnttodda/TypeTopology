@@ -2,7 +2,7 @@ Martin Escardo 2011.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module NotionsOfDecidability.Complemented where
 
@@ -20,7 +20,7 @@ slighly non-universal terminology.
 \begin{code}
 
 is-complemented : {X : 𝓤 ̇ } (A : X → 𝓥 ̇ ) → 𝓤 ⊔ 𝓥 ̇
-is-complemented A = ∀ x → is-decidable(A x)
+is-complemented A = ∀ x → is-decidable (A x)
 
 characteristic-function : {X : 𝓤 ̇ } {A : X → 𝓥 ̇ }
                         → is-complemented A

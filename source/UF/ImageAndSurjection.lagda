@@ -2,7 +2,7 @@ Martin Escardo.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.PropTrunc
 
@@ -14,9 +14,13 @@ open import UF.Embeddings
 open import UF.Equiv
 open import UF.EquivalenceExamples
 open import UF.FunExt
+open import UF.Hedberg
 open import UF.Retracts
+open import UF.Sets
+open import UF.Sets-Properties
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
+open import UF.Subsingletons-Properties
 
 \end{code}
 
@@ -107,7 +111,7 @@ surjective-embeddings-are-equivs f e s =
 
 vv-equiv-iff-embedding-and-surjection : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } (f : X → Y)
                                       → is-vv-equiv f
-                                      ⇔ is-embedding f × is-surjection f
+                                      ↔ is-embedding f × is-surjection f
 vv-equiv-iff-embedding-and-surjection f =
   (λ i → vv-equivs-are-embeddings f i , vv-equivs-are-surjections f i) ,
   (λ (e , s) → surjective-embeddings-are-vv-equivs f e s)

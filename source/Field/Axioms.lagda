@@ -4,10 +4,11 @@ In this file I define the constructive field axioms.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan renaming (_+_ to _∔_)
 
+open import UF.Sets
 open import UF.Subsingletons
 
 module Field.Axioms where

@@ -26,10 +26,10 @@ notably doesn't use set quotients.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split --lossy-unification #-}
+{-# OPTIONS --safe --without-K --lossy-unification #-}
 
 
-open import UF.Quotient
+open import Quotient.Type
 open import UF.Univalence
 
 module Ordinals.OrdinalOfOrdinalsSuprema
@@ -43,11 +43,14 @@ open import Ordinals.Notions hiding (is-prop-valued)
 open import Ordinals.OrdinalOfOrdinals ua
 open import Ordinals.Type
 open import Ordinals.Underlying
+open import Quotient.GivesPropTrunc
+open import Quotient.GivesSetReplacement
 open import UF.Base hiding (_≈_)
 open import UF.Equiv
 open import UF.FunExt
 open import UF.PropTrunc
 open import UF.Size
+open import UF.SubtypeClassifier
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 open import UF.UA-FunExt
@@ -105,11 +108,11 @@ module construction-using-quotient
         (α : I → Ordinal 𝓤)
        where
 
- open set-quotients-exist sq
+ open general-set-quotients-exist sq
 
  private
   pt : propositional-truncations-exist
-  pt = propositional-truncations-from-set-quotients fe'
+  pt = propositional-truncations-from-set-quotients sq fe'
 
  open extending-relations-to-quotient fe' pe'
  open PropositionalTruncation pt
@@ -306,7 +309,7 @@ induced order on Σα.
   ≺-congruence : {p q p' q' : Σα} → p ≈ p' → q ≈ q'
                → (p ≺[Ω] q) ＝ (p' ≺[Ω] q')
   ≺-congruence {(i , x)} {(j , y)} {(i' , x')} {(j' , y')} e₁ e₂ =
-   Ω-extensionality fe' pe' ⦅1⦆ ⦅2⦆
+   Ω-extensionality pe' fe' ⦅1⦆ ⦅2⦆
     where
      ⦅1⦆ : (α i ↓ x) ⊲ (α j ↓ y) → (α i' ↓ x') ⊲ (α j' ↓ y')
      ⦅1⦆ l = transport₂ _⊲_ e₁ e₂ l
@@ -529,7 +532,7 @@ Next, we resize α/ using:
    ≈⁻p : is-prop-valued _≈⁻_
    ≈⁻p (i , x) (j , y) = ≃ₒ-is-prop-valued fe' (α i ↓ x) (α j ↓ y)
 
- ≋-≃-≋⁻ : {p q : Σα} → p ≈[ ≋ ] q ⇔ p ≈[ ≋⁻ ] q
+ ≋-≃-≋⁻ : {p q : Σα} → p ≈[ ≋ ] q ↔ p ≈[ ≋⁻ ] q
  ≋-≃-≋⁻ {(i , x)} {(j , y)} = (idtoeqₒ (α i ↓ x) (α j ↓ y))
                             , (eqtoidₒ (ua 𝓤) fe' (α i ↓ x) (α j ↓ y))
 
@@ -588,7 +591,7 @@ We now formalize an alternative construction due to Martín Escardó that doesn'
 use set quotients, but instead relies on Set Replacement (as defined and
 explained in UF.Size.lagda) to obtain a small ordinal at the end.
 
-(As proved in UF.Quotient.lagda and UF-Quotient-Replacement.lagda, Set
+(As proved in Quotient.Type.lagda and UF-Quotient-Replacement.lagda, Set
 Replacement is equivalent to having small set quotients.)
 
 \begin{code}
@@ -1001,7 +1004,7 @@ module _ (pt : propositional-truncations-exist) where
 
 \end{code}
 
-As proved in UF.Quotient.lagda and UF-Quotient-Replacement.lagda, Set
+As proved in Quotient.Type.lagda and UF-Quotient-Replacement.lagda, Set
 Replacement is equivalent to having small set quotients, so it follows
 immediately that (just as above) Ordinal 𝓤 has small suprema if we assume the
 existence of (small) set quotients.
@@ -1013,11 +1016,11 @@ ordinal-of-ordinals-has-small-suprema'' :
 ordinal-of-ordinals-has-small-suprema'' sq =
  ordinal-of-ordinals-has-small-suprema' pt R
   where
-   open set-quotients-exist sq
+   open general-set-quotients-exist sq
    pt : propositional-truncations-exist
-   pt = propositional-truncations-from-set-quotients fe'
+   pt = propositional-truncations-from-set-quotients sq fe'
    R : Set-Replacement pt
-   R = set-replacement-from-set-quotients sq pt
+   R = set-replacement-from-set-quotients-and-prop-trunc sq pt
 
 \end{code}
 

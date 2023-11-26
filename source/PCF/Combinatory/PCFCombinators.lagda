@@ -9,7 +9,7 @@ Refactored December 2021.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import UF.FunExt
@@ -243,7 +243,7 @@ module IfZeroDenotationalSemantics
  open import Lifting.Monad 𝓥
 
  open import DomainTheory.Lifting.LiftingSet pt fe 𝓥 pe
- open import UF.Miscelanea
+ open import UF.DiscreteAndSeparated
  open import Naturals.Properties
 
  𝓛ᵈℕ : DCPO⊥ {𝓥 ⁺} {𝓥 ⁺}

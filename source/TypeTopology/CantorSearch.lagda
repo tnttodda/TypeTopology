@@ -8,16 +8,15 @@ higher-type computation".
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import MLTT.Two-Properties
-open import TypeTopology.DiscreteAndSeparated
 open import Naturals.Order
 open import Notation.Order
-
 open import UF.FunExt
 open import UF.Base
+open import UF.DiscreteAndSeparated
 
 module TypeTopology.CantorSearch (fe : funext 𝓤₀ 𝓤₀) where
 
@@ -190,7 +189,7 @@ it has modulus of continuity k for any k > n.
 
 modulus-zero-iff-constant  : (p : Cantor → 𝟚)
                            → 0 is-a-modulus-of-uniform-continuity-of p
-                           ⇔ ((α β : Cantor) → p α ＝ p β)
+                           ↔ ((α β : Cantor) → p α ＝ p β)
 modulus-zero-iff-constant p = I , II
  where
   I :  0 is-a-modulus-of-uniform-continuity-of p → ((α β : Cantor) → p α ＝ p β)
@@ -249,7 +248,7 @@ A n p = p (ε n p)
 
 The function A is designed to satisfy the specification
 
-  A n p ＝ ₁ ⇔ ((α : Cantor) → p α ＝ ₁)
+  A n p ＝ ₁ ↔ ((α : Cantor) → p α ＝ ₁)
 
 for any decidable predicate p with modulus of uniform continuity n.
 

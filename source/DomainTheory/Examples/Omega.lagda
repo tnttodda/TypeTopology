@@ -8,7 +8,7 @@ characterize the compact elements of Ω 𝓤 as the decidable propositions.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 
@@ -31,7 +31,9 @@ open import UF.Equiv
 open import UF.EquivalenceExamples
 open import UF.ImageAndSurjection pt
 open import UF.Subsingletons-FunExt
-
+open import UF.SubtypeClassifier hiding (⊥)
+open import UF.SubtypeClassifier-Properties
+open import UF.Sets
 open import Posets.Poset fe
 
 open import DomainTheory.Basics.Dcpo pt fe 𝓤
@@ -88,9 +90,6 @@ P ⊑ Q = P holds → Q holds
 We proceed by showing that the Booleans give a small compact basis for Ω 𝓤.
 
 \begin{code}
-
-⊤ : Ω 𝓤
-⊤ = 𝟙 , 𝟙-is-prop
 
 ⊤-is-greatest : (P : Ω 𝓤) → P ⊑ ⊤
 ⊤-is-greatest P _ = ⋆
@@ -190,7 +189,7 @@ propositions.
 
 \begin{code}
 
-compact-iff-decidable : (P : Ω 𝓤) → is-compact Ω-DCPO P ⇔ is-decidable (P holds)
+compact-iff-decidable : (P : Ω 𝓤) → is-compact Ω-DCPO P ↔ is-decidable (P holds)
 compact-iff-decidable P = ⦅⇒⦆ , ⦅⇐⦆
  where
   ⦅⇒⦆ : is-compact Ω-DCPO P → is-decidable (P holds)

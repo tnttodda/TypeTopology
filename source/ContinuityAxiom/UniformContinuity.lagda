@@ -13,7 +13,7 @@ first m positions.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module ContinuityAxiom.UniformContinuity where
 
@@ -23,9 +23,8 @@ open import MLTT.Spartan
 open import MLTT.Two-Properties
 open import Naturals.Properties
 open import NotionsOfDecidability.Decidable
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.FunExt
-open import UF.Miscelanea
 open import UF.Subsingletons
 
 \end{code}
@@ -152,7 +151,7 @@ Moreover, the above types are logically equivalent.
 
 \begin{code}
 
-Theorem : CH-UC ⇔ UC
+Theorem : CH-UC ↔ UC
 Theorem = (λ ch-uc f → ΣA→∥ΣA∥ (A-≤-is-decidable f) (ch-uc f)) ,
           (λ uc f  → ∥ΣA∥→ΣA (uc f))
 

@@ -6,22 +6,25 @@ are embedded in the reals.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan renaming (_+_ to _∔_)
 
+open import Integers.Type
 open import Notation.CanonicalMap
 open import Notation.Order
+open import Rationals.Order
+open import Rationals.Type
 open import UF.Base
-open import UF.PropTrunc
+open import UF.FunExt
 open import UF.Powerset
-open import UF.Retracts
+open import UF.PropTrunc
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.SubtypeClassifier-Properties
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
-open import UF.FunExt
-open import Integers.Type
-open import Rationals.Type
-open import Rationals.Order
+open import UF.Subsingletons-Properties
 
 module DedekindReals.Type
          (fe : Fun-Ext)
@@ -38,10 +41,10 @@ inhabited-right : (R : 𝓟 ℚ) → 𝓤₀ ̇
 inhabited-right R = (∃ q ꞉ ℚ , q ∈ R)
 
 rounded-left : (L : 𝓟 ℚ) → 𝓤₀ ̇
-rounded-left L = (x : ℚ) → (x ∈ L ⇔ (∃ p ꞉ ℚ , (x < p) × p ∈ L))
+rounded-left L = (x : ℚ) → (x ∈ L ↔ (∃ p ꞉ ℚ , (x < p) × p ∈ L))
 
 rounded-right : (R : 𝓟 ℚ) → 𝓤₀ ̇
-rounded-right R = (x : ℚ) → x ∈ R ⇔ (∃ q ꞉ ℚ , (q < x) × q ∈ R)
+rounded-right R = (x : ℚ) → x ∈ R ↔ (∃ q ꞉ ℚ , (q < x) × q ∈ R)
 
 disjoint : (L R : 𝓟 ℚ) → 𝓤₀ ̇
 disjoint L R = (p q : ℚ) → p ∈ L × q ∈ R → p < q
@@ -102,13 +105,13 @@ rounded-right-c R r x y l xR = pr₂ (r y) ∣ x , (l , xR) ∣
 rounded-left-is-prop : (L : 𝓟 ℚ) → is-prop (rounded-left L)
 rounded-left-is-prop L = Π-is-prop fe δ
  where
-  δ : (x : ℚ) → is-prop (x ∈ L ⇔ (∃ p ꞉ ℚ , (x < p) × p ∈ L))
+  δ : (x : ℚ) → is-prop (x ∈ L ↔ (∃ p ꞉ ℚ , (x < p) × p ∈ L))
   δ x = ×-is-prop (Π-is-prop fe (λ _ → ∃-is-prop)) (Π-is-prop fe (λ _ → ∈-is-prop L x))
 
 rounded-right-is-prop : (R : 𝓟 ℚ) → is-prop (rounded-right R)
 rounded-right-is-prop R = Π-is-prop fe δ
  where
-  δ : (x : ℚ) → is-prop (x ∈ R ⇔ (∃ q ꞉ ℚ , (q < x) × q ∈ R))
+  δ : (x : ℚ) → is-prop (x ∈ R ↔ (∃ q ꞉ ℚ , (q < x) × q ∈ R))
   δ x = ×-is-prop (Π-is-prop fe (λ _ → ∃-is-prop)) (Π-is-prop fe (λ _ → ∈-is-prop R x))
 
 disjoint-is-prop : (L R : 𝓟 ℚ) → is-prop (disjoint L R)
@@ -127,7 +130,8 @@ isCut-is-prop L R = ×-is-prop (inhabited-left-is-prop L)
                               (located-is-prop L R)))))
 
 ℝ-is-set : is-set ℝ
-ℝ-is-set = Σ-is-set (×-is-set subset-of-ℚ-is-set subset-of-ℚ-is-set) λ (L , R) → props-are-sets (isCut-is-prop L R)
+ℝ-is-set = Σ-is-set (×-is-set subset-of-ℚ-is-set subset-of-ℚ-is-set)
+            λ (L , R) → props-are-sets (isCut-is-prop L R)
 
 lower-cut-of : ℝ → 𝓟 ℚ
 lower-cut-of ((L , R) , _) = L
@@ -141,8 +145,8 @@ in-lower-cut q ((L , R) , _) = q ∈ L
 in-upper-cut : ℚ → ℝ → 𝓤₀ ̇
 in-upper-cut q ((L , R) , _) = q ∈ R
 
-located-from-real : (((L , R) , _) : ℝ) → (p q : ℚ) → p < q → p ∈ L ∨ q ∈ R
-located-from-real ((L , R) , _ , _ , _ , _ , _ , located-y) = located-y
+ℝ-locatedness : (((L , R) , _) : ℝ) → (p q : ℚ) → p < q → p ∈ L ∨ q ∈ R
+ℝ-locatedness ((L , R) , _ , _ , _ , _ , _ , located-y) = located-y
 
 inhabited-from-real-L : (((L , R) , i) : ℝ) → inhabited-left L
 inhabited-from-real-L ((L , R) , inhabited-L , _) = inhabited-L
@@ -203,7 +207,7 @@ instance
  _<_<_ {{Strict-Order-Chain-ℝ-ℚ-ℝ}} p q r = (p < q) × (q < r)
 
 ℚ<-not-itself-from-ℝ : (p : ℚ) → (x : ℝ) → ¬ (p < x < p)
-ℚ<-not-itself-from-ℝ p x (l₁ , l₂) = ℚ<-not-itself p (disjoint-from-real x p p (l₁ , l₂))
+ℚ<-not-itself-from-ℝ p x (l₁ , l₂) = ℚ<-irrefl p (disjoint-from-real x p p (l₁ , l₂))
 
 embedding-ℚ-to-ℝ : ℚ → ℝ
 embedding-ℚ-to-ℝ x = (L , R) , inhabited-left'
@@ -223,7 +227,7 @@ embedding-ℚ-to-ℝ x = (L , R) , inhabited-left'
   inhabited-right' : ∃ q ꞉ ℚ , x < q
   inhabited-right' = ∣ ℚ-no-max-element x ∣
 
-  rounded-left' :  (p : ℚ) → (p ∈ L ⇔ (∃ p' ꞉ ℚ , p < p' < x))
+  rounded-left' :  (p : ℚ) → (p ∈ L ↔ (∃ p' ꞉ ℚ , p < p' < x))
   rounded-left' p = α , β
    where
     α : p < x →  (∃ p' ꞉ ℚ , p < p' < x)
@@ -235,7 +239,7 @@ embedding-ℚ-to-ℝ x = (L , R) , inhabited-left'
       δ : Σ p' ꞉ ℚ , p < p' < x → p < x
       δ (p' , a , b) = ℚ<-trans p p' x a b
 
-  rounded-right' : (q : ℚ) → q > x ⇔ (∃ q' ꞉ ℚ , (q' < q) × q' > x)
+  rounded-right' : (q : ℚ) → q > x ↔ (∃ q' ꞉ ℚ , (q' < q) × q' > x)
   rounded-right' q = α , β
    where
     α : q > x → ∃ q' ꞉ ℚ , (q' < q) × q' > x
@@ -320,7 +324,7 @@ instance
         use-located : q' ∈ Ly ∨ q ∈ Ry
         use-located = located-y q' q q'<q
         III : q' ∈ Ly ∔ q ∈ Ry → q ∈ Ry
-        III (inl q'-Ly) = 𝟘-elim (ℚ<-not-itself q' from-above)
+        III (inl q'-Ly) = 𝟘-elim (ℚ<-irrefl q' from-above)
          where
           get-contradiction : q' ∈ Lx
           get-contradiction = Ly⊆Lx q' q'-Ly
@@ -340,7 +344,7 @@ instance
         use-located : q' ∈ Lx ∨ q ∈ Rx
         use-located = located-x q' q q'<q
         III : q' ∈ Lx ∔ q ∈ Rx → q ∈ Rx
-        III (inl q'-Lx) = 𝟘-elim (ℚ<-not-itself q' from-above)
+        III (inl q'-Lx) = 𝟘-elim (ℚ<-irrefl q' from-above)
          where
           get-contradiction : q' ∈ Ly
           get-contradiction = Lx⊆Ly q' q'-Lx

@@ -38,7 +38,7 @@ This is a draft version that needs polishing and more explanation.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import UF.FunExt
@@ -65,15 +65,14 @@ open import Taboos.WLPO
 open import TypeTopology.CompactTypes
 open import TypeTopology.ConvergentSequenceHasInf
 open import TypeTopology.Density
-open import TypeTopology.DiscreteAndSeparated
 open import TypeTopology.InfProperty
 open import TypeTopology.PropInfTychonoff fe
 open import TypeTopology.PropTychonoff fe
 open import TypeTopology.SigmaDiscreteAndTotallySeparated
 open import UF.Base
 open import UF.Embeddings
+open import UF.DiscreteAndSeparated
 open import UF.Equiv
-open import UF.Miscelanea
 open import UF.PairFun
 open import UF.Retracts
 open import UF.Subsingletons
@@ -606,7 +605,7 @@ LPO-gives-ι-is-equiv lpo (⌜Σ⌝ ν A)   = pair-fun-is-equiv
  where
   open Κ-extension ν A
 
-ι-is-equiv-iff-LPO : ((ν : E) → is-equiv (ι ν)) ⇔ LPO
+ι-is-equiv-iff-LPO : ((ν : E) → is-equiv (ι ν)) ↔ LPO
 ι-is-equiv-iff-LPO = ι-is-equiv-gives-LPO , LPO-gives-ι-is-equiv
 
 \end{code}

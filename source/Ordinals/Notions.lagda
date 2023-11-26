@@ -6,18 +6,19 @@ Ordinals like in the HoTT book and variations.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import MLTT.Spartan
-open import TypeTopology.DiscreteAndSeparated
-
-open import UF.Base
-open import UF.Subsingletons
-open import UF.FunExt
-open import UF.Subsingletons-FunExt
-open import UF.ExcludedMiddle
-open import UF.PropTrunc
 open import MLTT.Plus-Properties using (+-commutative)
+open import MLTT.Spartan
+open import UF.Base
+open import UF.DiscreteAndSeparated
+open import UF.ExcludedMiddle
+open import UF.FunExt
+open import UF.Hedberg
+open import UF.PropTrunc
+open import UF.Sets
+open import UF.Subsingletons
+open import UF.Subsingletons-FunExt
 
 module Ordinals.Notions
         {𝓤 𝓥 : Universe}
@@ -190,7 +191,7 @@ is-extensional : 𝓤 ⊔ 𝓥 ̇
 is-extensional = (x y : X) → x ≼ y → y ≼ x → x ＝ y
 
 is-extensional' : 𝓤 ⊔ 𝓥 ̇
-is-extensional' = (x y : X) → ((u : X) → (u < x) ⇔ (u < y)) → x ＝ y
+is-extensional' = (x y : X) → ((u : X) → (u < x) ↔ (u < y)) → x ＝ y
 
 extensional-gives-extensional' : is-extensional → is-extensional'
 extensional-gives-extensional' e x y f = e x y
@@ -770,7 +771,7 @@ decidable-order-from-trichotomy t w τ = γ
     f (inr (inr l)) = inr (λ (m : x < y) → irreflexive x (w x) (t x y x m l))
 
 decidable-order-iff-trichotomy : is-well-order
-                               → is-trichotomous-order ⇔ is-decidable-order
+                               → is-trichotomous-order ↔ is-decidable-order
 decidable-order-iff-trichotomy (_ , w , e , t) =
  decidable-order-from-trichotomy t w ,
  trichotomy-from-decidable-order t e w
@@ -958,8 +959,6 @@ is-well-founded₂ = (p : X → 𝟚) → ((x : X) → ((y : X) → y < x → p 
 
 well-founded-Wellfounded₂ : is-well-founded → is-well-founded₂
 well-founded-Wellfounded₂ w p = transfinite-induction w (λ x → p x ＝ ₁)
-
-open import UF.Miscelanea
 
 being-well-founded₂-is-prop : FunExt → is-prop is-well-founded₂
 being-well-founded₂-is-prop fe = Π₃-is-prop (λ {𝓤} {𝓥} → fe 𝓤 𝓥)

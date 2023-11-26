@@ -28,11 +28,11 @@ References
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.FunExt
-open import UF.Subsingletons
 open import UF.PropTrunc
+open import UF.Subsingletons
 
 module UF.CumulativeHierarchy-LocallySmall
         (pt : propositional-truncations-exist)
@@ -47,7 +47,10 @@ open import UF.EquivalenceExamples
 open import UF.Equiv-FunExt
 open import UF.Logic
 open import UF.Size
+open import UF.Sets-Properties
 open import UF.Subsingletons-FunExt
+open import UF.SubtypeClassifier
+open import UF.SubtypeClassifier-Properties
 
 open AllCombinators pt fe
 open PropositionalTruncation pt
@@ -112,7 +115,7 @@ module 𝕍-is-locally-small
                         → g' ≈ g
                         → ＝⁻-aux₁ g' ＝ ＝⁻-aux₁ g
    ＝⁻-aux₁-respects-≈' {B'} {B} g' g e =
-    Ω-extensionality fe pe
+    Ω-extensionality pe fe
      (＝⁻-aux₁-respects-≈ g' g e)
      (＝⁻-aux₁-respects-≈ g g' (≈-sym e))
 
@@ -174,7 +177,7 @@ module 𝕍-is-locally-small
            ＝⁻-aux₁ g r₂ h         ＝⟨ (＝⁻-aux₂-behaviour g r₂ h) ⁻¹ ⟩
            ＝⁻-aux₂ g r₂ (𝕍-set h) ∎
       where
-       e = Ω-extensionality fe pe
+       e = Ω-extensionality pe fe
             (＝⁻-aux₂-respects-≈ f g r₁ r₂ IH₁ IH₂ h)
             (＝⁻-aux₂-respects-≈ g f r₂ r₁ IH₂ IH₁ h)
 

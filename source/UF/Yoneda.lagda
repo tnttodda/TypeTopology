@@ -1,6 +1,11 @@
+Martin Escardo
+
+A better version is in MGS.Yoneda, but currently we are using this
+one.
+
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module UF.Yoneda where
 
@@ -192,7 +197,8 @@ equivalent to η being a natural retraction, and we start with it:
 
 Yoneda-section-forth : {X : 𝓤 ̇ } {A : X → 𝓥 ̇ }
                        (x : X) (η : Nat (Id x) A)
-                     → ∃! A → (y : X) → has-section (η y)
+                     → ∃! A
+                     → (y : X) → has-section (η y)
 Yoneda-section-forth {𝓤} {𝓥} {X} {A} x η i y = g
  where
   u : is-universal-element-of A (x , yoneda-elem x A η)
@@ -207,7 +213,8 @@ Yoneda-section-forth {𝓤} {𝓥} {X} {A} x η i y = g
   g = has-section-closed-under-∼' (universality-section x (yoneda-elem x A η) u y) h
 
 Yoneda-section-back : {X : 𝓤 ̇ } {A : X → 𝓥 ̇ } (x : X) (η : Nat (Id x) A)
-                    → ((y : X) → has-section (η y)) → ∃! A
+                    → ((y : X) → has-section (η y))
+                    → ∃! A
 Yoneda-section-back {𝓤} {𝓥} {X} {A} x η φ = c
  where
   h : ∀ y → yoneda-nat x A (yoneda-elem x A η) y ∼ η y
@@ -223,7 +230,7 @@ Yoneda-section-back {𝓤} {𝓥} {X} {A} x η φ = c
   c = (x , yoneda-elem x A η) , (universal-element-is-central (x , yoneda-elem x A η) u)
 
 Yoneda-section : {X : 𝓤 ̇ } {A : X → 𝓥 ̇ } (x : X) (η : Nat (Id x) A)
-               → ∃! A ⇔ ((y : X) → has-section (η y))
+               → ∃! A ↔ ((y : X) → has-section (η y))
 Yoneda-section x η = Yoneda-section-forth x η , Yoneda-section-back x η
 
 \end{code}
@@ -236,7 +243,7 @@ equiv-adj : {X : 𝓤 ̇ } {Y : 𝓥 ̇ }
             (f : X → Y)
             (g : Y → X)
             (η : (x : X) (y : Y) → f x ＝ y → g y ＝ x)
-          → ((x : X) (y : Y) → has-section (η x y)) ⇔ is-vv-equiv g
+          → ((x : X) (y : Y) → has-section (η x y)) ↔ is-vv-equiv g
 equiv-adj f g η = (λ i x → Yoneda-section-back (f x) (η x) (i x)) ,
                   (λ φ x → Yoneda-section-forth (f x) (η x) (φ x))
 
@@ -549,7 +556,7 @@ univalence-via-singletons← φ X = universality-equiv X (≃-refl X)
                                     (X , ≃-refl X)
                                     (singletons-are-props (φ X) (X , ≃-refl X)))
 
-univalence-via-singletons : is-univalent 𝓤 ⇔ ((X : 𝓤 ̇ ) → ∃! Y ꞉ 𝓤 ̇  , X ≃ Y)
+univalence-via-singletons : is-univalent 𝓤 ↔ ((X : 𝓤 ̇ ) → ∃! Y ꞉ 𝓤 ̇  , X ≃ Y)
 univalence-via-singletons = (univalence-via-singletons→ , univalence-via-singletons←)
 
 \end{code}

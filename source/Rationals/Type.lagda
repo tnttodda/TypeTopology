@@ -4,24 +4,24 @@ In this file I define rational numbers.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
-open import MLTT.Spartan renaming (_+_ to _∔_)
-open import Notation.CanonicalMap
 open import Integers.Abs
 open import Integers.Multiplication renaming (_*_ to _ℤ*_)
 open import Integers.Negation
 open import Integers.Order
 open import Integers.Type
+open import MLTT.Spartan renaming (_+_ to _∔_)
 open import Naturals.Division
 open import Naturals.HCF
 open import Naturals.Multiplication renaming (_*_ to _ℕ*_)
 open import Naturals.Properties
+open import Notation.CanonicalMap
 open import Rationals.Fractions
-open import TypeTopology.DiscreteAndSeparated
 open import TypeTopology.SigmaDiscreteAndTotallySeparated
 open import UF.Base hiding (_≈_)
-open import UF.Miscelanea
+open import UF.DiscreteAndSeparated
+open import UF.Sets
 open import UF.Subsingletons
 
 module Rationals.Type where
@@ -157,7 +157,7 @@ dnomrP' (x , a) = γ
 1/4 = toℚ (pos 1 , 3)
 3/4 = toℚ (pos 3 , 3)
 
-equiv-equality : (p q : 𝔽) → p ≈ q ⇔ toℚ p ＝ toℚ q
+equiv-equality : (p q : 𝔽) → p ≈ q ↔ toℚ p ＝ toℚ q
 equiv-equality (x , a) (y , b) = γ₁ , γ₂
  where
   a' b' h h' : ℕ

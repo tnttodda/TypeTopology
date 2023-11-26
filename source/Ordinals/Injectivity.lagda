@@ -4,7 +4,7 @@ The type of ordinals is (algebraically) injective.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.FunExt
 
@@ -20,6 +20,7 @@ open import Ordinals.WellOrderArithmetic
 open import UF.Base
 open import UF.Embeddings
 open import UF.Equiv
+open import UF.Subsingletons-Properties
 open import UF.Univalence
 
 module ordinals-injectivity (fe : FunExt) where

@@ -14,23 +14,24 @@ that the group axioms, as defined in Groups, form a proposition.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import UF.Base hiding (_≈_)
-open import UF.Subsingletons
-open import UF.Powerset
+open import UF.Classifiers
+open import UF.Embeddings
 open import UF.Equiv
 open import UF.EquivalenceExamples
-open import UF.Embeddings
-open import UF.Univalence
 open import UF.FunExt
-open import UF.UA-FunExt
+open import UF.Powerset
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
-open import UF.Classifiers
+open import UF.UA-FunExt
+open import UF.Univalence
 
 open import Groups.Type renaming (_≅_ to _≣_)
-
 
 module Groups.Subgroups
        (𝓤 : Universe)
@@ -92,14 +93,14 @@ module _ (G : Group 𝓤) where
 
   subgroup-equality : (S T : Subgroups)
                     → (S ＝ T)
-                    ≃ ((x : ⟨ G ⟩) → (x ∈ ⟪ S ⟫) ⇔ (x ∈ ⟪ T ⟫))
+                    ≃ ((x : ⟨ G ⟩) → (x ∈ ⟪ S ⟫) ↔ (x ∈ ⟪ T ⟫))
 
   subgroup-equality S T = γ
    where
-    f : S ＝ T → (x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫
+    f : S ＝ T → (x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫
     f p x = transport (λ - → x ∈ ⟪ - ⟫) p , transport (λ - → x ∈ ⟪ - ⟫) (p ⁻¹)
 
-    h : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫) → ⟪ S ⟫ ＝ ⟪ T ⟫
+    h : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫) → ⟪ S ⟫ ＝ ⟪ T ⟫
     h φ = subset-extensionality' ua α β
      where
       α : ⟪ S ⟫ ⊆ ⟪ T ⟫
@@ -108,10 +109,10 @@ module _ (G : Group 𝓤) where
       β : ⟪ T ⟫ ⊆ ⟪ S ⟫
       β x = rl-implication (φ x)
 
-    g : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫) → S ＝ T
+    g : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫) → S ＝ T
     g = inverse (ap-⟪⟫ S T) (ap-⟪⟫-is-equiv S T) ∘ h
 
-    γ : (S ＝ T) ≃ ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫)
+    γ : (S ＝ T) ≃ ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫)
     γ = logically-equivalent-props-are-equivalent
          subgroups-form-a-set
          (Π-is-prop fe
@@ -208,7 +209,7 @@ module _ (G : Group 𝓤) where
                                      h unitH ∎)
 
      j : is-set X
-     j = subtypes-of-sets-are-sets' h h-lc (group-is-set G)
+     j = subtypes-of-sets-are-sets' h h-lc (groups-are-sets G)
 
      τ : T X
      τ = _*_ , (j , (assocH , unitH , (unitH-left , (unitH-right , group-axiomH))))

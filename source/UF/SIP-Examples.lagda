@@ -36,24 +36,25 @@ notes:
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module UF.SIP-Examples where
 
 open import MLTT.Spartan
 open import Notation.Order
-
 open import UF.Base
-open import UF.SIP
-open import UF.Equiv hiding (_≅_)
-open import UF.Univalence
-open import UF.EquivalenceExamples
-open import UF.Subsingletons
 open import UF.Embeddings
-open import UF.Subsingletons-FunExt
+open import UF.Equiv hiding (_≅_)
+open import UF.EquivalenceExamples
 open import UF.FunExt
-open import UF.UA-FunExt
 open import UF.Retracts
+open import UF.SIP
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.Subsingletons
+open import UF.Subsingletons-FunExt
+open import UF.UA-FunExt
+open import UF.Univalence
 open import UF.Yoneda
 
 module ∞-magma {𝓤 : Universe} where
@@ -660,14 +661,14 @@ module subgroup
 
   subgroup-equality : (S T : Subgroups)
                     → (S ＝ T)
-                    ≃ ((x : ⟨ G ⟩) → (x ∈ ⟪ S ⟫) ⇔ (x ∈ ⟪ T ⟫))
+                    ≃ ((x : ⟨ G ⟩) → (x ∈ ⟪ S ⟫) ↔ (x ∈ ⟪ T ⟫))
 
   subgroup-equality S T = γ
    where
-    f : S ＝ T → (x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫
+    f : S ＝ T → (x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫
     f p x = transport (λ - → x ∈ ⟪ - ⟫) p , transport (λ - → x ∈ ⟪ - ⟫) (p ⁻¹)
 
-    h : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫) → ⟪ S ⟫ ＝ ⟪ T ⟫
+    h : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫) → ⟪ S ⟫ ＝ ⟪ T ⟫
     h φ = subset-extensionality' ua α β
      where
       α : ⟪ S ⟫ ⊆ ⟪ T ⟫
@@ -676,10 +677,10 @@ module subgroup
       β : ⟪ T ⟫ ⊆ ⟪ S ⟫
       β x = rl-implication (φ x)
 
-    g : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫) → S ＝ T
+    g : ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫) → S ＝ T
     g = inverse (ap-⟪⟫ S T) (ap-⟪⟫-is-equiv S T) ∘ h
 
-    γ : (S ＝ T) ≃ ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ⇔ x ∈ ⟪ T ⟫)
+    γ : (S ＝ T) ≃ ((x : ⟨ G ⟩) → x ∈ ⟪ S ⟫ ↔ x ∈ ⟪ T ⟫)
     γ = logically-equivalent-props-are-equivalent
          subgroups-form-a-set
          (Π-is-prop fe

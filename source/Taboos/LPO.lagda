@@ -24,25 +24,24 @@ GenericConvergentSequence)
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.FunExt
 
 module Taboos.LPO (fe : FunExt) where
 
+open import CoNaturals.GenericConvergentSequence
 open import MLTT.Spartan
+open import MLTT.Two-Properties
+open import Naturals.Order
+open import Notation.CanonicalMap
+open import Notation.Order
+open import TypeTopology.CompactTypes
 open import UF.Base
-open import UF.Subsingletons
-open import UF.Subsingletons-FunExt
 open import UF.Embeddings
 open import UF.Equiv
-
-open import MLTT.Two-Properties
-open import CoNaturals.GenericConvergentSequence
-open import TypeTopology.CompactTypes
-open import Naturals.Order
-open import Notation.Order
-open import Notation.CanonicalMap
+open import UF.Subsingletons
+open import UF.Subsingletons-FunExt
 
 private
  fe₀ = fe 𝓤₀ 𝓤₀
@@ -79,14 +78,16 @@ LPO-gives-compact-ℕ ℓ β = γ
     x : ℕ∞
     x = (α , force-decreasing-is-decreasing β)
 
-    d : is-decidable(Σ n ꞉ ℕ , x ＝ ι n)
+    d : is-decidable (Σ n ꞉ ℕ , x ＝ ι n)
     d = ℓ x
 
     a : (Σ n ꞉ ℕ , x ＝ ι n) → A
     a (n , p) = inl (force-decreasing-is-not-much-smaller β n c)
       where
         c : α n ＝ ₀
-        c = ap (λ - → ι - n) p ∙ ℕ-to-ℕ∞-diagonal₀ n
+        c = α n       ＝⟨ ap (λ - → ι - n) p ⟩
+            ι (ι n) n ＝⟨ ℕ-to-ℕ∞-diagonal₀ n ⟩
+            ₀         ∎
 
     b : (¬ (Σ n ꞉ ℕ , x ＝ ι n)) → A
     b u = inr g
@@ -183,8 +184,8 @@ Feb 2020):
 
 \begin{code}
 
-open import TypeTopology.DiscreteAndSeparated
 open import Naturals.Properties
+open import UF.DiscreteAndSeparated
 
 [LPO→ℕ]-discrete-gives-¬LPO-decidable : is-discrete (LPO → ℕ) → is-decidable (¬ LPO)
 [LPO→ℕ]-discrete-gives-¬LPO-decidable =

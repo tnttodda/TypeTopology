@@ -2,7 +2,7 @@ Martin Escardo, 8th April 2021.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.PropTrunc
 
@@ -16,25 +16,28 @@ open import Fin.Type
 open import MLTT.Spartan
 open import MLTT.Two-Properties
 open import TypeTopology.CompactTypes
-open import TypeTopology.DiscreteAndSeparated
 open import UF.Base
+open import UF.DiscreteAndSeparated
 open import UF.Embeddings
 open import UF.Equiv
 open import UF.Equiv-FunExt
 open import UF.EquivalenceExamples
 open import UF.ExcludedMiddle
 open import UF.FunExt
-open import UF.Miscelanea
-open import UF.Subsingletons renaming (⊤Ω to ⊤)
+open import UF.ImageAndSurjection pt
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.SubtypeClassifier
+open import UF.SubtypeClassifier-Properties
+open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 open import UF.UA-FunExt
 open import UF.Univalence
 open import UF.UniverseEmbedding
 
+open CompactTypesPT pt
 open PropositionalTruncation pt
 open finiteness pt
-open import UF.ImageAndSurjection pt
-open CompactTypesPT pt
 
 is-Kuratowski-finite : 𝓤 ̇ → 𝓤 ̇
 is-Kuratowski-finite X = ∃ n ꞉ ℕ , Fin n ↠ X
@@ -235,7 +238,7 @@ doubletons-are-Kuratowki-finite x₀ x₁ = ∣ 2 , doubleton-map x₀ x₁ , do
 decidable-equality-gives-doubleton-finite : {X : 𝓤 ̇ } (x₀ x₁ : X)
                                           → is-set X
                                           → is-decidable (x₀ ＝ x₁)
-                                          → is-finite (Σ x ꞉ X , (x ＝ x₀) ∨ (x ＝ x₁))
+                                          → is-finite (doubleton x₀ x₁)
 decidable-equality-gives-doubleton-finite x₀ x₁ X-is-set δ = γ δ
  where
   γ : is-decidable (x₀ ＝ x₁) → is-finite (doubleton x₀ x₁)
@@ -280,7 +283,7 @@ decidable-equality-gives-doubleton-finite x₀ x₁ X-is-set δ = γ δ
 doubleton-finite-gives-decidable-equality : funext 𝓤 𝓤₀
                                           → {X : 𝓤 ̇ } (x₀ x₁ : X)
                                           → is-set X
-                                          → is-finite (Σ x ꞉ X , (x ＝ x₀) ∨ (x ＝ x₁))
+                                          → is-finite (doubleton x₀ x₁)
                                           → is-decidable (x₀ ＝ x₁)
 doubleton-finite-gives-decidable-equality fe x₀ x₁ X-is-set ϕ = δ
  where
@@ -679,7 +682,7 @@ equivalent):
 select-equiv-with-𝟚-theorem : FunExt
                             → {X : 𝓤 ̇ }
                             → (∥ X ≃ 𝟚 ∥ → X ≃ 𝟚)
-                            ⇔ (∥ X ≃ 𝟚 ∥ → X)
+                            ↔ (∥ X ≃ 𝟚 ∥ → X)
 select-equiv-with-𝟚-theorem fe {X} = α , β
  where
   α : (∥ X ≃ 𝟚 ∥ → X ≃ 𝟚) → ∥ X ≃ 𝟚 ∥ → X

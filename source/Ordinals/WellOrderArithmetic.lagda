@@ -6,7 +6,7 @@ still use the terminology "ordinal" here.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module Ordinals.WellOrderArithmetic where
 
@@ -14,8 +14,9 @@ open import MLTT.Spartan hiding (transitive)
 open import Ordinals.Notions
 
 open import UF.Base
-open import UF.Subsingletons
 open import UF.FunExt
+open import UF.Subsingletons
+open import UF.Subsingletons-Properties
 
 \end{code}
 
@@ -822,7 +823,7 @@ module sum-top
 
 \begin{code}
 
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 
 module sum-cotransitive
         (fe : FunExt)

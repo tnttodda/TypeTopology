@@ -5,19 +5,19 @@ In this file I define common divisors, and HCF's, along with a proof
 that the Euclidean Algorithm produces HCF's.
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan renaming (_+_ to _∔_)
 
 open import Naturals.Addition
 open import Naturals.Division
 open import Naturals.Multiplication
-open import Naturals.Properties
 open import Naturals.Order
+open import Naturals.Properties
 open import Notation.Order
 open import UF.Base
+open import UF.DiscreteAndSeparated
 open import UF.FunExt
-open import UF.Miscelanea
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 
@@ -130,7 +130,7 @@ With an eye towards implement Euclid's algorithm to compute the
 highest common factor, we now prove two lemmas; each direction of the
 following proof:
 
-If x ＝ q * y + r, then is-hcf h x y ⇔ is-hcf y r.
+If x ＝ q * y + r, then is-hcf h x y ↔ is-hcf y r.
 
 For Euclid's algorithm, we only need the right-to-left implication,
 but both are proved for completeness.

@@ -16,8 +16,9 @@ module Locales.HeytingImplication
 
 open import Locales.Frame pt fe
 open import Locales.GaloisConnection pt fe
-open import UF.Subsingletons
 open import UF.Logic
+open import UF.SubtypeClassifier
+open import UF.Subsingletons
 
 open AllCombinators pt fe
 open PropositionalTruncation pt
@@ -28,7 +29,7 @@ open Locale
 
 is-heyting-implication-of : (X : Locale 𝓤 𝓥 𝓦) → ⟨ 𝒪 X ⟩ → ⟨ 𝒪 X ⟩ × ⟨ 𝒪 X ⟩ →  Ω (𝓤 ⊔ 𝓥)
 is-heyting-implication-of X z (x , y) =
- Ɐ w ꞉ ⟨ 𝒪 X ⟩ , ((w ∧[ 𝒪 X ] x) ≤[ poset-of (𝒪 X) ] y) ↔ (w ≤[ poset-of (𝒪 X) ] z)
+ Ɐ w ꞉ ⟨ 𝒪 X ⟩ , ((w ∧[ 𝒪 X ] x) ≤[ poset-of (𝒪 X) ] y) ⇔ (w ≤[ poset-of (𝒪 X) ] z)
 
 is-heyting-implication-operation : (X : Locale 𝓤 𝓥 𝓦)
                                  → (⟨ 𝒪 X ⟩ → ⟨ 𝒪 X ⟩ → ⟨ 𝒪 X ⟩)

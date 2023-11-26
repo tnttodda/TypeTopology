@@ -51,11 +51,11 @@ References
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.FunExt
-open import UF.Subsingletons
 open import UF.PropTrunc
+open import UF.Subsingletons
 
 module UF.CumulativeHierarchy
         (pt : propositional-truncations-exist)
@@ -67,7 +67,11 @@ open PropositionalTruncation pt
 
 open import MLTT.Spartan
 open import UF.Base hiding (_≈_)
+open import UF.Sets
+open import UF.SubtypeClassifier
+open import UF.SubtypeClassifier-Properties
 open import UF.Subsingletons-FunExt
+open import UF.Subsingletons-Properties
 
 _≲_ : {A : 𝓤 ̇ } {B : 𝓥 ̇ } {X : 𝓣 ̇ } → (A → X) → (B → X) → 𝓤 ⊔ 𝓥 ⊔ 𝓣 ̇
 _≲_ {𝓤} {𝓥} {𝓣} {A} {B} f g = (a : A) → ∃ b ꞉ B , g b ＝ f a
@@ -267,7 +271,7 @@ implication.
          → ((b : B) → ∥ Σ a ꞉ A , Σ p ꞉ g b ＝ f a , IH₂ b ＝ IH₁ a ∥)
          → f ≈ g → ρ f IH₁ ＝ ρ g IH₂
       τ' f g IH₁ IH₂ hIH₁ hIH₂ (m₁ , m₂) =
-       Ω-extensionality fe pe (τ f g IH₁ IH₂ hIH₁ m₁)
+       Ω-extensionality pe fe (τ f g IH₁ IH₂ hIH₁ m₁)
                               (τ g f IH₂ IH₁ hIH₂ m₂)
 
   𝕍-prop-recursion : {𝓣 : Universe}

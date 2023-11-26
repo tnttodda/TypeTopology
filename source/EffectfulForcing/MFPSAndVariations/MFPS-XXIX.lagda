@@ -5,7 +5,7 @@ with full, selfcontained Agda code.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module EffectfulForcing.MFPSAndVariations.MFPS-XXIX where
 
@@ -64,7 +64,6 @@ A logical relation used to prove the desired property of the dialogue
 tree:
 
 \begin{code}
-
 
 R : {σ : type} → (Baire → Set⟦ σ ⟧) → B-Set⟦ σ ⟧ → 𝓤₀ ̇
 R {ι}     n n' = (α : Baire) → n α ＝ decode α n'

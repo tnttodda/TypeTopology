@@ -38,7 +38,7 @@ ln -s Ordinals.Notions.html Ordinal-Notions.html
 ln -s Ordinals.OrdinalOfOrdinals.html OrdinalOfOrdinals.html
 ln -s Ordinals.WellOrderTransport.html OrdinalsWellOrderTransport.html
 ln -s Ordinals.index.html Ordinals.html
-ln -s Redirection.Types2019.html Types2019.html
+ln -s Various.Types2019.html Types2019.html
 ln -s Slice.Slice.html Slice.html
 ln -s TypeTopology.ADecidableQuantificationOverTheNaturals.html ADecidableQuantificationOverTheNaturals.html
 ln -s TypeTopology.DiscreteAndSeparated.html DiscreteAndSeparated.html
@@ -48,6 +48,7 @@ ln -s UF.Size.html UF-Size.html
 ln -s UF.UniverseEmbedding.html UniverseEmbedding.html
 ln -s UF.Yoneda.html UF-Yoneda.html
 ln -s UF.index.html UF.html
+ln -s UF.HiggsInvolutionTheorem.html Various.HiggsInvolutionTheorem.html
 ln -s Various.Dedekind.html Dedekind.html
 ln -s Various.HiggsInvolutionTheorem.html HiggsInvolutionTheorem.html
 ln -s Various.LawvereFPT.html LawvereFPT.html
@@ -74,13 +75,16 @@ ln -s TypeTopology.CompactTypes.html Published.TypeTopology.CompactTypes.html
 ln -s TypeTopology.Density.html Published.TypeTopology.Density.html
 ln -s TypeTopology.DiscreteAndSeparated.html Published.TypeTopology.DiscreteAndSeparated.html
 ln -s TypeTopology.SimpleTypes.html Published.TypeTopology.SimpleTypes.html
-ln -s UF.Quotient-F.html Published.UF.Quotient-F.html
-ln -s UF.Quotient.html Published.UF.Quotient.html
-ln -s UF.Quotient-Replacement.html Published.UF.Quotient-Replacement.html
-ln -s UF.Large-Quotient.html Published.UF.Large-Quotient.html
+ln -s Quotient.Large-Variation.html Published.UF.Quotient-F.html
+ln -s Quotient.index.html Published.UF.Quotient.html
+ln -s Quotient.index.html Published.UF.Quotient-Replacement.html
+ln -s Quotient.Large.html Published.UF.Large-Quotient.html
 ln -s Various.Dedekind.html Published.Various.Dedekind.html
 
 # Further links using the Published.* scheme
 # Added by Tom de Jong - 31 March 2023, 18 April 2023
 ln -s UF.Size.html Published.UF.Size.html
 ln -s UF.ImageAndSurjection.html Published.UF.ImageAndSurjection.html
+
+# Added by Tom de Jong on 3 October 2023.
+ln -s PCF.Lambda.index.html Published.PCF.Lambda.index.html

@@ -4,26 +4,25 @@ The main result needed in this module is the extension lemma.
 
 \begin{code}[hide]
 
-{-# OPTIONS --safe --without-K --exact-split --lossy-unification #-}
+{-# OPTIONS --safe --without-K --lossy-unification #-}
 
 open import MLTT.Spartan hiding (𝟚)
+open import Slice.Family
 open import UF.Base
 open import UF.Equiv hiding (_■)
-open import UF.PropTrunc
 open import UF.FunExt
-open import UF.Size
 open import UF.PropTrunc
-open import Slice.Family
-open import MLTT.List hiding ([_])
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.SubtypeClassifier
 
 module Locales.BooleanAlgebra
         (pt : propositional-truncations-exist)
         (fe : Fun-Ext)
        where
 
-open import UF.Subsingletons
 open import UF.Logic
-open import UF.Subsingletons-FunExt
+open import UF.Subsingletons
 
 open AllCombinators pt fe
 
@@ -314,7 +313,7 @@ embedding-preserves-and-reflects-order : (B : BooleanAlgebra 𝓤′ 𝓥′) (L
                                        → (μ : is-ba-embedding B L η holds)
                                        → (x y : ⟪ B ⟫)
                                        → (x ≤[ poset-of-ba B ] y
-                                       ↔ η x ≤[ poset-of L ] η y) holds
+                                       ⇔ η x ≤[ poset-of L ] η y) holds
 embedding-preserves-and-reflects-order B L η μ x y = † , ‡
  where
   η-meet-preserving : (x y : ⟪ B ⟫) → η (x ⋏[ B ] y) ＝ η x ∧[ L ] η y

@@ -12,23 +12,24 @@ universal property.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
-open import UF.Base
 
-open import UF.Embeddings
+open import UF.Base
 open import UF.Equiv hiding (_≅_)
-open import UF.EquivalenceExamples
 open import UF.Equiv-FunExt
+open import UF.EquivalenceExamples
 open import UF.FunExt
 open import UF.Lower-FunExt
+open import UF.PropTrunc
 open import UF.SIP
+open import UF.Sets
+open import UF.Sets-Properties
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
-open import UF.PropTrunc
-open import UF.Univalence
 open import UF.UA-FunExt
+open import UF.Univalence
 
 open import Circle.Integers
 open import Circle.Integers-Properties

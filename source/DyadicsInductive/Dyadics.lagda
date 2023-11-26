@@ -6,15 +6,14 @@ Dyadic rationals (https://en.wikipedia.org/wiki/Dyadic_rational)
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module DyadicsInductive.Dyadics where
 
 open import MLTT.Spartan
 open import MLTT.Unit-Properties
-open import TypeTopology.DiscreteAndSeparated
-
-open import UF.Miscelanea
+open import UF.DiscreteAndSeparated
+open import UF.Sets
 open import UF.Subsingletons
 
 \end{code}

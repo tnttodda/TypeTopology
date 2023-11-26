@@ -11,7 +11,7 @@ axiom and the K axiom.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module UF.PreUnivalence where
 
@@ -19,6 +19,7 @@ open import MLTT.Spartan
 open import UF.Base
 open import UF.Embeddings
 open import UF.Equiv
+open import UF.Sets
 open import UF.Subsingletons
 open import UF.Univalence
 

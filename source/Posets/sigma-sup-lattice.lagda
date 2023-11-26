@@ -5,7 +5,7 @@ hence finite joins).
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import UF.FunExt
@@ -14,10 +14,12 @@ open import UF.Subsingletons
 module Posets.sigma-sup-lattice (fe : Fun-Ext) where
 
 open import UF.Base
-open import UF.SIP
 open import UF.Equiv hiding (_≅_)
-open import UF.Univalence
+open import UF.Hedberg
+open import UF.SIP
+open import UF.Sets
 open import UF.Subsingletons-FunExt
+open import UF.Univalence
 
 σ-suplat-structure : 𝓤 ̇ → 𝓤 ̇
 σ-suplat-structure X = X × ((ℕ → X) → X)
@@ -67,7 +69,7 @@ Any compatible order is logically equivalent to the intrinsic order:
 
 any-σ-sup-order-is-intrinsic-order : {X : 𝓤 ̇ } (s : σ-suplat-structure X) (_≤_ : X → X → 𝓥 ̇ )
                                    → is-σ-sup-compatible-order s _≤_
-                                   → (x y : X) → x ≤ y ⇔ x ≤[ s ] y
+                                   → (x y : X) → x ≤ y ↔ x ≤[ s ] y
 any-σ-sup-order-is-intrinsic-order {𝓥} {X} (⊥ , ⋁) _≤_ (≤-prop-valued , ≤-refl , ≤-trans , ≤-anti , bottom , ⋁-is-ub , ⋁-is-lb-of-ubs) x y = a , b
  where
   s = (⊥ , ⋁)

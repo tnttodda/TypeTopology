@@ -67,33 +67,35 @@ bisimulations. This gives a technique for establishing equalities on
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.FunExt
 
 module CoNaturals.UniversalProperty (fe : FunExt) where
 
-open import MLTT.Spartan
 open import CoNaturals.GenericConvergentSequence
-open import Notation.CanonicalMap
-
-open import MLTT.Two-Properties
 open import MLTT.Plus-Properties
+open import MLTT.Spartan
+open import MLTT.Two-Properties
+open import Notation.CanonicalMap
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.Subsingletons-Properties
 
 private
  fe₀ : funext 𝓤₀ 𝓤₀
  fe₀ = fe 𝓤₀ 𝓤₀
 
-Zero' : 𝟙 + ℕ∞
-Zero' = inl {𝓤₀} {𝓤₀} ⋆
+ZERO : 𝟙 + ℕ∞
+ZERO = inl {𝓤₀} {𝓤₀} ⋆
 
-Pred' : ℕ∞ → 𝟙 + ℕ∞
-Pred' u = inr {𝓤₀} {𝓤₀} (Pred u)
+PRED' : ℕ∞ → 𝟙 + ℕ∞
+PRED' u = inr {𝓤₀} {𝓤₀} (Pred u)
 
 PRED : ℕ∞ → 𝟙 + ℕ∞
-PRED u = 𝟚-Cases (positivity u) Zero' (Pred' u)
+PRED u = 𝟚-Cases (positivity u) ZERO (PRED' u)
 
-PRED-Zero : PRED Zero ＝ Zero'
+PRED-Zero : PRED Zero ＝ ZERO
 PRED-Zero = refl
 
 PRED-Succ : (u : ℕ∞) → PRED(Succ u) ＝ inr u
@@ -121,8 +123,8 @@ SUCC-PRED {u} = 𝟚-equality-cases l₀ l₁
          Zero         ＝⟨ (is-Zero-equal-Zero fe₀ r)⁻¹ ⟩
          u            ∎
     where
-     c₀ : PRED u ＝ Zero'
-     c₀ = ap (𝟚-cases Zero' (Pred' u)) r
+     c₀ : PRED u ＝ ZERO
+     c₀ = ap (𝟚-cases ZERO (PRED' u)) r
 
   l₁ : positivity u ＝ ₁ → SUCC(PRED u) ＝ u
   l₁ r = SUCC (PRED u) ＝⟨ ap SUCC c₀ ⟩
@@ -130,8 +132,8 @@ SUCC-PRED {u} = 𝟚-equality-cases l₀ l₁
          u             ∎
 
    where
-     c₀ : PRED u ＝ Pred' u
-     c₀ = ap (𝟚-cases Zero' (Pred' u)) r
+     c₀ : PRED u ＝ PRED' u
+     c₀ = ap (𝟚-cases ZERO (PRED' u)) r
      c₁ : u ≠ Zero
      c₁ s = equal-₀-different-from-₁(ap positivity s) r
 
@@ -201,7 +203,7 @@ homomorphism-existence {𝓤} {X} κ = h , dfunext (fe 𝓤 𝓤₀) h-spec
     l₀ : (s : 𝟙) → κ x ＝ inl s → PRED(h x) ＝ (𝟙+ h)(κ x)
     l₀ ⋆ r = PRED (h x) ＝⟨ ap PRED c ⟩
              PRED Zero  ＝⟨ PRED-Zero ⟩
-             Zero'      ＝⟨ (ap (𝟙+ h) r)⁻¹ ⟩
+             ZERO      ＝⟨ (ap (𝟙+ h) r)⁻¹ ⟩
              𝟙+ h (κ x) ∎
      where
       c : h x ＝ Zero

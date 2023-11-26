@@ -4,7 +4,7 @@ The subtype Ordinalsᵀ of ordinals with a top element.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import UF.FunExt
 
@@ -18,6 +18,7 @@ open import Ordinals.Notions
 open import Ordinals.Type
 open import Ordinals.Underlying
 open import UF.Base
+open import UF.Sets
 open import UF.Subsingletons
 
 \end{code}

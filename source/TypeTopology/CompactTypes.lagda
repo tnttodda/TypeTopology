@@ -73,7 +73,7 @@ topologically compact, when one reasons constructively.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module TypeTopology.CompactTypes where
 
@@ -83,15 +83,15 @@ open import MLTT.Spartan
 open import MLTT.Two-Properties
 open import NotionsOfDecidability.Complemented
 open import NotionsOfDecidability.Decidable
-open import TypeTopology.DiscreteAndSeparated
 open import UF.Base
+open import UF.DiscreteAndSeparated
 open import UF.Equiv
 open import UF.FunExt
-open import UF.Miscelanea
 open import UF.PropTrunc
 open import UF.Retracts
-open import UF.Subsingletons renaming (⊤Ω to ⊤ ; ⊥Ω to ⊥)
+open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
+open import UF.SubtypeClassifier
 
 \end{code}
 
@@ -248,7 +248,7 @@ p has-a-root = Σ x ꞉ domain p , x is-a-root-of p
 putative-root : {X : 𝓤 ̇ }
               → is-compact∙ X
               → (p : X → 𝟚)
-              → Σ x₀ ꞉ X , (p has-a-root ⇔ x₀ is-a-root-of p)
+              → Σ x₀ ꞉ X , (p has-a-root ↔ x₀ is-a-root-of p)
 putative-root {𝓤} {X} ε p = x₀ , lemma₀ , lemma₁
  where
   x₀ : X
@@ -626,7 +626,7 @@ above. We should deal with this.
 \begin{code}
 
 is-wcompact : 𝓤 ̇ → 𝓤 ̇
-is-wcompact X = (p : X → 𝟚) → Σ y ꞉ 𝟚 , (y ＝ ₁ ⇔ ((x : X) → p x ＝ ₁))
+is-wcompact X = (p : X → 𝟚) → Σ y ꞉ 𝟚 , (y ＝ ₁ ↔ ((x : X) → p x ＝ ₁))
 
 \end{code}
 
@@ -635,7 +635,7 @@ Closer to the original definition of exhaustibility in LICS'2007 amd LMCS'2008:
 \begin{code}
 
 is-wcompact' : 𝓤 ̇ → 𝓤 ̇
-is-wcompact' X = Σ A ꞉ ((X → 𝟚) → 𝟚) , ((p : X → 𝟚) → A p ＝ ₁ ⇔ ((x : X) → p x ＝ ₁))
+is-wcompact' X = Σ A ꞉ ((X → 𝟚) → 𝟚) , ((p : X → 𝟚) → A p ＝ ₁ ↔ ((x : X) → p x ＝ ₁))
 
 \end{code}
 
@@ -650,7 +650,7 @@ wcompact-types-are-wcompact' {𝓤} {X} φ = A , lemma
   A : (X → 𝟚) → 𝟚
   A p = pr₁ (φ p)
 
-  lemma : (p : X → 𝟚) → A p ＝ ₁ ⇔ ((x : X) → p x ＝ ₁)
+  lemma : (p : X → 𝟚) → A p ＝ ₁ ↔ ((x : X) → p x ＝ ₁)
   lemma p = pr₂ (φ p)
 
 compact-gives-wcompact : {X : 𝓤 ̇ } → is-compact∙ X → is-wcompact X

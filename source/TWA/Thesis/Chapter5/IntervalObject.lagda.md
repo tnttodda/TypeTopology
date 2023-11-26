@@ -129,7 +129,7 @@ id-is-⊕-homomorphism 𝓐 x y = refl
                   → is-⊕-homomorphism 𝓑 𝓒 h₂
                   → is-⊕-homomorphism 𝓐 𝓒 (h₂ ∘ h₁)
 ⊕-hom-composition {𝓤} {𝓥} {𝓦} 𝓐 𝓑 𝓒 h₁ h₂ i₁ i₂ x y
- = (h₂ ∘ h₁) (x ⊕⟨ 𝓐 ⟩ y)                       ＝⟨ ap h₂ (i₁ x y) ⟩
+  = (h₂ ∘ h₁) (x ⊕⟨ 𝓐 ⟩ y)                       ＝⟨ ap h₂ (i₁ x y) ⟩
          h₂  ((h₁ x) ⊕⟨ 𝓑 ⟩ (h₁ y))             ＝⟨ i₂ (h₁ x) (h₁ y) ⟩
              ((h₂ ∘ h₁) x) ⊕⟨ 𝓒 ⟩ ((h₂ ∘ h₁) y) ∎
 ```

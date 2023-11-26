@@ -7,7 +7,7 @@ We begin by defining a "closeness function"
 
 such that
 
-  c x y ＝ ∞ ⇔ x ＝ y
+  c x y ＝ ∞ ↔ x ＝ y
 
 for some examples of types X, including Baire, Cantor and ℕ∞.
 
@@ -21,7 +21,7 @@ We then discuss further codistance axioms.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import UF.FunExt
@@ -35,8 +35,7 @@ open import MLTT.Two-Properties
 open import Naturals.Sequence fe
 open import Notation.CanonicalMap
 open import Notation.Order
-open import TypeTopology.DiscreteAndSeparated
-open import UF.Miscelanea
+open import UF.DiscreteAndSeparated
 
 module sequences
         {𝓤 : Universe}

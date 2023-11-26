@@ -2,16 +2,14 @@ Martin Escardo 2011.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module NotionsOfDecidability.Decidable where
 
 open import MLTT.Spartan
-
-open import MLTT.Plus-Properties
 open import MLTT.Two-Properties
-open import UF.Subsingletons
 open import UF.Equiv
+open import UF.Subsingletons
 
 ¬¬-elim : {A : 𝓤 ̇ } → is-decidable A → ¬¬ A → A
 ¬¬-elim (inl a) f = a
@@ -21,8 +19,8 @@ map-is-decidable : {A : 𝓤 ̇ } {B : 𝓥 ̇ } → (A → B) → (B → A) →
 map-is-decidable f g (inl x) = inl (f x)
 map-is-decidable f g (inr h) = inr (λ y → h (g y))
 
-map-is-decidable-⇔ : {A : 𝓤 ̇ } {B : 𝓥 ̇ } → (A ⇔ B) → (is-decidable A ⇔ is-decidable B)
-map-is-decidable-⇔ (f , g) = map-is-decidable f g , map-is-decidable g f
+map-is-decidable-↔ : {A : 𝓤 ̇ } {B : 𝓥 ̇ } → (A ↔ B) → (is-decidable A ↔ is-decidable B)
+map-is-decidable-↔ (f , g) = map-is-decidable f g , map-is-decidable g f
 
 decidability-is-closed-under-≃ : {A : 𝓤 ̇ } {B : 𝓥 ̇ }
                                → (A ≃ B)
@@ -45,6 +43,13 @@ pointed-is-decidable = inl
 
 𝟙-is-decidable : is-decidable (𝟙 {𝓤})
 𝟙-is-decidable = pointed-is-decidable ⋆
+
+equivs-are-decidable : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } (𝕗 : X ≃ Y)
+                     → each-fiber-of ⌜ 𝕗 ⌝ is-decidable
+equivs-are-decidable 𝕗 y = inl (⌜ 𝕗 ⌝⁻¹ y , inverses-are-sections' 𝕗 y)
+
+id-is-decidable : {X : 𝓤 ̇ } → each-fiber-of (id {𝓤} {X}) is-decidable
+id-is-decidable x = inl (x , refl)
 
 decidable-closed-under-Σ : {X : 𝓤 ̇ } {Y : X → 𝓥 ̇ }
                          → is-prop X

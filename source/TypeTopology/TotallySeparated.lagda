@@ -59,23 +59,28 @@ apartness relation is a set, and so this reflection is always a set.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module TypeTopology.TotallySeparated where
 
 open import MLTT.Spartan
 open import MLTT.Two-Properties
 open import NotionsOfDecidability.Complemented
-open import TypeTopology.DiscreteAndSeparated hiding (tight)
 open import UF.Base
+open import UF.DiscreteAndSeparated hiding (tight)
 open import UF.Embeddings
 open import UF.Equiv
 open import UF.FunExt
+open import UF.Hedberg
 open import UF.LeftCancellable
 open import UF.Lower-FunExt
-open import UF.Miscelanea
+open import UF.NotNotStablePropositions
+open import UF.Powerset hiding (𝕋)
 open import UF.PropTrunc
 open import UF.Retracts
+open import UF.Sets
+open import UF.Sets-Properties
+open import UF.SubtypeClassifier
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 
@@ -271,11 +276,11 @@ open import UF.ExcludedMiddle
   p : Ω 𝓤
   p = (P , P-is-prop)
 
-  b : ¬¬ (p ＝ ⊤Ω)
+  b : ¬¬ (p ＝ ⊤)
   b = ¬¬-functor (holds-gives-equal-⊤ pe fe p) not-not-P
 
-  c : p ＝ ⊤Ω
-  c = Ω-is-¬¬-separated p ⊤Ω b
+  c : p ＝ ⊤
+  c = Ω-is-¬¬-separated p ⊤ b
 
   d : P
   d = equal-⊤-gives-holds p c
@@ -629,7 +634,8 @@ rather than direct proofs (as in the proof of tight reflection below).
    ie : (γ : (A → 𝟚) → 𝟚) → is-prop (Σ a ꞉ A , eval A a ＝ γ)
    ie = totally-separated-gives-totally-separated₂ fe' τ
 
-   h : (φ : (X → 𝟚) → 𝟚) → (∃ x ꞉ X , eval X x ＝ φ)
+   h : (φ : (X → 𝟚) → 𝟚)
+     → (∃ x ꞉ X , eval X x ＝ φ)
      → Σ a ꞉ A , eval A a ＝ (λ q → φ (q ∘ f))
    h φ = ∥∥-rec (ie γ) u
     where
@@ -725,8 +731,8 @@ this context, it makes sense to restrict our attention to S-separated
 types.
 
 Another useful thing is that in any type X we can define an apartness
-relation x♯y by ∃(p:X→𝟚), p (x)‌≠p (y), which is tight iff X is totally
-separated, where tightness means ¬ (x♯y)→x=y. Part of the following
+relation x♯y by ∃ p : X→𝟚 , p x ‌≠p y, which is tight iff X is totally
+separated, where tightness means ¬ (x ♯ y)→ x = y. Part of the following
 should be moved to another module about apartness, but I keep it here
 for the moment.
 
@@ -770,13 +776,13 @@ module Apartness
  apartness-is-irreflexive _♯_ (p , i , s , c) = i
 
  apartness-is-symmetric : {X : 𝓤 ̇ } (_♯_ : X → X → 𝓥 ̇ )
-                          → is-apartness _♯_
-                          → is-symmetric _♯_
+                        → is-apartness _♯_
+                        → is-symmetric _♯_
  apartness-is-symmetric _♯_ (p , i , s , c) = s
 
  apartness-is-cotransitive : {X : 𝓤 ̇ } (_♯_ : X → X → 𝓥 ̇ )
-                          → is-apartness _♯_
-                          → is-cotransitive _♯_
+                           → is-apartness _♯_
+                           → is-cotransitive _♯_
  apartness-is-cotransitive _♯_ (p , i , s , c) = c
 
 \end{code}
@@ -865,10 +871,10 @@ apartness relation _♯₂ is tight:
                  → (p : Ω 𝓤) → p holds ∨ ¬ (p holds)
  ♯Ω-cotran-taboo c p = ∥∥-functor II I
   where
-   I : (⊥Ω ♯Ω p) ∨ (⊤Ω ♯Ω p)
-   I = c ⊥Ω ⊤Ω p (inr (𝟘-elim , ⋆))
+   I : (⊥ ♯Ω p) ∨ (⊤ ♯Ω p)
+   I = c ⊥ ⊤ p (inr (𝟘-elim , ⋆))
 
-   II : (⊥Ω ♯Ω p) + (⊤Ω ♯Ω p) → (p holds) + ¬ (p holds)
+   II : (⊥ ♯Ω p) + (⊤ ♯Ω p) → (p holds) + ¬ (p holds)
    II (inl (inr (a , b))) = inl b
    II (inr (inl (a , b))) = inr b
    II (inr (inr (a , b))) = inl b
@@ -933,10 +939,10 @@ https://nforum.ncatlab.org/discussion/8282/points-of-the-localic-quotient-with-r
  not-apart-have-same-apart : {X : 𝓤 ̇ } (x y : X) (_♯_ : X → X → 𝓥 ̇ )
                            → is-apartness _♯_
                            → ¬ (x ♯ y)
-                           → ((z : X) → x ♯ z ⇔ y ♯ z)
+                           → ((z : X) → x ♯ z ↔ y ♯ z)
  not-apart-have-same-apart {𝓤} {𝓥} {X} x y _♯_ (p , i , s , c) = g
   where
-   g : ¬ (x ♯ y) → (z : X) → x ♯ z ⇔ y ♯ z
+   g : ¬ (x ♯ y) → (z : X) → x ♯ z ↔ y ♯ z
    g n z = g₁ , g₂
     where
      g₁ : x ♯ z → y ♯ z
@@ -956,11 +962,11 @@ https://nforum.ncatlab.org/discussion/8282/points-of-the-localic-quotient-with-r
 
  have-same-apart-are-not-apart : {X : 𝓤 ̇ } (x y : X) (_♯_ : X → X → 𝓥 ̇ )
                                → is-apartness _♯_
-                               → ((z : X) → x ♯ z ⇔ y ♯ z)
+                               → ((z : X) → x ♯ z ↔ y ♯ z)
                                → ¬ (x ♯ y)
  have-same-apart-are-not-apart {𝓤} {𝓥} {X} x y _♯_ (p , i , s , c) = f
   where
-   f : ((z : X) → x ♯ z ⇔ y ♯ z) → ¬ (x ♯ y)
+   f : ((z : X) → x ♯ z ↔ y ♯ z) → ¬ (x ♯ y)
    f φ a = i y (pr₁(φ y) a)
 
 \end{code}
@@ -1131,7 +1137,7 @@ https://nforum.ncatlab.org/discussion/8282/points-of-the-localic-quotient-with-r
   α-lemma : (x y : X) → x ~ y → α x ＝ α y
   α-lemma x y na = dfunext fe' h
    where
-    f : (z : X) → x ♯ z ⇔ y ♯ z
+    f : (z : X) → x ♯ z ↔ y ♯ z
     f = not-apart-have-same-apart x y _♯_ ♯a na
 
     g : (z : X) → x ♯ z ＝ y ♯ z

@@ -5,12 +5,13 @@ ordinals with a top element.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import Ordinals.Notions
 open import Ordinals.Underlying
 open import UF.FunExt
+open import UF.Sets
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 

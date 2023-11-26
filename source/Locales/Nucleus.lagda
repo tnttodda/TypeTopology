@@ -4,7 +4,7 @@ Based on `ayberkt/formal-topology-in-UF`.
 
 \begin{code}[hide]
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 open import UF.Base
@@ -17,8 +17,9 @@ module Locales.Nucleus
         (fe : Fun-Ext)
        where
 
-open import UF.Subsingletons
 open import UF.Logic
+open import UF.SubtypeClassifier
+open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 
 open import Locales.Frame pt fe

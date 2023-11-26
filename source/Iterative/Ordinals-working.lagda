@@ -4,7 +4,7 @@ More about iterative ordinals and their relation to iterative (multi)sets.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split --lossy-unification #-}
+{-# OPTIONS --safe --without-K --lossy-unification #-}
 
 open import MLTT.Spartan
 open import UF.Univalence
@@ -64,7 +64,7 @@ rank = 𝕍-induction (λ _ → 𝕆) {!!}
 
 
 open import UF.PropTrunc
-open import UF.Quotient -- hiding (is-prop-valued)
+open import Quotient.Type -- hiding (is-prop-valued)
 
 open import Ordinals.Arithmetic fe'
 open import Ordinals.ArithmeticProperties ua

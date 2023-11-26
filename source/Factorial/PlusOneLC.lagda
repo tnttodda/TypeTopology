@@ -10,14 +10,14 @@ from 21 March 2018 is included at the end.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module Factorial.PlusOneLC where
 
 open import Factorial.Swap
 open import MLTT.Plus-Properties
 open import MLTT.Spartan
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import UF.Equiv
 open import UF.Retracts
 

@@ -2,11 +2,11 @@ Martin Escardo, 2014.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module Fin.Type where
 
-open import UF.Subsingletons renaming (⊤Ω to ⊤)
+open import UF.Subsingletons
 
 open import MLTT.Spartan
 open import MLTT.Plus-Properties

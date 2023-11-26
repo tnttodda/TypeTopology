@@ -9,7 +9,7 @@ least element to X when viewed as a discretely-ordered dcpo.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan hiding (J)
 
@@ -28,7 +28,7 @@ open PropositionalTruncation pt
 
 open import UF.Equiv
 open import UF.ImageAndSurjection pt
-open import UF.Miscelanea
+open import UF.Sets
 open import UF.Subsingletons-FunExt
 
 open import Lifting.Lifting 𝓥 hiding (⊥)

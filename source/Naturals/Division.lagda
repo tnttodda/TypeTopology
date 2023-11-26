@@ -6,7 +6,7 @@ proofs of properties of division are also provided.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan renaming (_+_ to _∔_)
 
@@ -16,7 +16,7 @@ open import Naturals.Properties
 open import Naturals.Order
 open import Notation.Order
 open import UF.Base
-open import UF.Miscelanea
+open import UF.DiscreteAndSeparated
 open import UF.Subsingletons
 
 module Naturals.Division where

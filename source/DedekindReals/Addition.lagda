@@ -5,7 +5,7 @@ In this file, I define directly addition of the Dedekind reals, and
 show that the Reals are a group with respect to addition.
 
 \begin{code}
-{-# OPTIONS --safe --without-K --exact-split --lossy-unification #-}
+{-# OPTIONS --safe --without-K --lossy-unification #-}
 
 open import MLTT.Spartan renaming (_+_ to _∔_)
 open import UF.Base
@@ -67,7 +67,7 @@ _+_ : ℝ → ℝ → ℝ
                 (r ℚ+ (z ℚ+ (ℚ- (r ℚ+ s)))) ℚ+ s                ＝⟨ ap ((λ - → (r ℚ+ (z ℚ+ (ℚ- -))) ℚ+ s)) (e ⁻¹) ⟩
                 (r ℚ+ (z ℚ+ (ℚ- t))) ℚ+ s                       ∎
 
-  rounded-left-z : (z : ℚ) → (z ∈ L-z ⇔ (∃ t ꞉ ℚ , (z < t) × t ∈ L-z))
+  rounded-left-z : (z : ℚ) → (z ∈ L-z ↔ (∃ t ꞉ ℚ , (z < t) × t ∈ L-z))
   rounded-left-z z = I , II
    where
     I : z ∈ L-z → ∃ t ꞉ ℚ , (z < t) × t ∈ L-z
@@ -105,7 +105,7 @@ _+_ : ℝ → ℝ → ℝ
           IV : z ＝ r ℚ+ (z ℚ- t) ℚ+ s
           IV = ψ z r t s e
 
-  rounded-right-z : (z : ℚ) → (z ∈ R-z) ⇔ (∃ q ꞉ ℚ , ((q < z) × (q ∈ R-z)))
+  rounded-right-z : (z : ℚ) → (z ∈ R-z) ↔ (∃ q ꞉ ℚ , ((q < z) × (q ∈ R-z)))
   rounded-right-z z = I , II
    where
     I : z ∈ R-z → ∃ q ꞉ ℚ , q < z × q ∈ R-z
@@ -370,7 +370,7 @@ open import Rationals.Multiplication renaming (_*_ to _ℚ*_)
   inhabited-left-z = ∥∥-rec ∃-is-prop I (binary-choice (inhabited-from-real-L x) (inhabited-from-real-R x))
    where
     I : (Σ a ꞉ ℚ , a < x) × (Σ b ꞉ ℚ , b > x) → ∃ p ꞉ ℚ , p ∈ L
-    I ((a , a<x) , b ,  x<b) = ∥∥-functor II (located-from-real x (ℚ- b) (ℚ- a) (ℚ<-swap a b (disjoint-from-real x a b (a<x , x<b))))
+    I ((a , a<x) , b ,  x<b) = ∥∥-functor II (ℝ-locatedness x (ℚ- b) (ℚ- a) (ℚ<-swap a b (disjoint-from-real x a b (a<x , x<b))))
      where
       II : ((ℚ- b) < x) ∔ (ℚ- a) > x → Σ p ꞉ ℚ , p ∈ L
       II (inl z) = (ℚ- b) , ∣ b , x<b , refl ∣
@@ -380,7 +380,7 @@ open import Rationals.Multiplication renaming (_*_ to _ℚ*_)
   inhabited-right-z = ∥∥-rec ∃-is-prop I (binary-choice (inhabited-from-real-L x) (inhabited-from-real-R x))
    where
     I : (Σ a ꞉ ℚ , a < x) × (Σ b ꞉ ℚ , b > x) → ∃ q ꞉ ℚ , q ∈ R
-    I ((a , a<x) , b , x<b) = ∥∥-functor II (located-from-real x (ℚ- b) (ℚ- a) (ℚ<-swap a b (disjoint-from-real x a b (a<x , x<b))))
+    I ((a , a<x) , b , x<b) = ∥∥-functor II (ℝ-locatedness x (ℚ- b) (ℚ- a) (ℚ<-swap a b (disjoint-from-real x a b (a<x , x<b))))
      where
       II : ((ℚ- b) < x) ∔ (ℚ- a) > x → Σ q ꞉ ℚ , q ∈ R
       II (inl z) = b      , ∣ ℚ- b , z , (ℚ-minus-minus b) ∣
@@ -454,7 +454,7 @@ open import Rationals.Multiplication renaming (_*_ to _ℚ*_)
       II = disjoint-from-real x q' p' (x<q' , p'<x)
 
   located-z : located L R
-  located-z p q p<q = ∥∥-functor I (located-from-real x (ℚ- q) (ℚ- p) (ℚ<-swap p q p<q))
+  located-z p q p<q = ∥∥-functor I (ℝ-locatedness x (ℚ- q) (ℚ- p) (ℚ<-swap p q p<q))
    where
     I : (ℚ- q) < x ∔ (ℚ- p) > x → p ∈ L ∔ q ∈ R
     I (inl -q<x) = inr ∣ (ℚ- q) , -q<x , ℚ-minus-minus q ∣
@@ -482,7 +482,7 @@ x - y = x + (- y)
         e'' = e ∙ ap (r ℚ+_) e'
         III : (p < 0ℚ) ∔ (p ＝ 0ℚ) ∔ (0ℚ < p) → p < 0ℝ
         III (inl p<0)       = p<0
-        III (inr (inl p＝0)) = 𝟘-elim (ℚ<-not-itself k (transport (_< k) i r<k))
+        III (inr (inl p＝0)) = 𝟘-elim (ℚ<-irrefl k (transport (_< k) i r<k))
          where
           i : r ＝ k
           i = r                  ＝⟨ ℚ-inverse-intro r k ⟩
@@ -492,7 +492,7 @@ x - y = x + (- y)
               p ℚ+ k             ＝⟨ ap (_ℚ+ k) p＝0 ⟩
               0ℚ ℚ+ k            ＝⟨ ℚ-zero-left-neutral k ⟩
               k ∎
-        III (inr (inr 0<p)) = 𝟘-elim (ℚ<-not-itself k (ℚ<-trans k r k k<r r<k))
+        III (inr (inr 0<p)) = 𝟘-elim (ℚ<-irrefl k (ℚ<-trans k r k k<r r<k))
          where
           i : 0ℚ < r ℚ- k
           i = transport (0ℚ <_) e'' 0<p

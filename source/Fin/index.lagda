@@ -2,12 +2,13 @@ Martin Escardo
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module Fin.index where
 
 import Fin.ArgMinMax
 import Fin.ArithmeticViaEquivalence
+import Fin.Dedekind
 import Fin.Bishop
 import Fin.Choice
 import Fin.Embeddings

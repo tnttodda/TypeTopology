@@ -10,12 +10,13 @@ dcpos.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 open import MLTT.Spartan
 
 open import UF.FunExt
 open import UF.PropTrunc
+open import UF.Sets
 
 module DomainTheory.Basics.Dcpo
         (pt : propositional-truncations-exist)

@@ -11,12 +11,13 @@ Escardo, Thierry Coquand, and Thorsten Altenkirch.
 
 \begin{code}
 
-{-# OPTIONS --safe --without-K --exact-split #-}
+{-# OPTIONS --safe --without-K #-}
 
 module UF.KrausLemma where
 
 open import MLTT.Spartan
 open import UF.Base
+open import UF.Hedberg
 open import UF.Subsingletons
 
 fix : {X : 𝓤 ̇ } → (f : X → X) → 𝓤 ̇
@@ -117,7 +118,7 @@ to-from-fix : {X : 𝓤 ̇ } (f : X → X) (κ : wconstant f)
 to-from-fix f κ _ = fix-is-prop f κ _ _
 
 has-split-support' : 𝓤 ̇ → 𝓤 ⁺ ̇
-has-split-support' {𝓤} X = Σ P ꞉ 𝓤 ̇ , is-prop P × (X ⇔ P)
+has-split-support' {𝓤} X = Σ P ꞉ 𝓤 ̇ , is-prop P × (X ↔ P)
 
 fix-has-split-support' : {X : 𝓤 ̇ }
                        → collapsible X

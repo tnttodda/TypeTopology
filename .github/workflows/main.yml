@@ -11,7 +11,9 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     name: Typechecking
+    if: github.event.pull_request.draft == false
     steps:
+<<<<<<< HEAD
       - name: "Clone repository"
         uses: actions/checkout@v2
       - name: Run Agda
@@ -37,3 +39,21 @@ jobs:
         with:
           name: html
           path: source/TWA/Thesis/html
+=======
+    - name: "Clone repository"
+      uses: actions/checkout@v2
+    - name: Run Agda
+      id: typecheck
+      uses: ayberkt/agda-github-action@v3.4
+      with:
+        main-file: AllModulesIndex.lagda
+        source-dir: source
+        unsafe: true
+    - name: Upload HTML
+      id: html-upload
+      if: github.ref == 'refs/heads/master'
+      uses: actions/upload-artifact@v3
+      with:
+        name: html
+        path: source/html
+>>>>>>> origin/remove-thesis-draft
