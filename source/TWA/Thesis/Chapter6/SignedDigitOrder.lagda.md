@@ -143,6 +143,11 @@ module _ (pt : propositional-truncations-exist) where
  ≤ⁿ𝟛ᴺ-for'
   : is-approx-order-for' pt 𝟛ᴺ-ClosenessSpace (_≤𝟛ᴺ_ pt) _≤ⁿ𝟛ᴺ_
  ≤ⁿ𝟛ᴺ-for' x y = ∥∥-rec ∃-is-prop ∣_∣
+
+ ≤ⁿ𝟛ᴺ-for''
+  : is-approx-order-for'' pt 𝟛ᴺ-ClosenessSpace (_≤𝟛ᴺ_ pt) _≤ⁿ𝟛ᴺ_
+ ≤ⁿ𝟛ᴺ-for'' x y f = ∣ 0 , (λ x _ → f x) ∣
+
 ```
 
 [⇐ Index](../html/TWA.Thesis.index.html)

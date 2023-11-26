@@ -1,15 +1,14 @@
 ```agda
 
-{-# OPTIONS --without-K --exact-split --safe --guardedness #-}
+{-# OPTIONS --without-K --exact-split --safe #-}
 
 open import MLTT.Spartan
 open import UF.FunExt
-open import TypeTopology.DiscreteAndSeparated
+open import UF.DiscreteAndSeparated
 open import Notation.Order
 open import Naturals.Order
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
-open import UF.Quotient
 open import UF.Embeddings
 open import CoNaturals.GenericConvergentSequence
   renaming (ℕ-to-ℕ∞ to ι
@@ -21,12 +20,21 @@ open import MLTT.Two-Properties
 
 open import TWA.Thesis.Chapter2.Finite
 open import TWA.Thesis.Chapter2.Sequences
+open import TWA.Thesis.Chapter4.ApproxOrder
+open import TWA.Thesis.Chapter4.ApproxOrder-Examples
 
 module TWA.Thesis.Chapter4.LPOWorking (fe : FunExt) where
+
+fe₀ = fe 𝓤₀ 𝓤₀
 
 open import Taboos.BasicDiscontinuity fe
 open import Taboos.WLPO
 
+
+
+```
+
+>>>>>>> Stashed changes
 decidable-𝟚 : {X : 𝓤 ̇ } → is-decidable X → 𝟚
 decidable-𝟚 (inl _) = ₁
 decidable-𝟚 (inr _) = ₀
@@ -146,8 +154,13 @@ min-≼ u v m = transport (_≼ v) m (λ n e → Lemma[min𝟚ab＝₁→b＝₁
 
 min-Succ : (u v : ℕ∞) → Succ (min u v) ＝ min (Succ u) (Succ v)
 min-Succ u v
+<<<<<<< Updated upstream
  = to-subtype-＝ (being-decreasing-is-prop (fe _ _))
      (dfunext (fe _ _) γ)
+=======
+ = to-subtype-＝ (being-decreasing-is-prop fe₀)
+     (dfunext fe₀ γ)
+>>>>>>> Stashed changes
  where
   γ : _
   γ zero = refl
@@ -159,7 +172,11 @@ Succ-≠ u v f refl = f refl
 ¬-min' : (n : ℕ) (v : ℕ∞) → min (ι n) v ≠ ι n → pr₁ v n ≠ ₁
 ¬-min' zero v m e = m refl
 ¬-min' (succ n) v m
+<<<<<<< Updated upstream
  = Cases (Zero-or-Succ (fe _ _) v)
+=======
+ = Cases (Zero-or-Succ fe₀ v)
+>>>>>>> Stashed changes
      (λ e f → zero-is-not-one (ap (λ - → pr₁ - n) (ap Pred e ∙ Pred-Zero-is-Zero) ⁻¹ ∙ f))
      (λ e → ¬-min' n (Pred v)
               (Succ-≠ _ _

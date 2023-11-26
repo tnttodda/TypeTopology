@@ -7,6 +7,7 @@
 
 open import MLTT.Spartan
 open import UF.FunExt
+open import UF.DiscreteAndSeparated
 open import UF.Subsingletons
 open import UF.PropTrunc
 open import Quotient.Type
@@ -27,35 +28,36 @@ is-preorder _≤_ = reflexive _≤_
                 × transitive _≤_
                 × is-prop-valued _≤_
 
+is-partial-order : {X : 𝓤  ̇ } → (X → X → 𝓦  ̇ ) → 𝓤 ⊔ 𝓦  ̇
+is-partial-order {_} {_} {X} _≤_
+ = is-preorder _≤_ × antisymmetric _≤_
+
 linear :  {X : 𝓤  ̇ } → (X → X → 𝓦  ̇ ) → 𝓤 ⊔ 𝓦  ̇
 linear {_} {_} {X} _≤_ = (x y : X) → (x ≤ y) + (y ≤ x)
 
 is-linear-preorder : {X : 𝓤  ̇ } → (X → X → 𝓦  ̇ ) → 𝓤 ⊔ 𝓦  ̇
-is-linear-preorder {_} {_} {X} _≤_ = is-preorder _≤_ × linear _≤_
+is-linear-preorder {_} {_} {X} _≤_
+ = is-preorder _≤_ × linear _≤_
 
-is-strict-order : {X : 𝓤  ̇ } → (X → X → 𝓦  ̇ ) → 𝓤 ⊔ 𝓦  ̇ 
-is-strict-order {_} {_} {X} _<_
- = ((x : X) → ¬ (x < x))
- × transitive _<_
- × ((x y : X) → x < y → ¬ (y < x))
- × is-prop-valued _<_
+is-linear-order : {X : 𝓤  ̇ } → (X → X → 𝓦  ̇ ) → 𝓤 ⊔ 𝓦  ̇
+is-linear-order {_} {_} {X} _≤_
+ = is-partial-order _≤_ × linear _≤_
 
-trichotomous : {X : 𝓤 ̇ } → (_<_ : X → X → 𝓥 ̇ ) → 𝓤 ⊔ 𝓥 ̇
-trichotomous {𝓤} {𝓥} {X} _<_ = (x y : X) → (x < y) + (x ＝ y) + (y < x)
+discrete-reflexive-antisym-linear-order-is-decidable
+ : {X : 𝓤  ̇ } 
+ → is-discrete X
+ → (_≤_ : X → X → 𝓦  ̇ )
+ → reflexive _≤_
+ → antisymmetric _≤_
+ → linear _≤_
+ → (x y : X)
+ → is-decidable (x ≤ y)
+discrete-reflexive-antisym-linear-order-is-decidable
+ ds _≤_ r a l x y
+ = Cases (ds x y) (λ x=y → inl (transport (x ≤_) x=y (r x)))
+    (λ x≠y → Cases (l x y) inl
+               (inr ∘ (λ y≤x x≤y → x≠y (a x y x≤y y≤x))))
 
-is-strict-linear-order : {X : 𝓤  ̇ } → (X → X → 𝓦  ̇ ) → 𝓤 ⊔ 𝓦  ̇ 
-is-strict-linear-order {_} {_} {X} _<_
- = is-strict-order _<_ × trichotomous _<_
-
-strict-linear-order-decidable : {X : 𝓤  ̇ }
-                              → (_<'_ : X → X → 𝓦  ̇ )
-                              → is-strict-linear-order _<'_
-                              → (x y : X)
-                              → is-decidable (x <' y)
-strict-linear-order-decidable _<'_ ((i , t , a , p) , l) x y
- = Cases (l x y) inl
-  (cases (λ x＝y → inr (transport (λ - → ¬ (x <' -)) x＝y (i x)))
-         (inr ∘ a y x))
 ```
 
 ## Approximate orders
@@ -98,41 +100,6 @@ is-approx-order X _≤ⁿ_
  → is-linear-preorder _≤_
  → (x y : X) → (x ≤ y) + (y ≤ x)
 ≤-linear⟨ pre , l ⟩ = l
-
-<-irref⟨_⟩
- : {X : 𝓤 ̇ } {_<_ : X → X → 𝓦 ̇ }
- → is-strict-order _<_
- → (x : X) → ¬ (x < x)
-<-irref⟨ i , t , a , p ⟩ = i
-
-<-trans⟨_⟩
- : {X : 𝓤 ̇ } {_<_ : X → X → 𝓦 ̇ }
- → is-strict-order _<_
- → transitive _<_
-<-trans⟨ i , t , a , p ⟩ = t
-
-<-anti⟨_⟩
- : {X : 𝓤 ̇ } {_<_ : X → X → 𝓦 ̇ }
- → is-strict-order _<_
- → (x y : X) → x < y → ¬ (y < x)
-<-anti⟨ i , t , a , p ⟩ = a
-
-<-prop⟨_⟩
- : {X : 𝓤 ̇ } {_<_ : X → X → 𝓦 ̇ }
- → is-strict-order _<_
- → is-prop-valued _<_
-<-prop⟨ i , t , a , p ⟩ = p
-
-<-strict⟨_⟩
- : {X : 𝓤 ̇ } {_<_ : X → X → 𝓦 ̇ }
- → is-strict-linear-order _<_
- → is-strict-order _<_
-<-strict⟨ str , t ⟩ = str
-
-<-trich⟨_⟩ : {X : 𝓤 ̇ } {_<_ : X → X → 𝓦 ̇ }
- → is-strict-linear-order _<_
- → trichotomous _<_
-<-trich⟨ str , t ⟩ = t
 
 ≤ⁿ-all-linear
  : (X : ClosenessSpace 𝓤)
@@ -202,6 +169,15 @@ module _ (pt : propositional-truncations-exist) where
   → x ≤x y
   → ∃ n ꞉ ℕ , ((ϵ : ℕ) → n ≤ ϵ → (x ≤ⁿx y) ϵ)
 
+ is-approx-order-for'' : (X : ClosenessSpace 𝓤)
+                       → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
+                       → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ )
+                       → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
+ is-approx-order-for'' X _≤x_ _≤ⁿx_
+  = (x y : ⟨ X ⟩)
+  → ((n : ℕ) → (x ≤ⁿx y) n)
+  → x ≤x y
+  
  is-approx-order-for : (X : ClosenessSpace 𝓤)
                      → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
                      → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ )
@@ -210,6 +186,7 @@ module _ (pt : propositional-truncations-exist) where
   = is-preorder _≤_
   × is-approx-order X _≤ⁿ_
   × is-approx-order-for' X _≤_ _≤ⁿ_
+  × is-approx-order-for'' X _≤_ _≤ⁿ_
 
  ≤ⁿ-pre
   : (X : ClosenessSpace 𝓤)
@@ -224,14 +201,21 @@ module _ (pt : propositional-truncations-exist) where
            → {_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ }
            → is-approx-order-for X _≤_ _≤ⁿ_
            → is-approx-order X _≤ⁿ_
- ≤ⁿ-approx X (p , x , a) = x
+ ≤ⁿ-approx X (p , x , a , b) = x
 
- ≤ⁿ-for : (X : ClosenessSpace 𝓤)
+ ≤ⁿ-for→ : (X : ClosenessSpace 𝓤)
         → {_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ }
         → {_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ }
         → is-approx-order-for X _≤_ _≤ⁿ_
         → is-approx-order-for' X _≤_ _≤ⁿ_
- ≤ⁿ-for X (p , x , a) = a
+ ≤ⁿ-for→ X (p , x , a , b) = a
+
+ ≤ⁿ-for← : (X : ClosenessSpace 𝓤)
+        → {_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ }
+        → {_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ }
+        → is-approx-order-for X _≤_ _≤ⁿ_
+        → is-approx-order-for'' X _≤_ _≤ⁿ_
+ ≤ⁿ-for← X (p , x , a , b) = b
 ```
 
 ## Predicates from approximate orders

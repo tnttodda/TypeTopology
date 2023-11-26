@@ -27,6 +27,7 @@ open import TWA.Thesis.Chapter3.PredicateEquality
 ```agda
 open import TWA.Thesis.Chapter4.ApproxOrder
 open import TWA.Thesis.Chapter4.ApproxOrder-Examples
+open import TWA.Thesis.Chapter4.LPOWorking -- rename
 open import TWA.Thesis.Chapter4.GlobalOptimisation
 open import TWA.Thesis.Chapter4.ParametricRegression
 ```

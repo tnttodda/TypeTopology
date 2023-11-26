@@ -83,26 +83,42 @@ open import TWA.Thesis.Chapter6.SignedDigitOrder fe
 ## Cantor space search and optimisation
 
 ```
+≤₂-is-preorder : is-preorder _≤₂_
+≤₂-is-preorder
+ = (λ _ → ≤₂-refl) , ≤₂-trans , λ _ _ → ≤₂-is-prop-valued
+
+≤₂-is-antisym-preorder : is-partial-order _≤₂_
+≤₂-is-antisym-preorder = ≤₂-is-preorder , λ _ _ → ≤₂-anti
+
+≤₂-is-antisym-linear-preorder : is-linear-order _≤₂_
+≤₂-is-antisym-linear-preorder = ≤₂-is-antisym-preorder , ≤₂-linear
+ where
+  ≤₂-linear : linear _≤₂_
+  ≤₂-linear ₀ _ = inl ⋆
+  ≤₂-linear ₁ ₀ = inr ⋆
+  ≤₂-linear ₁ ₁ = inl ⋆
+
 𝟚ᴺ : 𝓤₀ ̇
 𝟚ᴺ = ℕ → 𝟚
 
 𝟚ᴺ-lexicorder : 𝟚ᴺ → 𝟚ᴺ → 𝓤₀ ̇
 𝟚ᴺ-lexicorder
- = discrete-lexicorder 𝟚-is-discrete _<₂_
+ = discrete-lexicorder 𝟚-is-discrete _≤₂_
 
 𝟚ᴺ-lexicorder-is-preorder : is-preorder 𝟚ᴺ-lexicorder
 𝟚ᴺ-lexicorder-is-preorder
- = discrete-lexicorder-is-preorder 𝟚-is-discrete
-     𝟚-is-set _<₂_ <₂-is-strict
+ = discrete-lexicorder-is-preorder
+     𝟚-is-discrete _≤₂_ ≤₂-is-antisym-preorder
 
 𝟚ᴺ-approx-lexicorder : 𝟚ᴺ → 𝟚ᴺ → ℕ → 𝓤₀ ̇ 
-𝟚ᴺ-approx-lexicorder = discrete-approx-lexicorder 𝟚-is-discrete _<₂_
+𝟚ᴺ-approx-lexicorder = discrete-approx-lexicorder 𝟚-is-discrete _≤₂_
 
 𝟚ᴺ-approx-lexicorder-is-approx-order
  : is-approx-order 𝟚ᴺ-ClosenessSpace 𝟚ᴺ-approx-lexicorder
 𝟚ᴺ-approx-lexicorder-is-approx-order
  = discrete-approx-lexicorder-is-approx-order
-       𝟚-is-discrete 𝟚-is-set _<₂_ (<₂-is-strict , <₂-trichotomous)
+       𝟚-is-discrete _≤₂_
+       ≤₂-is-antisym-linear-preorder 
 
 𝟚ᴺ-approx-lexicorder' : 𝟚ᴺ → 𝟚ᴺ → ℕ → Ω 𝓤₀
 𝟚ᴺ-approx-lexicorder' α β n
