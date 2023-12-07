@@ -761,12 +761,14 @@ C-to-∼ⁿ' d α β (succ n) Cαβ i i<n
 
 ∼ⁿ-to-C : {X : 𝓤 ̇ } → (d : is-discrete X)
         → (α β : (ℕ → X)) (n : ℕ)
-        → (α ∼ⁿ β) n → C (ℕ→D-ClosenessSpace d) n α β
+        → (α ∼ⁿ β) n
+        → C (ℕ→D-ClosenessSpace d) n α β
 ∼ⁿ-to-C d = ∼ⁿ-to-C' (λ _ → d)
 
 C-to-∼ⁿ : {X : 𝓤 ̇ } → (d : is-discrete X)
         → (α β : (ℕ → X)) (n : ℕ)
-        → C (ℕ→D-ClosenessSpace d) n α β → (α ∼ⁿ β) n
+        → C (ℕ→D-ClosenessSpace d) n α β
+        → (α ∼ⁿ β) n
 C-to-∼ⁿ d = C-to-∼ⁿ' (λ _ → d)
 
 ΠF-totally-bounded : {F : ℕ → 𝓤 ̇ }

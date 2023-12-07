@@ -165,9 +165,9 @@ approx-holds x y f = ⊕-canc (M x) (M y) (M (tail z)) γ
   z n = pr₁ (pr₁ (f n))
   w n = pr₂ (pr₁ (f n))
   w'' : (n : ℕ) → (ℕ → 𝕀)
-  w'' n = (y n ⊕ pr₂ (pr₁ (f (succ n))))
+  w'' n = (y n ⊕ w (succ n))
         ∷ (λ i → x (succ (i +ℕ n))
-          ⊕ pr₁ (pr₁ (f (succ (succ (i +ℕ n))))))
+          ⊕ z (succ (succ (i +ℕ n))))
   γ'' : (n : ℕ) → m (append-one (z n) ((first- n) x))
                 ＝ m (append-one (w n) ((first- n) y))
   γ'' n = pr₂ (f n)
@@ -222,6 +222,34 @@ fg-approx-holds {_} {X} f g h x
   γ : (x : X) → Π (n-approx' (f x) (g x))
   γ x 0 = (g x 0 , f x 0) , ⊕-comm _ _
   γ x (succ n) = h n (λ y → γ y n) x
+
+cancellation-holds : cancellative fe _⊕_
+cancellation-holds a b c f = M-idem a ⁻¹ ∙ γ ∙ M-idem b
+ where
+  n-approx-c : (i : ℕ)
+             → m (append-one c ((first- i) (λ _ → a)))
+             ＝ m (append-one c ((first- i) (λ _ → b)))
+  n-approx-c 0 = refl
+  n-approx-c 1 = f
+  n-approx-c (succ (succ i))
+   = (   a    ⊕ (a ⊕ wa)) ＝⟨ ap (_⊕ (a ⊕ wa)) (⊕-idem a ⁻¹) ⟩
+     ((a ⊕ a) ⊕ (a ⊕ wa)) ＝⟨ ap ((a ⊕ a) ⊕_) (n-approx-c (succ i)) ⟩
+     ((a ⊕ a) ⊕ (b ⊕ wb)) ＝⟨ ⊕-tran a a b wb ⟩
+     ((a ⊕ b) ⊕ (a ⊕ wb)) ＝⟨ ap (λ - → (a ⊕ b) ⊕ (a ⊕ -)) (IH₂ ⁻¹) ⟩
+     ((a ⊕ b) ⊕ (a ⊕ wa)) ＝⟨ ap ((a ⊕ b) ⊕_) (n-approx-c (succ i)) ⟩
+     ((a ⊕ b) ⊕ (b ⊕ wb)) ＝⟨ ap (_⊕ (b ⊕ wb)) (⊕-comm a b) ⟩ 
+     ((b ⊕ a) ⊕ (b ⊕ wb)) ＝⟨ ⊕-tran b a b wb ⟩
+     ((b ⊕ b) ⊕ (a ⊕ wb)) ＝⟨ ap (λ - → (b ⊕ b) ⊕ (a ⊕ -)) (IH₂ ⁻¹) ⟩
+     ((b ⊕ b) ⊕ (a ⊕ wa)) ＝⟨ ap ((b ⊕ b) ⊕_) (n-approx-c (succ i)) ⟩
+     ((b ⊕ b) ⊕ (b ⊕ wb)) ＝⟨ ap (_⊕ (b ⊕ wb)) (⊕-idem b) ⟩
+     (   b    ⊕ (b ⊕ wb)) ∎
+   where
+    wa = m (append-one c ((first- i) (λ _ → a)) )
+    wb = m (append-one c ((first- i) (λ _ → b)))
+    IH₂ : wa ＝ wb
+    IH₂ = n-approx-c i
+  γ : M (λ _ → a) ＝ M (λ _ → b)
+  γ = approx-holds (λ _ → a) (λ _ → b) (λ i → (c , c) :: n-approx-c i)
 ```
 
 [⇐ Index](../html/TWA.Thesis.index.html)

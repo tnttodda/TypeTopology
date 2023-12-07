@@ -25,6 +25,8 @@ open import MLTT.Two-Properties
 open import Fin.Type
 open import Fin.Bishop
 open import UF.PropTrunc
+open import Taboos.WLPO
+open import Taboos.BasicDiscontinuity
 
 open import TWA.Thesis.Chapter2.Finite
 open import TWA.Thesis.Chapter2.Sequences
@@ -59,7 +61,6 @@ inclusion-order-is-preorder {𝓤} {𝓥} {𝓦} {X} {Y}
   p : is-prop-valued (inclusion-order f _≤_)
   p x y   = p' (f x) (f y)
 
--- NEW!
 embedding-order-is-partial-order
  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } (f : X → Y)
  → is-embedding f
@@ -84,7 +85,6 @@ inclusion-order-is-linear-preorder {𝓤} {𝓥} {𝓦} {X} {Y}
   l : linear (inclusion-order f _≤_)
   l x y = l' (f x) (f y)
 
--- NEW!
 embedding-order-is-linear-order
  : {X : 𝓤 ̇ } {Y : 𝓥 ̇ } (f : X → Y)
  → is-embedding f
@@ -151,23 +151,26 @@ inclusion-approx-order f _≤ⁿ_ x y = f x ≤ⁿ f y
 module _ (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
+ open ApproxOrder-Relates pt
 
- Σ-approx-order-for
+ Σ-approx-order-relates
   : (X : ClosenessSpace 𝓤)
   → (P : ⟨ X ⟩ → 𝓥 ̇ )
   → (p : (x : ⟨ X ⟩) → is-prop (P x))
-  → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
   → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇)
-  → is-approx-order-for pt X _≤_ _≤ⁿ_
-  → is-approx-order-for pt
+  → (a : is-approx-order X _≤ⁿ_)
+  → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
+  → (i : is-preorder _≤_)
+  → approx-order-relates X _≤ⁿ_ a _≤_ i
+  → approx-order-relates
       (Σ-ClosenessSpace X P p)
-      (Σ-order P _≤_)
       (Σ-approx-order P _≤ⁿ_)
- Σ-approx-order-for X P p _≤_ _≤ⁿ_ a
-  = Σ-order-is-preorder P _≤_ (≤ⁿ-pre pt X a)
-  , Σ-approx-order-is-approx-order X P p _≤ⁿ_ (≤ⁿ-approx pt X a)
-  , (λ (x , _) (y , _) → ≤ⁿ-for→ pt X a x y)
-  , (λ (x , _) (y , _) → ≤ⁿ-for← pt X a x y) -- NEW!
+      (Σ-approx-order-is-approx-order X P p _≤ⁿ_ a)
+      (Σ-order P _≤_)
+      (Σ-order-is-preorder P _≤_ i)
+ Σ-approx-order-relates X P p _≤ⁿ_ a _≤_ i (rel→ , rel←)
+  = (λ (x , _) (y , _) → rel→ x y)
+  , (λ (x , _) (y , _) → rel← x y)
 ```
 
 ## Finite orders
@@ -192,7 +195,6 @@ _≤Fin_ {succ n} (suc x) (suc y) = x ≤Fin y
   p {succ n} (suc x) 𝟎 = 𝟘-is-prop
   p {succ n} (suc x) (suc y) = p x y
 
--- NEW!
 ≤Fin-is-partial-order : {n : ℕ} → is-partial-order (_≤Fin_ {n})
 ≤Fin-is-partial-order {n}
  = ≤Fin-is-preorder , a'
@@ -294,6 +296,50 @@ finite-lexicorder
  → (ℕ → F) → (ℕ → F) → 𝓤 ⊔ 𝓦  ̇
 finite-lexicorder f d _<_ = discrete-lexicorder d _<_
 
+linear-finite-lexicorder-implies-linear-ℕ∞-order
+ : {F : 𝓤 ̇ } (f@(n , _) : finite-linear-order F)
+ → n > 1
+ → linear
+    (discrete-lexicorder (finite-is-discrete f) (finite-order f))
+ → linear _≼ℕ∞_
+linear-finite-lexicorder-implies-linear-ℕ∞-order
+ {𝓤} {F} f@(succ (succ n) , (g , (h , η) , _)) _ l u v
+ = Cases (l (ρ ∘ pr₁ u) (ρ ∘ pr₁ v)) (inl ∘ γ u v) (inr ∘ γ v u)
+ where
+  _≤Fᴺ_ = discrete-lexicorder (finite-is-discrete f) (finite-order f)
+  d₀ d₁ : F
+  d₀ = h 𝟎
+  d₁ = h 𝟏
+  ρ : 𝟚 → F
+  ρ ₀ = d₀
+  ρ ₁ = d₁
+  γ : (u v : ℕ∞) → (ρ ∘ pr₁ u) ≤Fᴺ (ρ ∘ pr₁ v) → u ≼ v
+  γ u v u≤v n uₙ=1
+   = ₁-gρ-maximal
+       (pr₁ v n)
+       (transport (λ - → g (ρ -) ≤Fin g (ρ (pr₁ v n)))
+         uₙ=1 (u≤v n (λ i i<n → ap ρ (u∼ⁿv n uₙ=1 i i<n))))
+   where
+    ₁-gρ-maximal : (y : 𝟚) → g (ρ ₁) ≤Fin g (ρ y) → y ＝ ₁
+    ₁-gρ-maximal ₀ gh1≤gh0
+     = 𝟘-elim (transport (λ - → ¬ (- ≤Fin g (h 𝟎))) (η 𝟏 ⁻¹)
+                (transport (λ - → ¬ (𝟏 ≤Fin -)) (η 𝟎 ⁻¹) id) gh1≤gh0)
+    ₁-gρ-maximal ₁ _ = refl
+    u∼ⁿv : (n : ℕ) → pr₁ u n ＝ ₁ → (pr₁ u ∼ⁿ pr₁ v) n
+    u∼ⁿv (succ n) uₙ=₁ i i<sn
+     = ⊏-trans' i (succ n) u i<sn uₙ=₁
+     ∙ ⊏-trans'' v n i i<sn (γ u v u≤v n (⊏-back u n uₙ=₁)) ⁻¹
+     
+linear-finite-lexicorder-implies-WLPO
+ : {F : 𝓤 ̇ } (f@(n , _) : finite-linear-order F)
+ → n > 1
+ → linear
+    (discrete-lexicorder (finite-is-discrete f) (finite-order f))
+ → WLPO
+linear-finite-lexicorder-implies-WLPO f n>1
+ = ℕ∞-linearity-taboo (fe 𝓤₀ 𝓤₀)
+ ∘ linear-finite-lexicorder-implies-linear-ℕ∞-order f n>1
+
 discrete-approx-lexicorder : {D : 𝓤 ̇ }
                            → is-discrete D
                            → (_≤_ : D → D → 𝓥 ̇ )
@@ -303,7 +349,6 @@ discrete-approx-lexicorder : {D : 𝓤 ̇ }
 discrete-approx-lexicorder d _≤_ α β n
  = (i : ℕ) → i < n → (α ∼ⁿ β) i → α i ≤ β i
 
--- NEW!
 discrete-approx-lexicorder-reduce
  : {D : 𝓤 ̇ } (ds : is-discrete D)
  → (_≤_ : D → D → 𝓥 ̇ )
@@ -408,16 +453,11 @@ discrete-approx-lexicorder-is-approx-order
   d (succ ϵ) x y
    = Cases (d ϵ x y)
        (λ x≤ᵉy → γ₁ x≤ᵉy
-                    (∼ⁿ-decidable (λ _ → ds) x y ϵ)
-                    (MOVE (x ϵ) (y ϵ)))
+         (∼ⁿ-decidable (λ _ → ds) x y ϵ)
+         (discrete-reflexive-antisym-linear-order-is-decidable
+           ds _≤_ r' a' l' (x ϵ) (y ϵ)))
        γ₂
    where
-    MOVE : (x y : _) → is-decidable (x ≤ y)
-    MOVE x y with ds x y | l' x y
-    ... | inl refl | inl _ = inl (r' x)
-    ... | inl refl | inr _ = inl (r' x)
-    ... | inr x≠y | inl x≤y = inl x≤y
-    ... | inr x≠y | inr y≤x = inr (λ z → x≠y (a' x y z y≤x))
     γ₁ : discrete-approx-lexicorder ds _≤_ x y ϵ
        → is-decidable ((x ∼ⁿ y) ϵ)
        → is-decidable (x ϵ ≤ y ϵ)
@@ -449,39 +489,38 @@ discrete-approx-lexicorder-is-approx-order
 module _ (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
+ open ApproxOrder-Relates pt
 
- discrete-approx-lexicorder-for'
+ discrete-approx-lexicorder-relates→
   : {D : 𝓤 ̇ } (ds : is-discrete D) (i : is-set D)
   → (_≤_ : D → D → 𝓥 ̇ )
-  → is-approx-order-for' pt
-      (ℕ→D-ClosenessSpace ds)
-      (discrete-lexicorder ds _≤_)
-      (discrete-approx-lexicorder ds _≤_)
- discrete-approx-lexicorder-for' ds i _≤_ α β α≤β
-  = ∣ 0 , (λ _ _ i _ → α≤β i) ∣
-
- discrete-approx-lexicorder-for''
-  : {D : 𝓤 ̇ } (ds : is-discrete D) (i : is-set D)
-  → (_≤_ : D → D → 𝓥 ̇ )
-  → is-approx-order-for'' pt
-      (ℕ→D-ClosenessSpace ds)
-      (discrete-lexicorder ds _≤_)
-      (discrete-approx-lexicorder ds _≤_)
- discrete-approx-lexicorder-for''
+  → (discrete-approx-lexicorder ds _≤_)
+    relates-to→
+    (discrete-lexicorder ds _≤_)
+ discrete-approx-lexicorder-relates→ 
   ds i _≤_ x y Πx≤ⁿy n = Πx≤ⁿy (succ n) n (<-succ n)
 
- discrete-approx-lexicorder-for
+ discrete-approx-lexicorder-relates←
+  : {D : 𝓤 ̇ } (ds : is-discrete D) (i : is-set D)
+  → (_≤_ : D → D → 𝓥 ̇ )
+  → discrete-approx-lexicorder ds _≤_
+    relates-to←
+    discrete-lexicorder ds _≤_
+ discrete-approx-lexicorder-relates← ds i _≤_ α β α≤β
+  = ∣ 0 , (λ _ _ i _ → α≤β i) ∣
+
+ discrete-approx-lexicorder-relates
   : {D : 𝓤 ̇ } (ds : is-discrete D) (i : is-set D)
   → (_≤_ : D → D → 𝓥 ̇ ) (s : is-linear-order _≤_)
-  → is-approx-order-for pt
+  → approx-order-relates
       (ℕ→D-ClosenessSpace ds)
-      (discrete-lexicorder ds _≤_)
       (discrete-approx-lexicorder ds _≤_)
- discrete-approx-lexicorder-for ds i _≤_ ((s , a) , l)
-  = discrete-lexicorder-is-preorder ds _≤_ (s , a)
-  , discrete-approx-lexicorder-is-approx-order ds _≤_ ((s , a) , l)
-  , discrete-approx-lexicorder-for' ds i _≤_
-  , discrete-approx-lexicorder-for'' ds i _≤_
+      (discrete-approx-lexicorder-is-approx-order ds _≤_ s)
+      (discrete-lexicorder ds _≤_)
+      (discrete-lexicorder-is-preorder ds _≤_ (pr₁ s))
+ discrete-approx-lexicorder-relates ds i _≤_ _
+  = discrete-approx-lexicorder-relates→ ds i _≤_
+  , discrete-approx-lexicorder-relates← ds i _≤_
 ```
 
 ## Specific example orders

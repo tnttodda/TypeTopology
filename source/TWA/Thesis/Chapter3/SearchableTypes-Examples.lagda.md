@@ -386,3 +386,4 @@ tychonoff T S ((p , d) , δ , ϕ) = tychonoff' T S δ ((p , d) , ϕ)
 ```
 
 [⇐ Index](../html/TWA.Thesis.index.html)
+

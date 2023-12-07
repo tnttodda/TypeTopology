@@ -96,7 +96,7 @@ mid-r-ucontinuous x
 
 ```
 bigMid'-ucontinuous' : seq-f-ucontinuousᴺ bigMid'
-bigMid'-ucontinuous' ε = dδ ε , γ ε where
+bigMid'-ucontinuous' ε = dδ ε , d≤δ ε , γ ε where
   d : ℕ → ℕ
   d 0 = 0
   d (succ ε) = succ (succ ε)
@@ -105,6 +105,14 @@ bigMid'-ucontinuous' ε = dδ ε , γ ε where
   δ (succ ε) = succ (succ (succ (δ ε)))
   dδ : ℕ → ℕ × ℕ
   dδ ε = d ε , δ ε
+  d≤δ : (n : ℕ) → d n ≤ δ n
+  d≤δ 0 = ≤-refl 0
+  d≤δ 1 = ⋆
+  d≤δ (succ (succ n))
+   = ≤-trans n (succ (δ n)) (succ (succ (succ (δ n))))
+       (d≤δ (succ n))
+       (≤-trans (δ n) (succ (δ n)) (succ (succ (δ n)))
+         (≤-succ (δ n)) (≤-succ (succ (δ n))))
   pr₁δs< : (n : ℕ) → d n < d (succ n)
   pr₁δs< zero = ⋆
   pr₁δs< (succ n) = ≤-refl n
@@ -152,17 +160,19 @@ div4-ucontinuous' (succ ε) = succ (succ ε) , γ ε where
     α∼ⁿβ' (succ j) = α∼ⁿβ (succ (succ j))  
 
 bigMid-ucontinuous' : seq-f-ucontinuousᴺ bigMid
-bigMid-ucontinuous' ε = dδ , γ where
+bigMid-ucontinuous' ε = dδ , d≤δ , ϕ where
+  γ = bigMid'-ucontinuous' (pr₁ (div4-ucontinuous' ε))
   dδ : ℕ × ℕ
-  dδ = pr₁ (bigMid'-ucontinuous' (pr₁ (div4-ucontinuous' ε)))
-  γ : (x₁ x₂ : ℕ → 𝟛ᴺ)
+  dδ = pr₁ γ
+  d≤δ : pr₁ dδ ≤ pr₂ dδ
+  d≤δ = pr₁ (pr₂ γ)
+  ϕ : (x₁ x₂ : ℕ → 𝟛ᴺ)
     → ((n : ℕ) → n < pr₁ dδ → ((x₁ n) ∼ⁿ (x₂ n)) (pr₂ dδ))
     → (bigMid x₁ ∼ⁿ bigMid x₂) ε 
-  γ αs βs αs∼ⁿβs
+  ϕ αs βs αs∼ⁿβs
    = pr₂ (div4-ucontinuous' ε)
        (bigMid' αs) (bigMid' βs)
-       (pr₂ (bigMid'-ucontinuous' (pr₁ (div4-ucontinuous' ε)))
-         αs βs αs∼ⁿβs)
+       (pr₂ (pr₂ γ) αs βs αs∼ⁿβs)
 ```
 
 ## Multiplication
@@ -176,12 +186,12 @@ mul-ucontinuous' ε = δ ε , γ ε where
     → (α₁ ∼ⁿ α₂) (pr₁ (δ ε)) → (β₁ ∼ⁿ β₂) (pr₂ (δ ε))
     → (mul α₁ β₁ ∼ⁿ mul α₂ β₂) ε
   γ ε α₁ α₂ β₁ β₂ α∼ β∼
-   = pr₂ (bigMid-ucontinuous' ε)
+   = pr₂ (pr₂ (bigMid-ucontinuous' ε))
        (zipWith digitMul α₁ (λ _ → β₁))
        (zipWith digitMul α₂ (λ _ → β₂))
        (λ n n<d k k<δ → ap (_*𝟛 β₁ k) (α∼ n n<d)
                       ∙ ap (α₂ n *𝟛_) (β∼ k k<δ))
-
+                      
 mul-ucontinuous
  : f-ucontinuous
      (×-ClosenessSpace 𝟛ᴺ-ClosenessSpace 𝟛ᴺ-ClosenessSpace)

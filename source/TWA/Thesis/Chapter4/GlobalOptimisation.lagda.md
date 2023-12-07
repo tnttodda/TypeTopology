@@ -87,50 +87,14 @@ has_global-minimal : ℕ → {𝓤 𝓥 : Universe} {X : 𝓤 ̇ }
 (has ϵ global-minimal) {𝓤} {𝓥} {𝓦} {X} _≤ⁿ_ f
  = Σ ((is ϵ global-minimal) {𝓤} {𝓥} {𝓦} {X} _≤ⁿ_ f)
 
--- LINK: F-ϵ-global-minimal
-Fin-ϵ-global-minimal : (n : ℕ) → Fin n
-                     → (Y : ClosenessSpace 𝓥)
-                     → (_≤ⁿ_ : ⟨ Y ⟩ → ⟨ Y ⟩ → ℕ → 𝓦'  ̇ )
-                     → is-approx-order Y _≤ⁿ_
-                     → (ϵ : ℕ) → (f : Fin n → ⟨ Y ⟩)
-                     → (has ϵ global-minimal) _≤ⁿ_ f
-Fin-ϵ-global-minimal 1 𝟎 Y _≤ⁿ_ a ϵ f
- = 𝟎 , γ
- where
-  γ : is ϵ global-minimal _≤ⁿ_ f 𝟎
-  γ 𝟎 = ≤ⁿ-refl Y a ϵ (f 𝟎) 
-Fin-ϵ-global-minimal (succ (succ n)) _ Y _≤ⁿ_ a ϵ f 
- with Fin-ϵ-global-minimal (succ n) 𝟎 Y _≤ⁿ_ a ϵ (f ∘ suc) 
-... | (x₀ , m)
- = Cases (≤ⁿ-linear Y a ϵ (f (suc x₀)) (f 𝟎))
-     γ₁ γ₂
- where
-  γ₁ : (f (suc x₀) ≤ⁿ f 𝟎) ϵ → has ϵ global-minimal _≤ⁿ_ f
-  γ₁ x₀≤⋆ = suc x₀ , γ
-   where
-    γ : is ϵ global-minimal _≤ⁿ_ f (suc x₀)
-    γ 𝟎 = x₀≤⋆
-    γ (suc x) = m x
-  γ₂ : (f 𝟎 ≤ⁿ f (suc x₀)) ϵ → has ϵ global-minimal _≤ⁿ_ f
-  γ₂ ⋆≤x₀ = 𝟎 , γ
-   where
-    γ : is ϵ global-minimal _≤ⁿ_ f 𝟎
-    γ 𝟎 = ≤ⁿ-refl Y a ϵ (f 𝟎)
-    γ (suc x) = ≤ⁿ-trans Y a ϵ
-                  (f 𝟎) (f (suc x₀)) (f (suc x))
-                  ⋆≤x₀ (m x)
-
 F-ϵ-global-minimal : {X : 𝓤 ̇ } (Y : ClosenessSpace 𝓥)
                    → X → finite-linear-order X
                    → (_≤ⁿ_ : ⟨ Y ⟩ → ⟨ Y ⟩ → ℕ → 𝓦'  ̇ )
                    → is-approx-order Y _≤ⁿ_
                    → (ϵ : ℕ) → (f : X → ⟨ Y ⟩)
                    → (has ϵ global-minimal) _≤ⁿ_ f
-F-ϵ-global-minimal Y x (n , (g , _ , (h , μ))) _≤ⁿ_ a ϵ f
- with Fin-ϵ-global-minimal n (g x) Y _≤ⁿ_ a ϵ (f ∘ h)
-... | (x₀ , m)
- = h x₀
- , λ x → transport (λ - → (f (h x₀) ≤ⁿ f -) ϵ) (μ x) (m (g x))
+F-ϵ-global-minimal Y x l _≤ⁿ_ a ϵ
+ = finite-global-minimal x l (λ x y → (x ≤ⁿ y) ϵ) (≤ⁿ-all-linear Y a ϵ)
 ```
 
 ## Global optimisation theorem

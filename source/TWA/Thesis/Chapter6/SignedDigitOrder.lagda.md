@@ -58,7 +58,7 @@ ternary-to-ℤ² α = ternary-to-ℤ²' (α 0) (α ∘ succ) (negsucc 0)
 
 ```
 
-module _ (pt : propositional-truncations-exist) where
+module RealPresOrder (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
 
@@ -136,18 +136,24 @@ integer-approx'-ucontinuous (succ ϵ) x y x∼y k
 ≤ⁿ𝟛ᴺ-is-approx-order
  = ≤ⁿ𝟛ᴺ-is-linear-preorder , ≤ⁿ𝟛ᴺ-is-decidable , ≤ⁿ𝟛ᴺ-closeness
 
-module _ (pt : propositional-truncations-exist) where
+module RealPresOrder-Relates
+ (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
+ open RealPresOrder pt
+ open ApproxOrder-Relates pt
 
- ≤ⁿ𝟛ᴺ-for'
-  : is-approx-order-for' pt 𝟛ᴺ-ClosenessSpace (_≤𝟛ᴺ_ pt) _≤ⁿ𝟛ᴺ_
- ≤ⁿ𝟛ᴺ-for' x y = ∥∥-rec ∃-is-prop ∣_∣
+ ≤ⁿ𝟛ᴺ-relates→ : _≤ⁿ𝟛ᴺ_ relates-to→ _≤𝟛ᴺ_
+ ≤ⁿ𝟛ᴺ-relates→ x y f = ∣ 0 , (λ x _ → f x) ∣
 
- ≤ⁿ𝟛ᴺ-for''
-  : is-approx-order-for'' pt 𝟛ᴺ-ClosenessSpace (_≤𝟛ᴺ_ pt) _≤ⁿ𝟛ᴺ_
- ≤ⁿ𝟛ᴺ-for'' x y f = ∣ 0 , (λ x _ → f x) ∣
+ ≤ⁿ𝟛ᴺ-relates← : _≤ⁿ𝟛ᴺ_ relates-to← _≤𝟛ᴺ_
+ ≤ⁿ𝟛ᴺ-relates← x y = ∥∥-rec ∃-is-prop ∣_∣
 
+ ≤ⁿ𝟛ᴺ-relates : approx-order-relates
+                 𝟛ᴺ-ClosenessSpace
+                 _≤ⁿ𝟛ᴺ_ ≤ⁿ𝟛ᴺ-is-approx-order
+                 _≤𝟛ᴺ_ ≤𝟛ᴺ-is-preorder
+ ≤ⁿ𝟛ᴺ-relates = ≤ⁿ𝟛ᴺ-relates→ , ≤ⁿ𝟛ᴺ-relates←
 ```
 
 [⇐ Index](../html/TWA.Thesis.index.html)

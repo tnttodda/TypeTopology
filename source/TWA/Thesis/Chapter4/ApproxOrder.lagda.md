@@ -156,43 +156,39 @@ is-approx-order X _≤ⁿ_
  → C X ϵ x y → (x ≤ⁿ y) ϵ
 ≤ⁿ-close X (l , d , c) = c
 
-module _ (pt : propositional-truncations-exist) where
+module ApproxOrder-Relates (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
 
- is-approx-order-for' : (X : ClosenessSpace 𝓤)
-                      → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
-                      → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ )
-                      → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
- is-approx-order-for' X _≤x_ _≤ⁿx_
-  = (x y : ⟨ X ⟩)
-  → x ≤x y
-  → ∃ n ꞉ ℕ , ((ϵ : ℕ) → n ≤ ϵ → (x ≤ⁿx y) ϵ)
+ _relates-to→_ : {X : 𝓤 ̇ }
+               → (_≤ⁿ_ : X → X → ℕ → 𝓦'  ̇ )
+               → (_≤_  : X → X → 𝓦 ̇ )
+               → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
+ _≤ⁿx_ relates-to→ _≤x_ 
+  = ∀ x y → ((n : ℕ) → (x ≤ⁿx y) n) → x ≤x y
 
- is-approx-order-for'' : (X : ClosenessSpace 𝓤)
-                       → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
-                       → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ )
-                       → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
- is-approx-order-for'' X _≤x_ _≤ⁿx_
-  = (x y : ⟨ X ⟩)
-  → ((n : ℕ) → (x ≤ⁿx y) n)
-  → x ≤x y
+ _relates-to←_ : {X : 𝓤 ̇ }
+               → (_≤ⁿ_ : X → X → ℕ → 𝓦'  ̇ )
+               → (_≤_  : X → X → 𝓦 ̇ )
+               → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
+ _≤ⁿx_ relates-to← _≤x_
+  = ∀ x y → x ≤x y → ∃ n ꞉ ℕ , ((ϵ : ℕ) → n ≤ ϵ → (x ≤ⁿx y) ϵ)
   
- is-approx-order-for : (X : ClosenessSpace 𝓤)
-                     → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
-                     → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ )
-                     → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
- is-approx-order-for X _≤_ _≤ⁿ_
-  = is-preorder _≤_
-  × is-approx-order X _≤ⁿ_
-  × is-approx-order-for' X _≤_ _≤ⁿ_
-  × is-approx-order-for'' X _≤_ _≤ⁿ_
-
+ approx-order-relates : (X : ClosenessSpace 𝓤)
+                      → (_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ )
+                      → is-approx-order X _≤ⁿ_
+                      → (_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ )
+                      → is-preorder _≤_
+                      → 𝓤 ⊔ 𝓦 ⊔ 𝓦'  ̇
+ approx-order-relates X _≤ⁿ_ _ _≤_ _
+  = _≤ⁿ_ relates-to→ _≤_
+  × _≤ⁿ_ relates-to← _≤_
+ {-
  ≤ⁿ-pre
   : (X : ClosenessSpace 𝓤)
   → {_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ }
   → {_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ }
-  → is-approx-order-for X _≤_ _≤ⁿ_
+  → approx-order-relates X _≤_ _≤ⁿ_
   → is-preorder _≤_
  ≤ⁿ-pre X (p , x , a) = p
 
@@ -202,12 +198,12 @@ module _ (pt : propositional-truncations-exist) where
            → is-approx-order-for X _≤_ _≤ⁿ_
            → is-approx-order X _≤ⁿ_
  ≤ⁿ-approx X (p , x , a , b) = x
-
+ 
  ≤ⁿ-for→ : (X : ClosenessSpace 𝓤)
-        → {_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ }
-        → {_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ }
-        → is-approx-order-for X _≤_ _≤ⁿ_
-        → is-approx-order-for' X _≤_ _≤ⁿ_
+         → {_≤_  : ⟨ X ⟩ → ⟨ X ⟩ → 𝓦 ̇ }
+         → {_≤ⁿ_ : ⟨ X ⟩ → ⟨ X ⟩ → ℕ → 𝓦'  ̇ }
+         → is-approx-order-for X _≤_ _≤ⁿ_
+         → is-approx-order-for' X _≤_ _≤ⁿ_
  ≤ⁿ-for→ X (p , x , a , b) = a
 
  ≤ⁿ-for← : (X : ClosenessSpace 𝓤)
@@ -216,6 +212,7 @@ module _ (pt : propositional-truncations-exist) where
         → is-approx-order-for X _≤_ _≤ⁿ_
         → is-approx-order-for'' X _≤_ _≤ⁿ_
  ≤ⁿ-for← X (p , x , a , b) = b
+ -}
 ```
 
 ## Predicates from approximate orders
