@@ -1,45 +1,17 @@
 on:
   push:
     branches:
-      - thesis
+    - master
   pull_request:
     branches:
-      - thesis
+    - master
 
 jobs:
   typecheck:
-    permissions: write-all
     runs-on: ubuntu-latest
     name: Typechecking
     if: github.event.pull_request.draft == false
     steps:
-<<<<<<< HEAD
-      - name: "Clone repository"
-        uses: actions/checkout@v2
-      - name: Run Agda
-        id: typecheck
-        uses: georgejkaye/agda-github-action@v1.5
-        with:
-          main-file: index.lagda.md
-          source-dir: source/TWA/Thesis/
-          unsafe: true
-          css: https://www.cs.bham.ac.uk/~txw467/tychonoff/Agda.css
-      - name: Deploy HTML to branch
-        uses: s0/git-publish-subdir-action@develop
-        if: github.event_name != 'pull_request'
-        env:
-          REPO: self
-          BRANCH: html
-          FOLDER: source/TWA/Thesis/html
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload HTML as artifact
-        id: html-upload
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v3
-        with:
-          name: html
-          path: source/TWA/Thesis/html
-=======
     - name: "Clone repository"
       uses: actions/checkout@v2
     - name: Run Agda
@@ -56,4 +28,3 @@ jobs:
       with:
         name: html
         path: source/html
->>>>>>> origin/remove-thesis-draft
