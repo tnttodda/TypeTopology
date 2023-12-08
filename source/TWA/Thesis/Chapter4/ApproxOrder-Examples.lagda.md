@@ -148,7 +148,7 @@ inclusion-approx-order f _≤ⁿ_ x y = f x ≤ⁿ f y
     → Σ-approx-order P _≤ⁿ_ x y ϵ
   c ϵ x y   = ≤ⁿ-close X a ϵ (pr₁ x) (pr₁ y)
 
-module _ (pt : propositional-truncations-exist) where
+module ΣOrder-Relates (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
  open ApproxOrder-Relates pt
@@ -274,7 +274,8 @@ discrete-lexicorder-is-preorder d _≤_ ((r' , t' , p') , a') = r , t , p
   = t (tail x) (tail y) (tail z) γ₁ γ₂ n (x∼ⁿz ∘ succ)
     where
      e : x 0 ＝ y 0
-     e = a' (x 0) (y 0) (x≤y 0 (λ _ ())) (transport (y 0 ≤_) (x∼ⁿz 0 ⋆ ⁻¹) (y≤z 0 (λ _ ())))
+     e = a' (x 0) (y 0) (x≤y 0 (λ _ ()))
+          (transport (y 0 ≤_) (x∼ⁿz 0 ⋆ ⁻¹) (y≤z 0 (λ _ ())))
      γ₁ : discrete-lexicorder d _≤_ (tail x) (tail y)
      γ₁ i tx∼ⁿty = x≤y (succ i) ζ
       where
@@ -469,8 +470,10 @@ discrete-approx-lexicorder-is-approx-order
        = Cases (<-split i ϵ i<sϵ)
            (λ i<ϵ → x≤ᵉy i i<ϵ x∼ⁱy)
            (λ i＝ϵ → transport (λ - → x - ≤ y -) (i＝ϵ ⁻¹) xϵ≤yϵ)
-    γ₁ x≤ᵉy (inl  x∼ᵉy) (inr ¬xϵ≤yϵ) = inr (λ x≤ˢᵉy → ¬xϵ≤yϵ (x≤ˢᵉy ϵ (<-succ ϵ) x∼ᵉy))
-    γ₁ x≤ᵉy (inr ¬x∼ᵉy) _            = inl ζ
+    γ₁ x≤ᵉy (inl  x∼ᵉy) (inr ¬xϵ≤yϵ)
+     = inr (λ x≤ˢᵉy → ¬xϵ≤yϵ (x≤ˢᵉy ϵ (<-succ ϵ) x∼ᵉy))
+    γ₁ x≤ᵉy (inr ¬x∼ᵉy) _
+     = inl ζ
      where
       ζ : discrete-approx-lexicorder ds _≤_ x y (succ ϵ)
       ζ i i<sϵ x∼ⁱy
@@ -479,14 +482,17 @@ discrete-approx-lexicorder-is-approx-order
            (λ i＝ϵ → 𝟘-elim (¬x∼ᵉy (transport (x ∼ⁿ y) i＝ϵ x∼ⁱy)))
     γ₂ : ¬ discrete-approx-lexicorder ds _≤_ x y ϵ
        → is-decidable (discrete-approx-lexicorder ds _≤_ x y (succ ϵ))
-    γ₂ ¬x≤ᵉy = inr (λ x≤ˢᵉy → ¬x≤ᵉy (discrete-approx-lexicorder-reduce ds _≤_ x y ϵ x≤ˢᵉy))
+    γ₂ ¬x≤ᵉy
+     = inr (λ x≤ˢᵉy → ¬x≤ᵉy
+             (discrete-approx-lexicorder-reduce ds _≤_ x y ϵ x≤ˢᵉy))
   c : (ϵ : ℕ) → (x y : ℕ → D)
     → C (ℕ→D-ClosenessSpace ds) ϵ x y
     → discrete-approx-lexicorder ds _≤_ x y ϵ
   c ϵ x y Cϵxy i i<ϵ x∼ⁱy
    = transport (x i ≤_) (C-to-∼ⁿ ds x y ϵ Cϵxy i i<ϵ) (r' (x i))
   
-module _ (pt : propositional-truncations-exist) where
+module LexicographicOrder-Relates
+ (pt : propositional-truncations-exist) where
 
  open PropositionalTruncation pt
  open ApproxOrder-Relates pt
