@@ -23,54 +23,183 @@
     .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="https://www.cs.bham.ac.uk/~txw467/tychonoff/Agda.css" />
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">TWA.Thesis.index</h1>
 </header>
+<pre class="Agda"><a id="9" class="Symbol">{-#</a> <a id="13" class="Keyword">OPTIONS</a> <a id="21" class="Pragma">--without-K</a> <a id="33" class="Pragma">--exact-split</a> <a id="47" class="Pragma">--safe</a> <a id="54" class="Symbol">#-}</a>
+</pre>
 <h1
 id="exact-real-search-formalised-optimisation-and-regression-in-constructive-univalent-mathematics">Exact
 Real Search: Formalised Optimisation and Regression in Constructive
 Univalent Mathematics</h1>
-<pre class="Agda"><a id="108" class="Keyword">module</a> <a id="115" href="TWA.Thesis.index.html" class="Module">TWA.Thesis.index</a> <a id="132" class="Keyword">where</a>
+<p>A <a href="https://arxiv.org/abs/2401.09270">thesis</a> to the
+University of Birmingham for the degree of Doctor of Philosophy.</p>
+<h2 id="abstract">Abstract</h2>
+<p>The real numbers are important in both mathematics and computation
+theory. Computationally, real numbers can be represented in several
+ways; most commonly using inexact floating-point data-types, but also
+using exact arbitrary-precision data-types which satisfy the expected
+mathematical properties of the reals. This thesis is concerned with
+formalising properties of certain types for exact real arithmetic, as
+well as utilising them computationally for the purposes of search,
+optimisation and regression.</p>
+<p>We develop, in a constructive and univalent type-theoretic foundation
+of mathematics, a formalised framework for performing search,
+optimisation and regression on a wide class of types. This framework
+utilises Martin Escardo’s prior work on searchable types, along with a
+convenient version of ultrametric spaces — which we call closeness
+spaces — in order to consistently search certain infinite types using
+the functional programming language and proof assistant Agda.</p>
+<p>We formally define and prove the convergence properties of
+type-theoretic variants of global optimisation and parametric
+regression, problems related to search from the literature of analysis.
+As we work in a constructive setting, these convergence theorems yield
+computational algorithms for correct optimisation and regression on the
+types of our framework.</p>
+<p>Importantly, we can instantiate our framework on data-types from the
+literature of exact real arithmetic. The types for representing real
+numbers that we use are the ternary signed-digit encodings and a
+simplified version of Hans-J. Boehm’s functional encodings. Furthermore,
+we contribute to the extensive work on ternary signed-digits by formally
+verifying the definition of certain exact real arithmetic operations
+using the Escardo-Simpson interval object specification of compact
+intervals.</p>
+<p>With this instantiation, we are able to perform our variants of
+search, optimisation and regression on representations of the real
+numbers. These three processes comprise our framework of exact real
+search; we close the thesis by providing some computational examples of
+this framework in practice.</p>
+<pre class="Agda"><a id="2444" class="Keyword">module</a> <a id="2451" href="TWA.Thesis.index.html" class="Module">TWA.Thesis.index</a> <a id="2468" class="Keyword">where</a>
 </pre>
-<h2 id="chapter-2">Chapter 2</h2>
-<pre class="Agda"><a id="165" class="Keyword">open</a> <a id="170" class="Keyword">import</a> <a id="177" href="TWA.Thesis.Chapter2.Finite.html" class="Module">TWA.Thesis.Chapter2.Finite</a>
-<a id="204" class="Keyword">open</a> <a id="209" class="Keyword">import</a> <a id="216" href="TWA.Thesis.Chapter2.Vectors.html" class="Module">TWA.Thesis.Chapter2.Vectors</a> 
-<a id="245" class="Keyword">open</a> <a id="250" class="Keyword">import</a> <a id="257" href="TWA.Thesis.Chapter2.Sequences.html" class="Module">TWA.Thesis.Chapter2.Sequences</a>
+<h2 id="chapter-1-introduction">Chapter 1: Introduction</h2>
+<p>In <a href="https://arxiv.org/pdf/2401.09270.pdf#chapter.1">Chapter
+1</a>, we motivate the work of using searchable types in order to
+construct algorithms for global optimisation and parametric regression
+on the ternary-signed digits.</p>
+<h2 id="chapter-2-constructive-univalent-type-theory-in-agda">Chapter 2:
+Constructive Univalent Type Theory in Agda</h2>
+<p>In <a href="https://arxiv.org/pdf/2401.09270.pdf#chapter.2">Chapter
+2</a>, we introduce the key concepts of our constructive and univalent
+type-theoretic foundation of mathematics in which we build our formal
+framework for search, optimisation and regression.</p>
+<pre class="Agda"><a id="3049" class="Keyword">open</a> <a id="3054" class="Keyword">import</a> <a id="3061" href="TWA.Thesis.Chapter2.Finite.html" class="Module">TWA.Thesis.Chapter2.Finite</a>
+<a id="3088" class="Keyword">open</a> <a id="3093" class="Keyword">import</a> <a id="3100" href="TWA.Thesis.Chapter2.Vectors.html" class="Module">TWA.Thesis.Chapter2.Vectors</a>
+<a id="3128" class="Keyword">open</a> <a id="3133" class="Keyword">import</a> <a id="3140" href="TWA.Thesis.Chapter2.Sequences.html" class="Module">TWA.Thesis.Chapter2.Sequences</a>
 </pre>
-<h2 id="chapter-3">Chapter 3</h2>
-<pre class="Agda"><a id="314" class="Keyword">open</a> <a id="319" class="Keyword">import</a> <a id="326" href="TWA.Thesis.Chapter3.ClosenessSpaces.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces</a>
-<a id="362" class="Keyword">open</a> <a id="367" class="Keyword">import</a> <a id="374" href="TWA.Thesis.Chapter3.ClosenessSpaces-Examples.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces-Examples</a>
-<a id="419" class="Keyword">open</a> <a id="424" class="Keyword">import</a> <a id="431" href="TWA.Thesis.Chapter3.SearchableTypes.html" class="Module">TWA.Thesis.Chapter3.SearchableTypes</a>
-<a id="467" class="Keyword">open</a> <a id="472" class="Keyword">import</a> <a id="479" href="TWA.Thesis.Chapter3.SearchableTypes-Examples.html" class="Module">TWA.Thesis.Chapter3.SearchableTypes-Examples</a>
-<a id="524" class="Keyword">open</a> <a id="529" class="Keyword">import</a> <a id="536" href="TWA.Thesis.Chapter3.PredicateEquality.html" class="Module">TWA.Thesis.Chapter3.PredicateEquality</a>
+<h2 id="chapter-3-searchability-and-continuity">Chapter 3: Searchability
+and Continuity</h2>
+<p>In <a href="https://arxiv.org/pdf/2401.09270.pdf#chapter.3">Chapter
+3</a>, we review and define the two key mathematical concepts of the
+thesis: <em>searchability</em> and <em>uniform continuity</em>.</p>
+<p>We build on the <a
+href="../../TypeTopology/TypeTopology.CompactTypes.html">previous
+work</a> of Martin Escardo, contributing a method of searching certain
+infinite types in Agda by using explicit information about uniform
+continuity of the predicate being searched. This <a
+href="/TWA.Thesis.Chapter3.ClosenessSpace.html#p-ucontinuous">notion of
+uniform continuity</a> is defined on a convenient version of ultrametric
+spaces that we call <a
+href="/TWA.Thesis.Chapter3.ClosenessSpace.html#ClosenessSpace">closeness
+spaces</a>.</p>
+<p>We also give a version of the totally bounded property for closeness
+spaces, and show that a variety of types yield closeness spaces. The key
+technical contribution of this section is the formalised result which
+shows these uniformly continuously searchable types are <a
+href="/TWA.Thesis.Chapter3.SearchableTypes-Examples.html#tychonoff">closed
+under countable products</a>.</p>
+<pre class="Agda"><a id="4266" class="Keyword">open</a> <a id="4271" class="Keyword">import</a> <a id="4278" href="TWA.Thesis.Chapter3.ClosenessSpaces.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces</a>
+<a id="4314" class="Keyword">open</a> <a id="4319" class="Keyword">import</a> <a id="4326" href="TWA.Thesis.Chapter3.ClosenessSpaces-Examples.html" class="Module">TWA.Thesis.Chapter3.ClosenessSpaces-Examples</a>
+<a id="4371" class="Keyword">open</a> <a id="4376" class="Keyword">import</a> <a id="4383" href="TWA.Thesis.Chapter3.SearchableTypes.html" class="Module">TWA.Thesis.Chapter3.SearchableTypes</a>
+<a id="4419" class="Keyword">open</a> <a id="4424" class="Keyword">import</a> <a id="4431" href="TWA.Thesis.Chapter3.SearchableTypes-Examples.html" class="Module">TWA.Thesis.Chapter3.SearchableTypes-Examples</a>
+<a id="4476" class="Keyword">open</a> <a id="4481" class="Keyword">import</a> <a id="4488" href="TWA.Thesis.Chapter3.PredicateEquality.html" class="Module">TWA.Thesis.Chapter3.PredicateEquality</a>
 </pre>
-<h2 id="chapter-4">Chapter 4</h2>
-<pre class="Agda"><a id="601" class="Keyword">open</a> <a id="606" class="Keyword">import</a> <a id="613" href="TWA.Thesis.Chapter4.ApproxOrder.html" class="Module">TWA.Thesis.Chapter4.ApproxOrder</a>
-<a id="645" class="Keyword">open</a> <a id="650" class="Keyword">import</a> <a id="657" href="TWA.Thesis.Chapter4.ApproxOrder-Examples.html" class="Module">TWA.Thesis.Chapter4.ApproxOrder-Examples</a>
-<a id="698" class="Keyword">open</a> <a id="703" class="Keyword">import</a> <a id="710" href="TWA.Thesis.Chapter4.GlobalOptimisation.html" class="Module">TWA.Thesis.Chapter4.GlobalOptimisation</a>
-<a id="749" class="Keyword">open</a> <a id="754" class="Keyword">import</a> <a id="761" href="TWA.Thesis.Chapter4.ParametricRegression.html" class="Module">TWA.Thesis.Chapter4.ParametricRegression</a>
+<h2 id="chapter-4-generalised-optimisation-and-regression">Chapter 4:
+Generalised Optimisation and Regression</h2>
+<p>In <a href="https://arxiv.org/pdf/2401.09270.pdf#chapter.4">Chapter
+4</a>, we use uniformly continuously searchable closeness spaces to
+define our formal convergence properties of global optimisation and
+parametric regression on a wide class of types. For this purpose, we
+introduce <a
+href="/TWA.Thesis.Chapter4.ApproxOrder.html#is-approx-order">approximate
+linear preorders</a>, which approximately order elements of closeness
+spaces. The key contribution of this section — the statement of the
+type-theoretic variants of <a
+href="/TWA.Thesis.Chapter4.GlobalOptimisation.html#global-opt">global
+optimisation</a> and <a
+href="/TWA.Thesis.Chapter4.ParametricRegression.html#s-imperfect-convergence">parametric
+regression</a> — is methodological rather than technical, as the proofs
+of their convergence follow naturally from the concepts we have
+introduced.</p>
+<pre class="Agda"><a id="5413" class="Keyword">open</a> <a id="5418" class="Keyword">import</a> <a id="5425" href="TWA.Thesis.Chapter4.ApproxOrder.html" class="Module">TWA.Thesis.Chapter4.ApproxOrder</a>
+<a id="5457" class="Keyword">open</a> <a id="5462" class="Keyword">import</a> <a id="5469" href="TWA.Thesis.Chapter4.ApproxOrder-Examples.html" class="Module">TWA.Thesis.Chapter4.ApproxOrder-Examples</a>
+<a id="5510" class="Keyword">open</a> <a id="5515" class="Keyword">import</a> <a id="5522" href="TWA.Thesis.Chapter4.GlobalOptimisation.html" class="Module">TWA.Thesis.Chapter4.GlobalOptimisation</a>
+<a id="5561" class="Keyword">open</a> <a id="5566" class="Keyword">import</a> <a id="5573" href="TWA.Thesis.Chapter4.ParametricRegression.html" class="Module">TWA.Thesis.Chapter4.ParametricRegression</a> <a id="5614" class="Comment">-- 1</a>
 </pre>
-<h2 id="chapter-5">Chapter 5</h2>
-<pre class="Agda"><a id="829" class="Keyword">open</a> <a id="834" class="Keyword">import</a> <a id="841" href="TWA.Thesis.Chapter5.IntervalObject.html" class="Module">TWA.Thesis.Chapter5.IntervalObject</a>
-<a id="876" class="Keyword">open</a> <a id="881" class="Keyword">import</a> <a id="888" href="TWA.Thesis.Chapter5.IntervalObjectApproximation.html" class="Module">TWA.Thesis.Chapter5.IntervalObjectApproximation</a>
-<a id="936" class="Keyword">open</a> <a id="941" class="Keyword">import</a> <a id="948" href="TWA.Thesis.Chapter5.SignedDigit.html" class="Module">TWA.Thesis.Chapter5.SignedDigit</a>
-<a id="980" class="Keyword">open</a> <a id="985" class="Keyword">import</a> <a id="992" href="TWA.Thesis.Chapter5.SignedDigitIntervalObject.html" class="Module">TWA.Thesis.Chapter5.SignedDigitIntervalObject</a>
-<a id="1038" class="Keyword">open</a> <a id="1043" class="Keyword">import</a> <a id="1050" href="TWA.Thesis.Chapter5.BoehmVerification.html" class="Module">TWA.Thesis.Chapter5.BoehmVerification</a>
-<a id="1088" class="Keyword">open</a> <a id="1093" class="Keyword">import</a> <a id="1100" href="TWA.Thesis.Chapter5.BelowAndAbove.html" class="Module">TWA.Thesis.Chapter5.BelowAndAbove</a>
-<a id="1134" class="Keyword">open</a> <a id="1139" class="Keyword">import</a> <a id="1146" href="TWA.Thesis.Chapter5.Integers.html" class="Module">TWA.Thesis.Chapter5.Integers</a>
+<h2 id="chapter-5-real-numbers">Chapter 5: Real Numbers</h2>
+<p>In <a href="https://arxiv.org/pdf/2401.09270.pdf#chapter.5">Chapter
+5</a>, we define two types for representing real numbers: <a
+href="/TWA.Thesis.Chapter5.SignedDigit.html#𝟛ᴺ">ternary signed-digit
+encodings</a> and <a
+href="/TWA.Thesis.Chapter5.BoehmVerification.html#𝕋">ternary Boehm
+encodings</a>.</p>
+<p>On the former, we formally verify exact real arithmetic operations
+(namely, <a
+href="/TWA.Thesis.Chapter5.SignedDigitIntervalObject.html#neg-realiser">negation</a>,
+<a
+href="/TWA.Thesis.Chapter5.SignedDigitIntervalObject.html#mid-realiser">binary</a>
+and <a
+href="/TWA.Thesis.Chapter5.SignedDigitIntervalObject.html#bigMid-realiser">infinitary
+midpoint</a> and <a
+href="/TWA.Thesis.Chapter5.SignedDigitIntervalObject.html#mul-realiser">multiplication</a>)
+using the <a
+href="TWA.Thesis.Chapter5.IntervalObject.html#Interval-object">Escardo-Simpson
+interval object specification of closed intervals</a> — which we also
+review and formalise in this section.</p>
+<p>On the latter, we <a
+href="/TWA.Thesis.Chapter5.BoehmVerification.html#𝕋">define the type</a>
+in Agda, <a
+href="/TWA.Thesis.Chapter5.BoehmVerification.html#ternary-normalised≃𝕋">prove
+the correctness of its structure</a> and show how it <a
+href="/TWA.Thesis.Chapter5.BoehmVerification.html#CompactInterval">yields
+representations</a> of compact intervals that we can then use for
+search.</p>
+<pre class="Agda"><a id="6889" class="Keyword">open</a> <a id="6894" class="Keyword">import</a> <a id="6901" href="TWA.Thesis.Chapter5.IntervalObject.html" class="Module">TWA.Thesis.Chapter5.IntervalObject</a>
+<a id="6936" class="Keyword">open</a> <a id="6941" class="Keyword">import</a> <a id="6948" href="TWA.Thesis.Chapter5.IntervalObjectApproximation.html" class="Module">TWA.Thesis.Chapter5.IntervalObjectApproximation</a>
+<a id="6996" class="Keyword">open</a> <a id="7001" class="Keyword">import</a> <a id="7008" href="TWA.Thesis.Chapter5.SignedDigit.html" class="Module">TWA.Thesis.Chapter5.SignedDigit</a>
+<a id="7040" class="Keyword">open</a> <a id="7045" class="Keyword">import</a> <a id="7052" href="TWA.Thesis.Chapter5.SignedDigitIntervalObject.html" class="Module">TWA.Thesis.Chapter5.SignedDigitIntervalObject</a>
+<a id="7098" class="Keyword">open</a> <a id="7103" class="Keyword">import</a> <a id="7110" href="TWA.Thesis.Chapter5.BoehmVerification.html" class="Module">TWA.Thesis.Chapter5.BoehmVerification</a>
+<a id="7148" class="Keyword">open</a> <a id="7153" class="Keyword">import</a> <a id="7160" href="TWA.Thesis.Chapter5.BelowAndAbove.html" class="Module">TWA.Thesis.Chapter5.BelowAndAbove</a>
+<a id="7194" class="Keyword">open</a> <a id="7199" class="Keyword">import</a> <a id="7206" href="TWA.Thesis.Chapter5.Integers.html" class="Module">TWA.Thesis.Chapter5.Integers</a>
 </pre>
-<h2 id="chapter-6">Chapter 6</h2>
-<pre class="Agda"><a id="1202" class="Keyword">open</a> <a id="1207" class="Keyword">import</a> <a id="1214" href="TWA.Thesis.Chapter6.SequenceContinuity.html" class="Module">TWA.Thesis.Chapter6.SequenceContinuity</a>
-<a id="1253" class="Keyword">open</a> <a id="1258" class="Keyword">import</a> <a id="1265" href="TWA.Thesis.Chapter6.SignedDigitSearch.html" class="Module">TWA.Thesis.Chapter6.SignedDigitSearch</a>
-<a id="1303" class="Keyword">open</a> <a id="1308" class="Keyword">import</a> <a id="1315" href="TWA.Thesis.Chapter6.SignedDigitOrder.html" class="Module">TWA.Thesis.Chapter6.SignedDigitOrder</a>
-<a id="1352" class="Keyword">open</a> <a id="1357" class="Keyword">import</a> <a id="1364" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html" class="Module">TWA.Thesis.Chapter6.SignedDigitContinuity</a>
-<a id="1406" class="Keyword">open</a> <a id="1411" class="Keyword">import</a> <a id="1418" href="TWA.Thesis.Chapter6.SignedDigitExamples.html" class="Module">TWA.Thesis.Chapter6.SignedDigitExamples</a>
-<a id="1458" class="Keyword">open</a> <a id="1463" class="Keyword">import</a> <a id="1470" href="TWA.Thesis.Chapter6.Main.html" class="Module">TWA.Thesis.Chapter6.Main</a>
+<h2 id="chapter-6-exact-real-search">Chapter 6: Exact Real Search</h2>
+<p>In <a href="https://arxiv.org/pdf/2401.09270.pdf#chapter.6">Chapter
+6</a>, we bring our formal framework full-circle by instantiating it on
+these two types for representing real numbers. Example evaluations of
+algorithms for search, optimisation and regression — either <a
+href="https://arxiv.org/pdf/2401.09270.pdf#appendix.A">extracted from
+Agda</a> or <a
+href="https://arxiv.org/pdf/2401.09270.pdf#appendix.B">implemented in
+Java</a> — are then given to show the use of the framework in
+practice.</p>
+<pre class="Agda"><a id="7754" class="Keyword">open</a> <a id="7759" class="Keyword">import</a> <a id="7766" href="TWA.Thesis.Chapter6.SequenceContinuity.html" class="Module">TWA.Thesis.Chapter6.SequenceContinuity</a>
+<a id="7805" class="Keyword">open</a> <a id="7810" class="Keyword">import</a> <a id="7817" href="TWA.Thesis.Chapter6.SignedDigitSearch.html" class="Module">TWA.Thesis.Chapter6.SignedDigitSearch</a>
+<a id="7855" class="Keyword">open</a> <a id="7860" class="Keyword">import</a> <a id="7867" href="TWA.Thesis.Chapter6.SignedDigitOrder.html" class="Module">TWA.Thesis.Chapter6.SignedDigitOrder</a>
+<a id="7904" class="Keyword">open</a> <a id="7909" class="Keyword">import</a> <a id="7916" href="TWA.Thesis.Chapter6.SignedDigitContinuity.html" class="Module">TWA.Thesis.Chapter6.SignedDigitContinuity</a>
+<a id="7958" class="Keyword">open</a> <a id="7963" class="Keyword">import</a> <a id="7970" href="TWA.Thesis.Chapter6.SignedDigitExamples.html" class="Module">TWA.Thesis.Chapter6.SignedDigitExamples</a>
+</pre>
+<h2 id="chapter-7-conclusion">Chapter 7: Conclusion</h2>
+<p>Finally, in <a
+href="https://arxiv.org/pdf/2401.09270.pdf#chapter.7">Chapter 7</a>, by
+way of conclusion we discuss some further avenues for this line of
+work.</p>
+<h2 id="special-thanks">Special Thanks</h2>
+<p>A special thanks goes to Andrew Sneap, who wrote the following two
+files specifically for the use of the Boehm verification in Chapter
+5.</p>
+<pre class="Agda"><a id="8358" class="Keyword">open</a> <a id="8363" class="Keyword">import</a> <a id="8370" href="TWA.Thesis.AndrewSneap.DyadicRationals.html" class="Module">TWA.Thesis.AndrewSneap.DyadicRationals</a>
+<a id="8409" class="Keyword">open</a> <a id="8414" class="Keyword">import</a> <a id="8421" href="TWA.Thesis.AndrewSneap.DyadicReals.html" class="Module">TWA.Thesis.AndrewSneap.DyadicReals</a>
 </pre>
 </body>
 </html>
