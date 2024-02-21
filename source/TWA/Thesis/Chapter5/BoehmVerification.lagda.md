@@ -177,27 +177,30 @@ nested-implies-fully-nested ζ ρ n m (k , refl)
   
   is-disjoint : disjoint L R
   is-disjoint p q (tp<x , tx<q)
-   = ∥∥-rec (<ℤ[1/2]-is-prop p q) I (binary-choice tp<x tx<q)
+   = ∥∥-rec (<ℤ[1/2]-is-prop p q)
+       (λ ((n , p<l) , (n' , r<q))
+        → I n n' p<l r<q (ℤ-dichotomous n n'))
+       (binary-choice tp<x tx<q)
    where
-    I : (Σ n ꞉ ℤ , (p <ℤ[1/2] ld (χ n)))
-      × (Σ n' ꞉ ℤ , (rd (χ n') <ℤ[1/2] q))
+    I : (n n' : ℤ)
+      → p <ℤ[1/2] ld (χ n)
+      → rd (χ n') <ℤ[1/2] q
+      → (n ≤ n') + (n' ≤ n)
       → p <ℤ[1/2] q
-    I ((n , p<l) , (n' , r<q)) with ℤ-dichotomous n n'
-    ... | inl n≤n'
-           = let p<l' = ℤ[1/2]<-≤ p (ld (χ n)) (ld (χ n')) p<l
-                          (pr₁ (nested-implies-fully-nested
-                                  χ τ n n' n≤n'))
-                 l<q' = ℤ[1/2]≤-< (ld (χ n')) (rd (χ n')) q
-                          (ld≤rd (χ n')) r<q 
-           in trans p (ld (χ n')) q p<l' l<q'
-    ... | inr n'≤n
-           = let p<r' = ℤ[1/2]<-≤ p (ld (χ n)) (rd (χ n)) p<l
-                          (ld≤rd (χ n))
-                 r<q' = ℤ[1/2]≤-< (rd (χ n)) (rd (χ n')) q
-                          (pr₂ (nested-implies-fully-nested
-                             χ τ n' n n'≤n))
-                          r<q
-           in trans p (rd (χ n)) q p<r' r<q'
+    I n n' p<l r<q (inl n≤n')
+      = let p<l' = ℤ[1/2]<-≤ p (ld (χ n)) (ld (χ n')) p<l
+                     (pr₁ (nested-implies-fully-nested
+                             χ τ n n' n≤n'))
+            l<q' = ℤ[1/2]≤-< (ld (χ n')) (rd (χ n')) q
+                     (ld≤rd (χ n')) r<q 
+      in trans p (ld (χ n')) q p<l' l<q'
+    I n n' p<l r<q (inr n'≤n)
+      = let p<r' = ℤ[1/2]<-≤ p (ld (χ n)) (rd (χ n)) p<l
+                     (ld≤rd (χ n))
+            r<q' = ℤ[1/2]≤-< (rd (χ n)) (rd (χ n')) q
+                     (pr₂ (nested-implies-fully-nested
+                        χ τ n' n n'≤n)) r<q
+      in trans p (rd (χ n)) q p<r' r<q'
  
   is-located : located L R
   is-located p q p<q
@@ -579,23 +582,47 @@ CompactInterval-≈ (k , δ) ((χ' , b') , e') = δ , γ
          (ℤ-trichotomous (δ +pos succ i) δ)
          (inr (inr (i , ℤ-left-succ-pos δ i)))) ⁻¹
 
-CI2-to-𝟛ᴺ
- : ((k , i) : ℤ × ℤ) → CompactInterval2 (k , i) → 𝟛ᴺ
-CI2-to-𝟛ᴺ (k , i) (χ , b₀ , bₛ) 0
- with below-implies-below' (χ 0) k b₀
-... | inl      dL  = −1
-... | inr (inl dM) =  O
-... | inr (inr dR) = +1
-CI2-to-𝟛ᴺ (k , i) (χ , b₀ , bₛ) (succ n)
- with below-implies-below' (χ (succ n)) (χ n) (bₛ n)
-... | inl      dL  = −1
-... | inr (inl dM) =  O
-... | inr (inr dR) = +1
+down-to-𝟛 : (a b : ℤ) → a below' b → 𝟛
+down-to-𝟛 a b (inl      dL ) = −1
+down-to-𝟛 a b (inr (inl dM)) =  O
+down-to-𝟛 a b (inr (inr dR)) = +1
 
 𝟛-to-down : (a : 𝟛) → (ℤ → ℤ)
 𝟛-to-down −1 = downLeft
 𝟛-to-down  O = downMid
 𝟛-to-down +1 = downRight
+
+𝟛-down-eq : (a b : ℤ) (d : a below' b)
+          → 𝟛-to-down (down-to-𝟛 a b d) b ＝ a 
+𝟛-down-eq a b (inl      dL ) = dL ⁻¹
+𝟛-down-eq a b (inr (inl dM)) = dM ⁻¹
+𝟛-down-eq a b (inr (inr dR)) = dR ⁻¹
+
+down-𝟛-eq : (a : 𝟛) (b : ℤ)
+          → (e : 𝟛-to-down a b below' b)
+          → down-to-𝟛 (𝟛-to-down a b) b e ＝ a 
+down-𝟛-eq −1 b (inl e) = refl
+down-𝟛-eq  O b (inl e)
+ = 𝟘-elim (downLeft≠downMid b b refl (e ⁻¹))
+down-𝟛-eq +1 b (inl e)
+ = 𝟘-elim (downLeft≠downRight b b refl (e ⁻¹))
+down-𝟛-eq −1 b (inr (inl e))
+ = 𝟘-elim (downLeft≠downMid b b refl e)
+down-𝟛-eq  O b (inr (inl e)) = refl
+down-𝟛-eq +1 b (inr (inl e))
+ = 𝟘-elim (downMid≠downRight b b refl (e ⁻¹))
+down-𝟛-eq −1 b (inr (inr e))
+ = 𝟘-elim (downLeft≠downRight b b refl e)
+down-𝟛-eq  O b (inr (inr e))
+ = 𝟘-elim (downMid≠downRight b b refl e)
+down-𝟛-eq +1 b (inr (inr e)) = refl
+
+CI2-to-𝟛ᴺ  : ((k , i) : ℤ × ℤ) → CompactInterval2 (k , i) → 𝟛ᴺ
+CI2-to-𝟛ᴺ (k , i) (χ , b₀ , bₛ) 0
+ = down-to-𝟛 (χ 0) k (below-implies-below' (χ 0) k b₀)
+CI2-to-𝟛ᴺ (k , i) (χ , b₀ , bₛ) (succ n)
+ = down-to-𝟛 (χ (succ n)) (χ n)
+    (below-implies-below' (χ (succ n)) (χ n) (bₛ n))
 
 𝟛-to-down-is-below : (a : 𝟛) (k : ℤ) → 𝟛-to-down a k below k
 𝟛-to-down-is-below −1 k = downLeft-below  k
@@ -644,77 +671,20 @@ CompactInterval2-ternary (k , i)
    where
     χ' = pr₁ (𝟛ᴺ-to-CI2 (k , i) (CI2-to-𝟛ᴺ (k , i) (χ , b₀ , bₛ))) 
     γ : χ' ∼ χ
-    γ zero with below-implies-below' (χ 0) k b₀
-    ... | inl      dL  = dL ⁻¹
-    ... | inr (inl dM) = dM ⁻¹
-    ... | inr (inr dR) = dR ⁻¹
-    γ (succ n) with below-implies-below' (χ (succ n)) (χ n) (bₛ n)
-    ... | inl      dL  = ap (_ℤ+ χ' n) (γ n)
-                       ∙ ap (χ n ℤ+_ ) (γ n)
-                       ∙ dL ⁻¹
-    ... | inr (inl dM) = ap succℤ
-                          (ap (_ℤ+ χ' n) (γ n)
-                          ∙ ap (χ n ℤ+_ ) (γ n))
-                       ∙ dM ⁻¹
-    ... | inr (inr dR) = ap (succℤ ∘ succℤ)
-                          (ap (_ℤ+ χ' n) (γ n)
-                          ∙ ap (χ n ℤ+_ ) (γ n))
-                       ∙ dR ⁻¹
+    γ zero = 𝟛-down-eq (χ 0) k (below-implies-below' (χ 0) k b₀)
+    γ (succ n)
+     = ap (𝟛-to-down (down-to-𝟛 (χ (succ n)) (χ n)
+            (below-implies-below' (χ (succ n)) (χ n) (bₛ n))))
+          (γ n)
+     ∙ 𝟛-down-eq (χ (succ n)) (χ n)
+         (below-implies-below' (χ (succ n)) (χ n) (bₛ n))
   μ : (CI2-to-𝟛ᴺ (k , i)) ∘ (𝟛ᴺ-to-CI2 (k , i)) ∼ id
   μ α = dfunext (fe _ _) γ
    where
     α' = 𝟛ᴺ-to-CI2 (k , i) α
     γ : CI2-to-𝟛ᴺ (k , i) α' ∼ α
-    γ 0 with below-implies-below' (𝟛-to-down (α 0) k) k
-               (𝟛-to-down-is-below (α 0) k)
-           | 𝟛-possibilities (α 0)
-    ... | inl      dL  | inl      −1'  = −1' ⁻¹
-    ... | inr (inl dM) | inr (inl  O') =  O' ⁻¹
-    ... | inr (inr dR) | inr (inr +1') = +1' ⁻¹
-    ... | inl      dL  | inr (inl  O')
-     = 𝟘-elim (downLeft≠downMid k k refl
-         (dL ⁻¹ ∙ ap (λ a → 𝟛-to-down a k) O'))
-    ... | inl      dL  | inr (inr +1')
-     = 𝟘-elim (downLeft≠downRight k k refl
-        (dL ⁻¹ ∙ ap (λ a → 𝟛-to-down a k) +1'))
-    ... | inr (inl dM) | inl      −1'
-     = 𝟘-elim (downLeft≠downMid k k refl
-        (ap (λ a → 𝟛-to-down a k) (−1' ⁻¹) ∙ dM))
-    ... | inr (inl dM) | inr (inr +1')
-     = 𝟘-elim (downMid≠downRight k k refl
-         (dM ⁻¹ ∙ ap (λ a → 𝟛-to-down a k) +1'))
-    ... | inr (inr dR) | inr (inl  O')
-     = 𝟘-elim (downMid≠downRight k k refl
-         (ap (λ a → 𝟛-to-down a k) (O' ⁻¹) ∙ dR))
-    ... | inr (inr dR) | inl      −1'
-     = 𝟘-elim (downLeft≠downRight k k refl
-         (ap (λ a → 𝟛-to-down a k) (−1' ⁻¹) ∙ dR))
-    γ (succ n) with below-implies-below'
-                      (𝟛-to-down (α (succ n)) (pr₁ α' n))
-                      (pr₁ α' n)
-                      (𝟛-to-down-is-below (α (succ n)) (pr₁ α' n))
-                  | 𝟛-possibilities (α (succ n))
-    ... | inl      dL  | inl      −1'  = −1' ⁻¹
-    ... | inr (inl dM) | inr (inl  O') =  O' ⁻¹
-    ... | inr (inr dR) | inr (inr +1') = +1' ⁻¹
-    ... | inl      dL  | inr (inl  O')
-     = 𝟘-elim (downLeft≠downMid (pr₁ α' n) (pr₁ α' n) refl
-         (dL ⁻¹ ∙ ap (λ a → 𝟛-to-down a (pr₁ α' n)) O'))
-    ... | inl      dL  | inr (inr +1')
-     = 𝟘-elim (downLeft≠downRight (pr₁ α' n) (pr₁ α' n) refl
-        (dL ⁻¹ ∙ ap (λ a → 𝟛-to-down a (pr₁ α' n)) +1'))
-    ... | inr (inl dM) | inl      −1'
-     = 𝟘-elim (downLeft≠downMid (pr₁ α' n) (pr₁ α' n) refl
-        (ap (λ a → 𝟛-to-down a (pr₁ α' n)) (−1' ⁻¹) ∙ dM))
-    ... | inr (inl dM) | inr (inr +1')
-     = 𝟘-elim (downMid≠downRight (pr₁ α' n) (pr₁ α' n) refl
-         (dM ⁻¹ ∙ ap (λ a → 𝟛-to-down a (pr₁ α' n)) +1'))
-    ... | inr (inr dR) | inr (inl  O')
-     = 𝟘-elim (downMid≠downRight (pr₁ α' n) (pr₁ α' n) refl
-         (ap (λ a → 𝟛-to-down a (pr₁ α' n)) (O' ⁻¹) ∙ dR))
-    ... | inr (inr dR) | inl      −1'
-     = 𝟘-elim (downLeft≠downRight (pr₁ α' n) (pr₁ α' n) refl
-         (ap (λ a → 𝟛-to-down a (pr₁ α' n)) (−1' ⁻¹) ∙ dR))
+    γ 0 = down-𝟛-eq (α 0) k _
+    γ (succ n) = down-𝟛-eq (α (succ n)) _ _
 
 CI2-ClosenessSpace
  : ((k , i) : ℤ × ℤ)
@@ -765,16 +735,9 @@ CI3-ClosenessSpace (k , i)
 
 𝟚ᴺ = ℕ → 𝟚
 
-CI3-to-𝟚ᴺ
- : ((k , i) : ℤ × ℤ) → CompactInterval3 (k , i) → 𝟚ᴺ
-CI3-to-𝟚ᴺ (k , i) (χ , b₀ , bₛ) 0
- with b₀
-... | inl dL = ₀
-... | inr dR = ₁
-CI3-to-𝟚ᴺ (k , i) (χ , b₀ , bₛ) (succ n)
- with bₛ n
-... | inl dL = ₀
-... | inr dR = ₁
+down-to-𝟚 : (a b : ℤ) → a split-below b → 𝟚
+down-to-𝟚 a b (inl dL) = ₀
+down-to-𝟚 a b (inr dR) = ₁
 
 𝟚-to-down : (a : 𝟚) → (ℤ → ℤ)
 𝟚-to-down ₀ = downLeft
@@ -783,6 +746,25 @@ CI3-to-𝟚ᴺ (k , i) (χ , b₀ , bₛ) (succ n)
 𝟚-to-down-is-below : (a : 𝟚) (k : ℤ) → 𝟚-to-down a k split-below k
 𝟚-to-down-is-below ₀ k = inl refl
 𝟚-to-down-is-below ₁ k = inr refl
+
+𝟚-down-eq : (a b : ℤ) (d : a split-below b)
+          → 𝟚-to-down (down-to-𝟚 a b d) b ＝ a 
+𝟚-down-eq a b (inl dL) = dL ⁻¹
+𝟚-down-eq a b (inr dR) = dR ⁻¹
+
+down-𝟚-eq : (a : 𝟚) (b : ℤ) (e : 𝟚-to-down a b split-below b)
+          → down-to-𝟚 (𝟚-to-down a b) b e ＝ a 
+down-𝟚-eq ₀ b (inl e) = refl
+down-𝟚-eq ₁ b (inl e) = 𝟘-elim (downLeft≠downRight b b refl (e ⁻¹))
+down-𝟚-eq ₀ b (inr e) = 𝟘-elim (downLeft≠downRight b b refl e)
+down-𝟚-eq ₁ b (inr e) = refl
+
+CI3-to-𝟚ᴺ
+ : ((k , i) : ℤ × ℤ) → CompactInterval3 (k , i) → 𝟚ᴺ
+CI3-to-𝟚ᴺ (k , i) (χ , b₀ , bₛ) 0
+ = down-to-𝟚 (χ 0) k b₀
+CI3-to-𝟚ᴺ (k , i) (χ , b₀ , bₛ) (succ n)
+ = down-to-𝟚 (χ (succ n)) (χ n) (bₛ n)
 
 𝟚ᴺ-to-CI3 : ((k , i) : ℤ × ℤ) → 𝟚ᴺ → CompactInterval3 (k , i)
 𝟚ᴺ-to-CI3 (k , i) α = χ , b₀ , bₛ
@@ -806,44 +788,17 @@ CompactInterval3-cantor (k , i)
    where
     χ' = pr₁ (𝟚ᴺ-to-CI3 (k , i) (CI3-to-𝟚ᴺ (k , i) (χ , b₀ , bₛ))) 
     γ : χ' ∼ χ
-    γ zero = γ' b₀ refl
-     where
-      γ' : (b₀' : χ 0 split-below k) → b₀ ＝ b₀' → χ' 0 ＝ χ 0
-      γ' b₀' e with b₀'
-      γ' b₀' refl | inl dL = dL ⁻¹
-      γ' b₀' refl | inr dR = dR ⁻¹
-    γ (succ n) with bₛ n
-    ... | inl dL = ap (_ℤ+ χ' n) (γ n)
-                 ∙ ap (χ n ℤ+_ ) (γ n)
-                 ∙ dL ⁻¹ 
-    ... | inr dR = ap (succℤ ∘ succℤ)
-                     (ap (_ℤ+ χ' n) (γ n)
-                     ∙ ap (χ n ℤ+_ ) (γ n))
-                 ∙ dR ⁻¹
+    γ 0 = 𝟚-down-eq (χ 0) k b₀
+    γ (succ n)
+     = ap (𝟚-to-down (down-to-𝟚 (χ (succ n)) (χ n) (bₛ n))) (γ n)
+     ∙ 𝟚-down-eq (χ (succ n)) (χ n) (bₛ n)
   μ : (CI3-to-𝟚ᴺ (k , i)) ∘ (𝟚ᴺ-to-CI3 (k , i)) ∼ id
   μ α = dfunext (fe _ _) γ
    where
     α' = 𝟚ᴺ-to-CI3 (k , i) α
     γ : CI3-to-𝟚ᴺ (k , i) α' ∼ α
-    γ 0 with 𝟚-to-down-is-below (α 0) k | 𝟚-possibilities (α 0)
-    ... | inl dL | inl ₀' = ₀' ⁻¹
-    ... | inr dR | inr ₁' = ₁' ⁻¹
-    ... | inl dL | inr ₁'
-     = 𝟘-elim (downLeft≠downRight k k refl
-         (dL ⁻¹ ∙ ap (λ a → 𝟚-to-down a k) ₁'))
-    ... | inr dR | inl ₀'
-     = 𝟘-elim (downLeft≠downRight k k refl
-         (ap (λ a → 𝟚-to-down a k) (₀' ⁻¹) ∙ dR))
-    γ (succ n) with 𝟚-to-down-is-below (α (succ n)) (pr₁ α' n)
-                  | 𝟚-possibilities (α (succ n))
-    ... | inl dL | inl ₀' = ₀' ⁻¹
-    ... | inr dR | inr ₁' = ₁' ⁻¹
-    ... | inl dL | inr ₁'
-     = 𝟘-elim (downLeft≠downRight (pr₁ α' n) (pr₁ α' n) refl
-         (dL ⁻¹ ∙ ap (λ a → 𝟚-to-down a (pr₁ α' n)) ₁'))
-    ... | inr dR | inl ₀'
-     = 𝟘-elim (downLeft≠downRight (pr₁ α' n) (pr₁ α' n) refl
-         (ap (λ a → 𝟚-to-down a (pr₁ α' n)) (₀' ⁻¹) ∙ dR))
+    γ 0 = down-𝟚-eq (α 0) k (𝟚-to-down-is-below (α 0) k)
+    γ (succ n) = down-𝟚-eq (α (succ n)) _ _
 ```
 
 [⇐ Index](../html/TWA.Thesis.index.html)

@@ -199,7 +199,6 @@ pred-shift a b = ℤ-left-pred a (ℤ- b)
 
 _≤ℤ_≤ℤ_ : ℤ → ℤ → ℤ → 𝓤₀ ̇ 
 x ≤ℤ y ≤ℤ z = (x ≤ℤ y) × (y ≤ℤ z)
--- _≤_≤_ = _≤ℤ_≤ℤ_
 
 ℤ≤²-refl : (k : ℤ) → k ≤ℤ k ≤ℤ k
 ℤ≤²-refl k = ℤ≤-refl k , ℤ≤-refl k
@@ -214,12 +213,13 @@ x ≤ℤ y ≤ℤ z = (x ≤ℤ y) × (y ≤ℤ z)
 ℤ[ l , u ]-succ (z , l≤z , z≤u)
  = z , l≤z , ℤ≤-trans z u (succℤ u) z≤u (1 , refl) 
 
-≤ℤ-antisym : ∀ x y → x ≤ℤ y ≤ℤ x → x ＝ y
-≤ℤ-antisym x y (x≤y , y≤x) with ℤ≤-split x y x≤y | ℤ≤-split y x y≤x
-... | inl (n , γ) | inl (m , δ)
- = 𝟘-elim (ℤ-equal-not-less-than x (ℤ<-trans x y x (n , γ) (m , δ)))
-... | inl  _  | inr y＝x = y＝x ⁻¹
-... | inr x＝y | _       = x＝y
+≤ℤ-antisym : (x y : ℤ) → x ≤ℤ y ≤ℤ x → x ＝ y
+≤ℤ-antisym x y (x≤y , y≤x)
+ = Cases (ℤ≤-split x y x≤y) (Cases (ℤ≤-split y x y≤x)
+     (λ y<x x<y
+      → 𝟘-elim (ℤ-equal-not-less-than x (ℤ<-trans x y x x<y y<x)))
+     (λ y=x _ → y=x ⁻¹))
+     id
 
 ≤ℤ-back : ∀ x y → x <ℤ y → x ≤ℤ predℤ y
 ≤ℤ-back x .(succℤ x +ℤ pos n) (n , refl)

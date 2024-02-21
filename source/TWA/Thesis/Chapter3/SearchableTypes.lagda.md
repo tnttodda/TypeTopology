@@ -20,6 +20,8 @@ module TWA.Thesis.Chapter3.SearchableTypes (fe : FunExt) where
 
 open import TWA.Thesis.Chapter3.ClosenessSpaces fe
  hiding (decidable-predicate;decidable-uc-predicate)
+open import TWA.Thesis.Chapter3.ClosenessSpaces-Examples fe
+ using (decidable-𝟚; decidable-𝟚₁; 𝟚-decidable₁)
 ```
 
 ## Searchable types
@@ -190,20 +192,11 @@ decidable-to-𝟚 (inr ¬x)
      , (λ _ → ¬x) , (λ _ → refl)
      
 LPO-implies-ℕ-searchability : LPO → searchable 𝓦 ℕ
-LPO-implies-ℕ-searchability {𝓦} f (p , d) = n , γ
- where
-  α : ℕ → 𝟚
-  α i = pr₁ (decidable-to-𝟚 (d i))
-  n : ℕ
-  n with f α
-  ... | inl _ = 0
-  ... | inr (n , _) = n
-  γ : (Σ i ꞉ ℕ , p i holds) → p n holds
-  γ (n , pn) with f α
-  ... | inl Πα₀
-   = 𝟘-elim (zero-is-not-one
-              (Πα₀ n ⁻¹ ∙ pr₂ (pr₁ (pr₂ (decidable-to-𝟚 (d n)))) pn))
-  ... | inr (i , αi＝₁) = pr₁ (pr₁ (pr₂ (decidable-to-𝟚 (d i)))) αi＝₁
+LPO-implies-ℕ-searchability {𝓦} f (p , d)
+ = Cases (f (λ i → decidable-𝟚 (d i)))
+     (λ α∼₀ → 0 , λ (n , pn) → (𝟘-elim ∘ zero-is-not-one)
+                                 (α∼₀ n ⁻¹ ∙ decidable-𝟚₁ (d n) pn))
+     λ (i , αᵢ=₀) → i , λ _ → 𝟚-decidable₁ (d i) αᵢ=₀
 ```
 
 ## Uniformly continuously searchable closeness spaces

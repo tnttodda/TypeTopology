@@ -37,6 +37,11 @@ _∷_ : {T : ℕ → 𝓤 ̇ } → T 0 → Π (T ∘ succ) → Π T
 _∼ⁿ_ : {X : ℕ → 𝓤 ̇ } → Π X → Π X → ℕ → 𝓤 ̇
 (α ∼ⁿ β) n = (i : ℕ) → i < n → α i ＝ β i
 
+∼ⁿ-sym : {X : ℕ → 𝓤 ̇ } (α β : Π X) (n : ℕ)
+       → (α ∼ⁿ β) n
+       → (β ∼ⁿ α) n
+∼ⁿ-sym α β n f i i<n = f i i<n ⁻¹
+
 bounded-decidable-Π : {X : ℕ → 𝓤 ̇ }
                     → is-complemented X
                     → (n : ℕ)

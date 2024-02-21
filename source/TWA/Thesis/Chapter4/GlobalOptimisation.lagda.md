@@ -40,7 +40,7 @@ Fin-global-minimal 1 𝟎 _≤_ (p , _) f = 𝟎 , γ
   γ 𝟎 = ≤-refl⟨ p ⟩ (f 𝟎)
 Fin-global-minimal (succ (succ n)) x _≤_ l@(p , _) f
  with Fin-global-minimal (succ n) 𝟎 _≤_ l (f ∘ suc)
-... | (x'₀ , m) = Cases (≤-linear⟨ l ⟩ (f (suc x'₀)) (f 𝟎)) γ₁ γ₂
+... | (x'₀ , m) = Cases (≤-linear⟨ l ⟩ (f (suc x'₀)) (f 𝟎)) γ₁ γ₂ 
  where
   γ₁ : f (suc x'₀) ≤ f 𝟎 → has-global-minimal _≤_ f
   γ₁ x'₀≤𝟎 = suc x'₀ , γ
@@ -62,12 +62,15 @@ finite-global-minimal : {X : 𝓤 ̇ } {Y : 𝓥  ̇ }
                       → is-linear-preorder _≤_
                       → (f : X → Y)
                       → has-global-minimal _≤_ f
-finite-global-minimal x (0 , (g , _)) _≤_ l f
- = 𝟘-elim (g x)
-finite-global-minimal x (succ n , e@(g , _ , (h , μ))) _≤_ l f
- with Fin-global-minimal (succ n) 𝟎 _≤_ l (f ∘ h)
-... | (x₀ , γ₀) = h x₀
-                , λ x → transport (f (h x₀) ≤_) (ap f (μ x)) (γ₀ (g x))
+finite-global-minimal x (n , e@(g , _ , (h , μ))) _≤_ l f
+ = h x₀ , λ x → transport (f (h x₀) ≤_) (ap f (μ x)) (γ₀ (g x))
+ where
+ γ : has-global-minimal _≤_ (f ∘ h)
+ γ = Fin-global-minimal n (g x) _≤_ l (f ∘ h)
+ x₀ : Fin n
+ x₀ = pr₁ γ
+ γ₀ : is-global-minimal _≤_ (f ∘ h) x₀
+ γ₀ = pr₂ γ
 ```
 
 ## Approximate global optimisation

@@ -103,41 +103,6 @@ global-max-ℕ∞ X x₀ t f ϕ ϵ
          ℕ∞-approx-lexicorder-is-approx-order)
      ϵ f ϕ t
 
-≼-antisym-conv : (u : ℕ∞) (n : ℕ) → ¬ ((n ↑) ≼ u) → u ≺ (n ↑)
-≼-antisym-conv u zero ¬n≼u = 𝟘-elim (¬n≼u (λ _ ()))
-≼-antisym-conv u (succ n) ¬sn≼u with ≼-left-decidable n u
-... | inl  n≼u = n
-               , to-subtype-＝ (being-decreasing-is-prop (fe _ _))
-                   (dfunext (fe _ _) γ)
-               , <-gives-⊏ n (succ n) (<-succ n)
- where
-  γ : pr₁ u ∼ pr₁ (n ↑)
-  γ i = Cases (<-decidable i n)
-          (λ  i<n → n≼u i (<-gives-⊏ i n i<n) ∙ <-gives-⊏ i n i<n ⁻¹)
-          (λ ¬i<n → not-⊏-is-⊒ {i} {u}
-                      (λ i⊏u → ¬sn≼u
-                        (λ j j⊏sn → ⊏-trans'' u i j
-                                      (<-≤-trans j (succ n) (succ i)
-                                        (⊏-gives-< j (succ n) j⊏sn)
-                                        (not-less-bigger-or-equal
-                                          n i ¬i<n))
-                                      i⊏u))
-                  ∙ not-⊏-is-⊒ {i} {n ↑}
-                      (λ i⊏n → ¬i<n (⊏-gives-< i n i⊏n)) ⁻¹)
-... | inr ¬n≼u
- = ≺-trans u (n ↑) (succ n ↑)
-     (≼-antisym-conv u n ¬n≼u)
-     (n , refl , (<-gives-⊏ n (succ n) (<-succ n)))
-
-apart-closeness : (Y : PseudoClosenessSpace 𝓥)
-                → (n : ℕ)
-                → (x y : ⟪ Y ⟫)
-                → ¬ C' Y n x y
-                → let c = pr₁ (pr₂ Y) in
-                  c x y ≺ (n ↑)
-apart-closeness Y n x y ¬Cnxy
- = ≼-antisym-conv (pr₁ (pr₂ Y) x y) n ¬Cnxy
-
 oracle-closeness' : (Y : PseudoClosenessSpace 𝓥)
                   → (𝓞 : ⟪ Y ⟫)
                   → (ϵ : ℕ)
@@ -145,32 +110,34 @@ oracle-closeness' : (Y : PseudoClosenessSpace 𝓥)
                     (y₁ y₂ : ⟪ Y ⟫)
                   → C' Y ϵ y₁ y₂
                   → C' (ι ℕ∞-ClosenessSpace) ϵ (c 𝓞 y₁) (c 𝓞 y₂)
-oracle-closeness' Y 𝓞 ϵ y₁ y₂ Cϵy₁y₂ n n⊏ϵ
+oracle-closeness' (_ , c , _ , c-sym , c-ult) 𝓞 ϵ y₁ y₂ Cϵy₁y₂ n n⊏ϵ
  = decidable-𝟚₁ (∼ⁿ-decidable (λ _ → 𝟚-is-discrete) _ _ (succ n))
        (λ k k<sn → C𝓞-eq k
-                     (<-≤-trans k (succ n) ϵ k<sn (⊏-gives-< n ϵ n⊏ϵ)))
+                     (<-≤-trans k (succ n) ϵ k<sn (⊏-gives-< n ϵ n⊏ϵ))
+                     (𝟚-possibilities (pr₁ (c 𝓞 y₁) k))
+                     (𝟚-possibilities (pr₁ (c 𝓞 y₂) k)))
    where
-    c = pr₁ (pr₂ Y)
-    c-sym = pr₁ (pr₂ (pr₂ (pr₂ Y)))
-    c-ult = pr₂ (pr₂ (pr₂ (pr₂ Y)))
-    C𝓞-eq : (pr₁ (c 𝓞 y₁) ∼ⁿ pr₁ (c 𝓞 y₂)) ϵ
-    C𝓞-eq n n<ϵ with 𝟚-possibilities (pr₁ (c 𝓞 y₁) n)
-                   | 𝟚-possibilities (pr₁ (c 𝓞 y₂) n)
-    ... | inl c𝓞y₁＝₀ | inl c𝓞y₂＝₀ = c𝓞y₁＝₀ ∙ c𝓞y₂＝₀ ⁻¹
-    ... | inl c𝓞y₁＝₀ | inr c𝓞y₂＝₁
+    C𝓞-eq : (n : ℕ) → n < ϵ
+          → let c𝓞y₁n = pr₁ (c 𝓞 y₁) n in
+            let c𝓞y₂n = pr₁ (c 𝓞 y₂) n in
+            (c𝓞y₁n ＝ ₀) + (c𝓞y₁n ＝ ₁)
+          → (c𝓞y₂n ＝ ₀) + (c𝓞y₂n ＝ ₁)
+          → c𝓞y₁n ＝ c𝓞y₂n
+    C𝓞-eq n n<ϵ (inl c𝓞y₁＝₀) (inl c𝓞y₂＝₀) = c𝓞y₁＝₀ ∙ c𝓞y₂＝₀ ⁻¹
+    C𝓞-eq n n<ϵ (inl c𝓞y₁＝₀) (inr c𝓞y₂＝₁)
      = 𝟘-elim (zero-is-not-one
-     (c𝓞y₁＝₀ ⁻¹
-     ∙ c-ult 𝓞 y₂ y₁ n
-         (Lemma[a＝₁→b＝₁→min𝟚ab＝₁] c𝓞y₂＝₁
-           (ap (λ - → pr₁ - n) (c-sym y₂ y₁)
-            ∙ Cϵy₁y₂ n (<-gives-⊏ n ϵ n<ϵ)))))
-    ... | inr c𝓞y₁＝₁ | inl c𝓞y₂＝₀
+         (c𝓞y₁＝₀ ⁻¹
+         ∙ c-ult 𝓞 y₂ y₁ n
+           (Lemma[a＝₁→b＝₁→min𝟚ab＝₁] c𝓞y₂＝₁
+             (ap (λ - → pr₁ - n) (c-sym y₂ y₁)
+             ∙ Cϵy₁y₂ n (<-gives-⊏ n ϵ n<ϵ)))))
+    C𝓞-eq n n<ϵ (inr c𝓞y₁＝₁) (inl c𝓞y₂＝₀)
      = 𝟘-elim (zero-is-not-one
-     (c𝓞y₂＝₀ ⁻¹
-     ∙ c-ult 𝓞 y₁ y₂ n
-         (Lemma[a＝₁→b＝₁→min𝟚ab＝₁] c𝓞y₁＝₁
-           (Cϵy₁y₂ n (<-gives-⊏ n ϵ n<ϵ))))) 
-    ... | inr c𝓞y₁＝₁ | inr c𝓞y₂＝₁ = c𝓞y₁＝₁ ∙ c𝓞y₂＝₁ ⁻¹
+         (c𝓞y₂＝₀ ⁻¹
+         ∙ c-ult 𝓞 y₁ y₂ n
+           (Lemma[a＝₁→b＝₁→min𝟚ab＝₁] c𝓞y₁＝₁
+             (Cϵy₁y₂ n (<-gives-⊏ n ϵ n<ϵ))))) 
+    C𝓞-eq n n<ϵ (inr c𝓞y₁＝₁) (inr c𝓞y₂＝₁) = c𝓞y₁＝₁ ∙ c𝓞y₂＝₁ ⁻¹
   
 oracle-closeness : (Y : PseudoClosenessSpace 𝓥)
              → (𝓞 : ⟪ Y ⟫)

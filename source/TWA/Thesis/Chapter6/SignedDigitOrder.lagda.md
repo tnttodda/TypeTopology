@@ -144,10 +144,10 @@ module RealPresOrder-Relates
  open ApproxOrder-Relates pt
 
  ≤ⁿ𝟛ᴺ-relates→ : _≤ⁿ𝟛ᴺ_ relates-to→ _≤𝟛ᴺ_
- ≤ⁿ𝟛ᴺ-relates→ x y f = ∣ 0 , (λ x _ → f x) ∣
+ ≤ⁿ𝟛ᴺ-relates→ x y f = ∣ (0 , λ x _ → f x) ∣
 
  ≤ⁿ𝟛ᴺ-relates← : _≤ⁿ𝟛ᴺ_ relates-to← _≤𝟛ᴺ_
- ≤ⁿ𝟛ᴺ-relates← x y = ∥∥-rec ∃-is-prop ∣_∣
+ ≤ⁿ𝟛ᴺ-relates← x y = id
 
  ≤ⁿ𝟛ᴺ-relates : approx-order-relates
                  𝟛ᴺ-ClosenessSpace

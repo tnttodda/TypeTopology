@@ -134,9 +134,11 @@ discrete-apart-implies-closeness-0
  → (x y : X)
  → x ≠ y
  → c⟨ D-ClosenessSpace d ⟩ x y ＝ 0 ↑
-discrete-apart-implies-closeness-0 d x y f with d x y
-... | inl e = 𝟘-elim (f e)
-... | inr _ = refl
+discrete-apart-implies-closeness-0 d x y f = γ (d x y)
+ where
+  γ : (dxy : is-decidable (x ＝ y)) → discrete-clofun'' x y dxy ＝ Zero 
+  γ (inl e) = 𝟘-elim (f e)
+  γ (inr _) = refl
 
 discrete-closeness-succ-implies-equal
  : {X : 𝓤 ̇ }
@@ -146,11 +148,13 @@ discrete-closeness-succ-implies-equal
  → C (D-ClosenessSpace d) (succ n) x y
  → x ＝ y
 discrete-closeness-succ-implies-equal d x y n Csnxy
- with d x y
-... | inl e = e
-... | inr f
- = 𝟘-elim (zero-is-not-one
-     (Csnxy n (<-gives-⊏ n (succ n) (<-succ n))))
+ = γ (d x y) (Csnxy n (<-gives-⊏ n (succ n) (<-succ n)))
+ where
+  γ : (dxy : is-decidable (x ＝ y))
+    → pr₁ (discrete-clofun'' x y dxy) n ＝ ₁
+    → x ＝ y
+  γ (inl e) _ = e
+  γ (inr f) cxyₙ=₁ = 𝟘-elim (zero-is-not-one cxyₙ=₁)
 ```
 
 ## Disjoint union of closeness spaces
@@ -588,27 +592,26 @@ decidable-𝟚 : {X : 𝓤 ̇ } → is-decidable X → 𝟚
 decidable-𝟚 (inl _) = ₁
 decidable-𝟚 (inr _) = ₀
 
-decidable-𝟚₁ : {X : 𝓤 ̇ } → (d : is-decidable X)
-             → X → decidable-𝟚 d ＝ ₁
+decidable-𝟚₁ : {X : 𝓤 ̇ } (d : is-decidable X)
+             → X
+             → decidable-𝟚 d ＝ ₁
 decidable-𝟚₁ (inl  x) _ = refl
 decidable-𝟚₁ (inr ¬x) x = 𝟘-elim (¬x x)
 
-decidable-𝟚₀ : {X : 𝓤 ̇ } → (d : is-decidable X)
-             → ¬ X → decidable-𝟚 d ＝ ₀
+decidable-𝟚₀ : {X : 𝓤 ̇ } (d : is-decidable X)
+             → ¬ X
+             → decidable-𝟚 d ＝ ₀
 decidable-𝟚₀ (inl  x) ¬x = 𝟘-elim (¬x x)
 decidable-𝟚₀ (inr ¬x)  _ = refl
 
-𝟚-decidable₁ : {X : 𝓤 ̇ } → (d : is-decidable X)
+𝟚-decidable₁ : {X : 𝓤 ̇ } (d : is-decidable X)
              → decidable-𝟚 d ＝ ₁ → X
-𝟚-decidable₁ d e with d
-... | inl  x = x
-... | inr ¬x = 𝟘-elim (zero-is-not-one e)
+𝟚-decidable₁ (inl x) _ = x
 
-𝟚-decidable₀ : {X : 𝓤 ̇ } → (d : is-decidable X)
-             → decidable-𝟚 d ＝ ₀ → ¬ X
-𝟚-decidable₀ d e with d
-... | inl  x = 𝟘-elim (zero-is-not-one (e ⁻¹))
-... | inr ¬x = ¬x
+𝟚-decidable₀ : {X : 𝓤 ̇ } (d : is-decidable X)
+             → decidable-𝟚 d ＝ ₀
+             → ¬ X
+𝟚-decidable₀ (inr ¬x) _ = ¬x
 
 decidable-seq-𝟚 : {X : ℕ → 𝓤 ̇ } → is-complemented X → (ℕ → 𝟚)
 decidable-seq-𝟚 d n = decidable-𝟚 (d (succ n))
@@ -644,13 +647,15 @@ discrete-seq-clofun'-s
  → (n : ℕ)
  → discrete-seq-clofun' d α β n ＝ discrete-seq-clofun' d β α n
 discrete-seq-clofun'-s d α β n
- with ∼ⁿ-decidable d α β (succ n)
-... | inl  α∼ⁿβ
- = decidable-𝟚₁ (∼ⁿ-decidable d β α (succ n))
-     (λ i i<n → α∼ⁿβ i i<n ⁻¹) ⁻¹
-... | inr ¬α∼ⁿβ
- = decidable-𝟚₀ (∼ⁿ-decidable d β α (succ n))
-     (λ α∼ⁿβ → ¬α∼ⁿβ (λ i i<n → α∼ⁿβ i i<n ⁻¹)) ⁻¹
+ = γ (∼ⁿ-decidable d α β (succ n)) (∼ⁿ-decidable d β α (succ n))
+ where
+  γ : (dαβ : is-decidable ((α ∼ⁿ β) (succ n)))
+    → (dβα : is-decidable ((β ∼ⁿ α) (succ n)))
+    → decidable-𝟚 dαβ ＝ decidable-𝟚 dβα
+  γ (inl _) (inl _) = refl
+  γ (inr _) (inr _) = refl
+  γ (inl f) (inr g) = 𝟘-elim (g (∼ⁿ-sym α β (succ n) f))
+  γ (inr f) (inl g) = 𝟘-elim (f (∼ⁿ-sym β α (succ n) g))
 
 discrete-seq-clofun'-u
  : {X : ℕ → 𝓤 ̇ }
@@ -660,13 +665,19 @@ discrete-seq-clofun'-u
  → min𝟚 (discrete-seq-clofun' d α β n)
         (discrete-seq-clofun' d β ζ n) ＝ ₁
  → discrete-seq-clofun' d α ζ n ＝ ₁
-discrete-seq-clofun'-u d α β ζ n minₙ=1
- with ∼ⁿ-decidable d α β (succ n)
-    | ∼ⁿ-decidable d β ζ (succ n)
-    | ∼ⁿ-decidable d α ζ (succ n)
-... |        _ |        _ | inl     _ = refl
-... | inl α∼ⁿβ | inl β∼ⁿζ | inr ¬α∼ⁿζ
- = 𝟘-elim (¬α∼ⁿζ (λ i i<n → α∼ⁿβ i i<n ∙ β∼ⁿζ i i<n))
+discrete-seq-clofun'-u d α β ζ n
+ = γ (∼ⁿ-decidable d α β (succ n))
+     (∼ⁿ-decidable d β ζ (succ n))
+     (∼ⁿ-decidable d α ζ (succ n))
+ where
+  γ : (dαβ : is-decidable ((α ∼ⁿ β) (succ n)))
+    → (dβζ : is-decidable ((β ∼ⁿ ζ) (succ n)))
+    → (dαζ : is-decidable ((α ∼ⁿ ζ) (succ n)))
+    → min𝟚 (decidable-𝟚 dαβ) (decidable-𝟚 dβζ) ＝ ₁
+    → decidable-𝟚 dαζ ＝ ₁
+  γ _          _          (inl _) _ = refl
+  γ (inl α∼ⁿβ) (inl β∼ⁿζ) (inr ¬α∼ⁿζ) m
+   = 𝟘-elim (¬α∼ⁿζ (λ i i<n → α∼ⁿβ i i<n ∙ β∼ⁿζ i i<n))
 
 ∼ⁿ-decidable-𝟚-decreasing
  : {X : ℕ → 𝓤 ̇ }
@@ -674,13 +685,20 @@ discrete-seq-clofun'-u d α β ζ n minₙ=1
  → (α β : Π X)
  → is-decreasing (discrete-seq-clofun' d α β)
 ∼ⁿ-decidable-𝟚-decreasing d α β n
- with ∼ⁿ-decidable d α β (succ n)
-    | ∼ⁿ-decidable d α β (succ (succ n))
-... | inl     _ |          _ = ₁-top
-... | inr ¬α∼ⁿβ | inl  α∼ˢⁿβ
- = ¬α∼ⁿβ (λ i i≤n → α∼ˢⁿβ i (≤-trans i n (succ n)
-                      i≤n (≤-succ n)))
-... | inr     _ | inr      _ = ⋆
+ = ≤₂-criterion (γ (∼ⁿ-decidable d α β (succ n))
+                   (∼ⁿ-decidable d α β (succ (succ n))))
+ where
+  γ : (dαβₛₙ  : is-decidable ((α ∼ⁿ β) (succ n)))
+    → (dαβₛₛₙ : is-decidable ((α ∼ⁿ β) (succ (succ n))))
+    → decidable-𝟚 dαβₛₛₙ ＝ ₁
+    → decidable-𝟚 dαβₛₙ ＝ ₁
+  γ (inl _) (inl _) _ = refl
+  γ (inl _) (inr _) _ = refl
+  γ (inr ¬α∼ˢⁿβ) (inl α∼ˢˢⁿβ) _
+   = (𝟘-elim ∘ ¬α∼ˢⁿβ)
+       (λ i i<sn → α∼ˢˢⁿβ i
+         (<-trans i (succ n) (succ (succ n)) i<sn
+           (<-succ (succ n))))
 
 discrete-seq-clofun
  : {X : ℕ → 𝓤 ̇ }
@@ -987,37 +1005,44 @@ Lemma[min𝟚abcd＝₁→min𝟚bd＝₁] ₁ ₁ ₁ ₁ e = refl
               → (x y : Π T)
               → discrete-seq-clofun' d x y
               ∼ Π-clofun' (λ n → D-ClosenessSpace (d n)) x y
-Π-clofuns-id' d x y 0 with d 0 (x 0) (y 0)
-... | inl _ = refl
-... | inr _ = refl
+Π-clofuns-id' d x y 0 = γ (∼ⁿ-decidable d x y 1) (d 0 (x 0) (y 0))
+ where
+  γ : (dx∼¹y : is-decidable ((x ∼ⁿ y) 1))
+    → (dxy₀ : is-decidable (x 0 ＝ y 0))
+    → decidable-𝟚 dx∼¹y ＝ pr₁ (discrete-clofun'' (x 0) (y 0) dxy₀) 0
+  γ (inl _) (inl _) = refl
+  γ (inr _) (inr _) = refl
+  γ (inl  x∼¹y) (inr x₀≠y₀) = 𝟘-elim (x₀≠y₀ (x∼¹y 0 ⋆))
+  γ (inr ¬x∼¹y) (inl x₀=y₀) = 𝟘-elim (¬x∼¹y γ')
+   where
+    γ' : (x ∼ⁿ y) 1
+    γ' 0 ⋆ = x₀=y₀
 Π-clofuns-id' d x y (succ i)
- with ∼ⁿ-decidable d x y (succ (succ i))
-... | inl z
-   = Lemma[a＝₁→b＝₁→min𝟚ab＝₁]
-       (closeness-∞-implies-ϵ-close (D-ClosenessSpace (d 0))
-          (x 0) (y 0)
-          (identical-implies-closeness-∞ (D-ClosenessSpace (d 0))
-            (x 0) (y 0) (z 0 ⋆))
-          (succ (succ i)) (succ i)
-          (<-gives-⊏ (succ i) (succ (succ i)) (<-succ (succ i))))
-       (Π-clofuns-id' (d ∘ succ) (x ∘ succ) (y ∘ succ) i ⁻¹
-       ∙ decidable-𝟚₁ (∼ⁿ-decidable (d ∘ succ) _ _ _) (z ∘ succ))  ⁻¹
-... | inr z
- = Cases (d 0 (x 0) (y 0))
-     (λ e → Lemma[min𝟚ab＝₀] (inr
-              (Π-clofuns-id' (d ∘ succ) (x ∘ succ) (y ∘ succ) i ⁻¹
-                ∙ decidable-𝟚₀ (∼ⁿ-decidable (d ∘ succ) _ _ _)
-                    (λ g → z (γ e g)))))
-     (λ f → Lemma[min𝟚ab＝₀]
-              (inl (ap (λ - → pr₁ - (succ i))
-                (discrete-apart-implies-closeness-0
-                  (d 0) (x 0) (y 0) f)))) ⁻¹
-  where
-   γ : x 0 ＝ y 0
+ = γ (∼ⁿ-decidable d x y (succ (succ i))) (d 0 (x 0) (y 0))
+ where
+  γ' : x 0 ＝ y 0
      → ((x ∘ succ) ∼ⁿ (y ∘ succ)) (succ i)
      → (x ∼ⁿ y) (succ (succ i))
-   γ e g 0 j<ssi = e
-   γ e g (succ j) j<ssi = g j j<ssi
+  γ' x₀=y₀ tx∼ˢⁱty 0 _ = x₀=y₀
+  γ' x₀=y₀ tx∼ˢⁱty (succ j) = tx∼ˢⁱty j
+  γ : (dx∼ˢˢⁱy : is-decidable ((x ∼ⁿ y) (succ (succ i))))
+    → (dxy₀ : is-decidable (x 0 ＝ y 0))
+    → decidable-𝟚 dx∼ˢˢⁱy
+    ＝ min𝟚 (pr₁ (discrete-clofun'' (x 0) (y 0) dxy₀) (succ i))
+           (Π-clofun' (λ n → D-ClosenessSpace (d (succ n)))
+             (x ∘ succ) (y ∘ succ) i)
+  γ (inl  x∼ˢˢⁱy) (inl _)
+   = Lemma[a＝₁→b＝₁→min𝟚ab＝₁] refl
+       (Π-clofuns-id' (d ∘ succ) (x ∘ succ) (y ∘ succ) i ⁻¹
+       ∙ decidable-𝟚₁ (∼ⁿ-decidable (d ∘ succ) _ _ _)
+           (x∼ˢˢⁱy ∘ succ))  ⁻¹
+  γ (inl  x∼ˢˢⁱy) (inr x₀≠y₀) = 𝟘-elim (x₀≠y₀ (x∼ˢˢⁱy 0 ⋆))
+  γ (inr ¬x∼ˢˢⁱy) (inl x₀=y₀)
+   = Lemma[min𝟚ab＝₀]
+        (inr (Π-clofuns-id' (d ∘ succ) (x ∘ succ) (y ∘ succ) i ⁻¹
+             ∙ decidable-𝟚₀ (∼ⁿ-decidable (d ∘ succ) _ _ _)
+                 (λ tx∼ˢⁱty → ¬x∼ˢˢⁱy (γ' x₀=y₀ tx∼ˢⁱty)))) ⁻¹
+  γ (inr ¬x∼ˢˢⁱy) (inr x₀≠y₀) = refl
 
 Π-clofuns-id
  : {T : ℕ → 𝓤 ̇ }

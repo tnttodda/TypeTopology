@@ -3,7 +3,6 @@
 # Examples of uniformly continuous searchable closeness spaces
 
 ```agda
-
 {-# OPTIONS --without-K --exact-split --safe #-}
 
 open import MLTT.Spartan
@@ -48,7 +47,7 @@ finite-csearchable X f x
               → csearchable 𝓦 Y
               → csearchable 𝓦 (+-ClosenessSpace X Y)
 +-csearchable {𝓤} {𝓥} {𝓦} X Y Sx Sy ((p , d) , δ , ϕ)
- = xy₀ , γ
+ = xy₀ (d (inl x₀)) , γ (d (inl x₀))
  where
   px : decidable-uc-predicate 𝓦 X
   px = (p ∘ inl , d ∘ inl) , δ , λ x₁ x₂ → ϕ (inl x₁) (inl x₂)
@@ -56,23 +55,21 @@ finite-csearchable X f x
   py = (p ∘ inr , d ∘ inr) , δ , λ x₁ x₂ → ϕ (inr x₁) (inr x₂)
   x₀ : ⟨ X ⟩
   x₀ = pr₁ (Sx px)
-  γx : (Σ x ꞉ ⟨ X ⟩ , (p (inl x) holds))    → p (inl x₀) holds
+  γx : (Σ x ꞉ ⟨ X ⟩ , (p (inl x) holds)) → p (inl x₀) holds
   γx = pr₂ (Sx px)
   y₀ : ⟨ Y ⟩
   y₀ = pr₁ (Sy py)
-  γy : (Σ y ꞉ ⟨ Y ⟩ , (p (inr y) holds))    → p (inr y₀) holds
+  γy : (Σ y ꞉ ⟨ Y ⟩ , (p (inr y) holds)) → p (inr y₀) holds
   γy = pr₂ (Sy py)
-  xy₀ : ⟨ X ⟩ + ⟨ Y ⟩
-  xy₀ with d (inl x₀)
-  ... | inl _ = inl x₀
-  ... | inr _ = inr y₀
-  γ : (Σ xy ꞉ ⟨ X ⟩ + ⟨ Y ⟩ , (p xy holds)) → p xy₀ holds
-  γ (inl x , px) with d (inl x₀)
-  ... | inl  px₀ = px₀
-  ... | inr ¬px₀ = (𝟘-elim ∘ ¬px₀) (γx (x , px))
-  γ (inr y , py) with d (inl x₀)
-  ... | inl  px₀ = px₀
-  ... | inr ¬px₀ = γy (y , py)
+  xy₀ : is-decidable (p (inl x₀) holds) → ⟨ X ⟩ + ⟨ Y ⟩ 
+  xy₀ (inl _) = inl x₀
+  xy₀ (inr _) = inr y₀
+  γ : (dpx₀ : is-decidable (p (inl x₀) holds))
+    → ((_ , pxy) : Σ xy ꞉ ⟨ X ⟩ + ⟨ Y ⟩ , p xy holds)
+    → p (xy₀ dpx₀) holds
+  γ (inl  px₀) _ = px₀
+  γ (inr ¬px₀) (inl x , px) = 𝟘-elim (¬px₀ (γx (x , px)))
+  γ (inr ¬px₀) (inr y , py) = γy (y , py)
 ```
 
 ## Binary product of uniformly continuously searchable spaces

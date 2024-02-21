@@ -49,73 +49,100 @@ are denoted ℤ[1/2].
 1/2ℤ[1/2] = (pos 1 , 1) , inr (positive-not-zero 0 , ⋆)
 
 normalise-pos normalise-neg : ℤ → ℕ → ℤ[1/2]
-normalise-pos z 0        = (z , 0) , inl refl
-normalise-pos z (succ n) with even-or-odd? z
-... | inl e = normalise-pos (z /2') n
-... | inr o = (z , succ n) , inr (positive-not-zero n , o)
+
+normalise-pos-oe : (z : ℤ) → ℕ → even z + odd z → ℤ[1/2]
+normalise-pos-oe z 0 _              = (z ,      0) , inl refl
+normalise-pos-oe z (succ n) (inl e) = normalise-pos (z /2') n
+normalise-pos-oe z (succ n) (inr o) = (z , succ n)
+                                    , inr (positive-not-zero n , o)
+
+normalise-pos z n = normalise-pos-oe z n (even-or-odd? z)
 normalise-neg z 0        = (z +ℤ z , 0) , inl refl
 normalise-neg z (succ n) = normalise-neg (z +ℤ z) n
 
-normalise-pos' : (x : ℤ) → (a : ℕ)
-               → let ((k , δ) , p) = normalise-pos x a in
-                 Σ m ꞉ ℕ , ((pos (2^ m) ℤ* k , δ +ℕ m) ＝ x , a)
-normalise-pos' x 0 = 0 , to-×-＝ (ℤ-mult-left-id x) refl
-normalise-pos' x (succ a) with even-or-odd? x
-... | inr odd-k = 0 , (to-×-＝ (ℤ-mult-left-id x) refl)
-... | inl even-k with normalise-pos' (x /2') a
-... | (m , e) with from-×-＝' e
-... | (e₁ , e₂)
- = succ m
- , let (k , δ) , p = normalise-pos (x /2') a in
-   to-×-＝' (
-     (pos (2^ (succ m)) ℤ* k
-       ＝⟨ refl ⟩
-     pos (2 ℕ* 2^ m) ℤ* k
-       ＝⟨ ap (_ℤ* k) (pos-multiplication-equiv-to-ℕ 2 (2^ m) ⁻¹) ⟩
-     pos 2 ℤ* pos (2^ m) ℤ* k
-       ＝⟨ ℤ*-assoc (pos 2) (pos (2^ m)) k ⟩
-     pos 2 ℤ* (pos (2^ m) ℤ* k)
-       ＝⟨ ap (pos 2 ℤ*_) e₁ ⟩
-     pos 2 ℤ* (x /2')
-       ＝⟨ ℤ*-comm (pos 2) (x /2') ⟩
-     (x /2') ℤ* pos 2
-       ＝⟨ even-lemma x even-k ⟩ 
-     x ∎)
-    , ap succ e₂
-   )
+normalise-pos' : (z : ℤ) (n : ℕ)
+               → (oe : even z + odd z)
+               → let ((k , δ) , p) = normalise-pos-oe z n oe in
+                 Σ m ꞉ ℕ , ((pos (2^ m) ℤ* k , δ +ℕ m) ＝ z , n)
+normalise-pos' z 0 oe
+ = 0 , to-×-＝ (ℤ-mult-left-id z) refl
+normalise-pos' z (succ n) (inl e)
+ = succ m , to-×-＝ γ (ap succ e₂)
+ where
+  kδ = normalise-pos-oe (z /2') n (even-or-odd? (z /2'))
+  k : ℤ
+  k = pr₁ (pr₁ kδ)
+  δ : ℕ
+  δ = pr₂ (pr₁ kδ)
+  IH = normalise-pos' (z /2') n (even-or-odd? (z /2'))
+  m : ℕ
+  m = pr₁ IH
+  q : pos (2^ m) ℤ* k , δ +ℕ m ＝ (z /2') , n
+  q = pr₂ IH
+  e₁ : pos (2^ m) ℤ* k ＝ (z /2')
+  e₁ = pr₁ (from-×-＝' q)
+  e₂ : δ +ℕ m ＝ n
+  e₂ = pr₂ (from-×-＝' q)
+  γ : pos (2^ (succ m)) ℤ* k ＝ z
+  γ = pos (2^ (succ m)) ℤ* k
+    ＝⟨ refl ⟩
+      pos (2 ℕ* 2^ m) ℤ* k
+    ＝⟨ ap (_ℤ* k) (pos-multiplication-equiv-to-ℕ 2 (2^ m) ⁻¹) ⟩
+      pos 2 ℤ* pos (2^ m) ℤ* k
+    ＝⟨ ℤ*-assoc (pos 2) (pos (2^ m)) k ⟩
+      pos 2 ℤ* (pos (2^ m) ℤ* k)
+    ＝⟨ ap (pos 2 ℤ*_) e₁ ⟩
+      pos 2 ℤ* (z /2')
+    ＝⟨ ℤ*-comm (pos 2) (z /2') ⟩
+      (z /2') ℤ* pos 2
+    ＝⟨ even-lemma z e ⟩ 
+      z ∎
+normalise-pos' z (succ n) (inr o) = 0 , to-×-＝ (ℤ-mult-left-id z) refl
 
 normalise : ℤ × ℤ → ℤ[1/2]
 normalise (k , pos     n) = normalise-pos k n
 normalise (k , negsucc n) = normalise-neg k n
 
-normalise-neg' : (x : ℤ) (a : ℕ)
-               → let ((k , δ) , p) = normalise-neg x a in
-                 (k , δ) ＝ pos (2^ (succ a)) ℤ* x , 0
-normalise-neg' x 0        = to-×-＝ (ℤ*-comm x (pos 2)) refl
-normalise-neg' x (succ a) with from-×-＝' (normalise-neg' (x +ℤ x) a)
-... | e₁ , e₂ = to-×-＝ I e₂
+normalise-neg' : (z : ℤ) (n : ℕ)
+               → let ((k , δ) , p) = normalise-neg z n in
+                 (k , δ) ＝ pos (2^ (succ n)) ℤ* z , 0
+normalise-neg' z 0        = to-×-＝ (ℤ*-comm z (pos 2)) refl
+normalise-neg' z (succ n) = to-×-＝ I e₂
  where
-  I : pr₁ (pr₁ (normalise-neg (x +ℤ x) a)) ＝ pos (2^ (succ (succ a))) ℤ* x
-  I = pr₁ (pr₁ (normalise-neg (x +ℤ x) a))
-        ＝⟨ e₁ ⟩
-      pos (2^ (succ a)) ℤ* (x ℤ* pos 2)
-        ＝⟨ ap (pos (2^ (succ a)) ℤ*_) (ℤ*-comm x (pos 2)) ⟩
-      pos (2^ (succ a)) ℤ* (pos 2 ℤ* x)
-        ＝⟨ ℤ*-assoc (pos (2^ (succ a))) (pos 2) x ⁻¹ ⟩
-      pos (2^ (succ a)) ℤ* pos 2 ℤ* x
-        ＝⟨ ap (_ℤ* x) (pos-multiplication-equiv-to-ℕ (2^ (succ a)) 2) ⟩
-      pos (2^ (succ a) ℕ* 2) ℤ* x
-        ＝⟨ ap (λ z → pos z ℤ* x) (mult-commutativity (2^ (succ a)) 2) ⟩
-      pos (2^ (succ (succ a))) ℤ* x ∎
+  kδ = normalise-neg (z +ℤ z) n
+  k : ℤ
+  k = pr₁ (pr₁ kδ)
+  δ : ℕ
+  δ = pr₂ (pr₁ kδ)
+  e₁ : k ＝ pos (2^ (succ n)) ℤ* (z +ℤ z)
+  e₁ = pr₁ (from-×-＝' (normalise-neg' (z +ℤ z) n))
+  e₂ : δ ＝ 0
+  e₂ = pr₂ (from-×-＝' (normalise-neg' (z +ℤ z) n))
+  I : k ＝ pos (2^ (succ (succ n))) ℤ* z
+  I = k
+    ＝⟨ e₁ ⟩
+      pos (2^ (succ n)) ℤ* (z ℤ* pos 2)
+    ＝⟨ ap (pos (2^ (succ n)) ℤ*_) (ℤ*-comm z (pos 2)) ⟩
+      pos (2^ (succ n)) ℤ* (pos 2 ℤ* z)
+    ＝⟨ ℤ*-assoc (pos (2^ (succ n))) (pos 2) z ⁻¹ ⟩
+      pos (2^ (succ n)) ℤ* pos 2 ℤ* z
+    ＝⟨ ap (_ℤ* z) (pos-multiplication-equiv-to-ℕ (2^ (succ n)) 2) ⟩
+      pos (2^ (succ n) ℕ* 2) ℤ* z
+    ＝⟨ ap (λ n → pos n ℤ* z) (mult-commutativity (2^ (succ n)) 2) ⟩
+      pos (2^ (succ (succ n))) ℤ* z ∎
 
 lowest-terms-normalised : FunExt → (((k , δ) , p) : ℤ[1/2])
                         → normalise-pos k δ ＝ ((k , δ) , p)
 lowest-terms-normalised fe ((k , .0) , inl refl) = refl
-lowest-terms-normalised fe ((k , zero) , inr (δnz , k-odd)) = 𝟘-elim (δnz refl)
-lowest-terms-normalised fe ((k , succ δ) , inr (δnz , k-odd))
- with even-or-odd? k
-... | inl k-even = 𝟘-elim (k-even k-odd)
-... | inr k-odd = to-subtype-＝ (λ (z , n) → ℤ[1/2]-cond-is-prop fe z n) refl
+lowest-terms-normalised fe ((k , zero) , inr (δnz , o)) = 𝟘-elim (δnz refl)
+lowest-terms-normalised fe ((k , succ δ) , inr (δnz , o))
+ = γ (even-or-odd? k)
+ where
+  γ : (oe : even k + odd k)
+    → normalise-pos-oe k (succ δ) oe ＝ (k , succ δ) , inr (δnz , o)
+  γ (inl e) = 𝟘-elim (e o)
+  γ (inr o)
+   = to-subtype-＝ (λ (z , n) → ℤ[1/2]-cond-is-prop fe z n) refl
 
 normalise-pos-lemma₁ : FunExt → (k : ℤ) (δ : ℕ)
                      → (p : (δ ＝ 0) + ((δ ≠ 0) × odd k))

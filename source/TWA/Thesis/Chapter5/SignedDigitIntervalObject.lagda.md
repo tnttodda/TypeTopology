@@ -3,6 +3,8 @@
 # Verification of signed-digit operations
 
 ```agda
+{-# OPTIONS --without-K --exact-split --safe #-}
+
 open import MLTT.Spartan
 open import UF.FunExt
 open import Naturals.Addition renaming (_+_ to _+ℕ_)
