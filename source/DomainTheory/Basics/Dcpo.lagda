@@ -29,7 +29,7 @@ open PropositionalTruncation pt
 open import UF.Subsingletons
 open import UF.Subsingletons-FunExt
 
-open import Posets.Poset fe
+open import OrderedTypes.Poset fe
 
 module _ {𝓤 𝓣 : Universe}
          {D : 𝓤 ̇ }
@@ -225,6 +225,9 @@ z = transitivity 𝓓 a c d z' w
 
  syntax reflexivity 𝓓 x = x ∎⟨ 𝓓 ⟩
  infix 1 reflexivity
+
+ has-bottom : DCPO → 𝓤 ⊔ 𝓣 ̇
+ has-bottom 𝓓 = has-least (underlying-order 𝓓)
 
 \end{code}
 

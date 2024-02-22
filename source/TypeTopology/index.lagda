@@ -6,7 +6,10 @@ Martin Escardo
 
 module TypeTopology.index where
 
+import TypeTopology.AbsolutenessOfCompactness
+import TypeTopology.AbsolutenessOfCompactnessExample
 import TypeTopology.ADecidableQuantificationOverTheNaturals
+import TypeTopology.CantorMinusPoint
 import TypeTopology.CantorSearch
 import TypeTopology.UniformSearch -- by Ayberk Tosun
 import TypeTopology.CompactTypes
